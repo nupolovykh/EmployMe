@@ -31,7 +31,7 @@ What lives **inside** the Dev Container vs. what runs **outside** it.
 Goal: working environment and data schema; nothing user-facing yet.
 
 - [ ] Repository, `LICENSE` (MIT), `.gitignore`, README skeleton
-- [ ] Dev Container: `devcontainer.json` + `Dockerfile` with .NET SDK, Node.js, Postgres+pgvector service, Ollama service, Claude Code feature; firewall allowlist extended for MCP domains if needed
+- [x] Dev Container: `devcontainer.json` + `Dockerfile` with .NET SDK, Node.js, Postgres+pgvector service, Ollama service, Claude Code feature; firewall allowlist extended for MCP domains if needed
 - [ ] Draft Postgres schema: `vacancies`, `sources`, `applications`, `embeddings`
 - [ ] GitHub Actions skeleton: build on push, same base image as the Dev Container
 - [ ] hh.ru API access registered
