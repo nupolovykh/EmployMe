@@ -18,6 +18,19 @@ iptables -t mangle -F
 iptables -t mangle -X
 ipset destroy allowed-domains 2>/dev/null || true
 
+# -F only clears rules, not chain policy. On first boot the kernel default
+# policy is ACCEPT, so the rebuild steps below (GitHub API fetch, per-domain
+# DNS resolution) run unrestricted as intended. But on a re-run against an
+# already-locked-down container, policy is still DROP from the previous run
+# -- and with no rules left after the flush, every new outbound connection,
+# including the ones this script itself needs to make to rebuild the
+# allowlist, gets dropped with no way to ever succeed. Reset to ACCEPT here
+# so re-runs behave like first boot; re-tightened to DROP at the end once
+# the allowlist is rebuilt.
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+
 # 2. Selectively restore ONLY internal Docker DNS resolution
 if [ -n "$DOCKER_DNS_RULES" ]; then
     echo "Restoring Docker DNS rules..."
@@ -41,12 +54,25 @@ iptables -A INPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 
+# Allow already-established connections immediately, before any of the
+# network calls below (GitHub API fetch, per-domain DNS resolution). On a
+# fresh container boot this is a no-op (chain policy defaults to ACCEPT
+# until set below). But on a re-run against an already-locked-down
+# container, the flush above removes this rule along with everything else
+# while the DROP policy from the previous run stays in effect on the chain
+# -- policies aren't touched by -F. Without this rule re-added immediately,
+# every in-flight connection (including the one running this script) has
+# its reply traffic silently dropped until the rule reappears ~90 lines and
+# several round-trips later, which looks like the container losing network.
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
 # Create ipset with CIDR support
 ipset create allowed-domains hash:net
 
 # Fetch GitHub meta information and aggregate + add their IP ranges
 echo "Fetching GitHub IP ranges..."
-gh_ranges=$(curl -s https://api.github.com/meta)
+gh_ranges=$(curl -s --retry 3 --retry-delay 2 --retry-connrefused --retry-all-errors https://api.github.com/meta)
 if [ -z "$gh_ranges" ]; then
     echo "ERROR: Failed to fetch GitHub IP ranges"
     exit 1
@@ -75,6 +101,7 @@ for domain in \
     "registry.npmjs.org" \
     "api.nuget.org" \
     "www.nuget.org" \
+    "builds.dotnet.microsoft.com" \
     "api.anthropic.com" \
     "sentry.io" \
     "statsig.com" \
@@ -124,9 +151,8 @@ iptables -P INPUT DROP
 iptables -P FORWARD DROP
 iptables -P OUTPUT DROP
 
-# First allow established connections for already approved traffic
-iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+# (established-connection accept rules were added earlier, right after
+# the flush, so in-flight connections survive a re-run -- see above)
 
 # Then allow only specific outbound traffic to allowed domains
 iptables -A OUTPUT -m set --match-set allowed-domains dst -j ACCEPT
@@ -144,7 +170,7 @@ else
 fi
 
 # Verify GitHub API access
-if ! curl --connect-timeout 5 https://api.github.com/zen >/dev/null 2>&1; then
+if ! curl --connect-timeout 5 --retry 3 --retry-delay 2 --retry-connrefused --retry-all-errors https://api.github.com/zen >/dev/null 2>&1; then
     echo "ERROR: Firewall verification failed - unable to reach https://api.github.com"
     exit 1
 else
