@@ -4,8 +4,8 @@
   "service": "app",
   "workspaceFolder": "/workspace",
   "features": {
-    "ghcr.io/devcontainers/features/dotnet:2": { "version": "8.0" },
-    "ghcr.io/devcontainers/features/node:2.1.0": { "version": "20" },
+    "ghcr.io/devcontainers/features/dotnet:2": { "version": "10.0" },
+    "ghcr.io/devcontainers/features/node:2": { "version": "24" },
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
   },
@@ -32,7 +32,11 @@
   },
   "remoteUser": "vscode",
   "containerEnv": {
-    "DISABLE_AUTOUPDATER": "1"
+    "DISABLE_AUTOUPDATER": "1",
+    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+    "CLAUDE_CODE_HOST_TOKEN": "${localEnv:CLAUDE_CODE_OAUTH_TOKEN}",
+    "GH_TOKEN": "${localEnv:GH_TOKEN}",
+    "VSCODE_DOTNET_RUNTIME_DISABLE_MUTEX": "true"
   },
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   "postStartCommand": "sudo bash .devcontainer/init-firewall.sh || true"
