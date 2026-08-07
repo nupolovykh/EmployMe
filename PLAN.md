@@ -30,12 +30,12 @@ What lives **inside** the Dev Container vs. what runs **outside** it.
 
 Goal: working environment and data schema; nothing user-facing yet.
 
-- [ ] Repository, `LICENSE` (MIT), `.gitignore`, README skeleton
+- [x] Repository, `LICENSE` (MIT), `.gitignore`, README skeleton
 - [x] Dev Container: `devcontainer.json` + `Dockerfile` with .NET SDK, Node.js, Postgres+pgvector service, Ollama service, Claude Code feature; firewall allowlist extended for MCP domains if needed
-- [ ] Draft Postgres schema: `vacancies`, `sources`, `applications`, `embeddings`
-- [ ] GitHub Actions skeleton: build on push, same base image as the Dev Container
-- [ ] hh.ru API access registered
-- [ ] Linear project set up, one issue per task below (this plan becomes the initial backlog)
+- [x] Draft Postgres schema: `vacancies`, `sources`, `applications`, `embeddings`
+- [x] GitHub Actions skeleton: build on push, same base image as the Dev Container
+- [x] hh.ru API access registered
+- [x] Linear project set up, one issue per task below (this plan becomes the initial backlog)
 
 **Exit criterion:** `devcontainer up` (or "Reopen in Container") brings up an empty API and database with no errors, and Claude Code runs inside it.
 
