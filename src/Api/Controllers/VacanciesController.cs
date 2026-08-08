@@ -11,6 +11,10 @@ public class VacanciesController(AppDbContext db) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<VacancyDto>>> GetVacancies(
+        string? keyword = null,
+        string? location = null,
+        DateTimeOffset? publishedAfter = null,
+        DateTimeOffset? publishedBefore = null,
         int page = 1,
         int pageSize = 20,
         CancellationToken cancellationToken = default)
@@ -18,8 +22,37 @@ public class VacanciesController(AppDbContext db) : ControllerBase
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
-        var vacancies = await db.Vacancies
-            .AsNoTracking()
+        var query = db.Vacancies.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            // No structured tech-stack field exists yet (that's Phase III's LLM
+            // extraction, EM-31) — free-text search over title/company/description
+            // is what "filter by stack" reduces to for now.
+            var pattern = $"%{keyword}%";
+            query = query.Where(v =>
+                EF.Functions.ILike(v.Title, pattern) ||
+                (v.Company != null && EF.Functions.ILike(v.Company, pattern)) ||
+                (v.Description != null && EF.Functions.ILike(v.Description, pattern)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(location))
+        {
+            var pattern = $"%{location}%";
+            query = query.Where(v => v.Location != null && EF.Functions.ILike(v.Location, pattern));
+        }
+
+        if (publishedAfter is not null)
+        {
+            query = query.Where(v => v.PublishedAt >= publishedAfter);
+        }
+
+        if (publishedBefore is not null)
+        {
+            query = query.Where(v => v.PublishedAt <= publishedBefore);
+        }
+
+        var vacancies = await query
             .OrderByDescending(v => v.PublishedAt ?? v.FetchedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
