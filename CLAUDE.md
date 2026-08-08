@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 EmployMe (working title) — a personal job vacancy aggregator that ingests postings from hh.ru, jobs.ge/headhunter.ge, and international remote boards, ranks them against the author's own CV via semantic embeddings, deduplicates cross-source postings, and tracks the application pipeline (viewed → applied → interview → rejected → offer). Built as a portfolio project that also drives the author's actual job search — see `README.md` for the pitch and `PLAN.md` for the phased roadmap and current status.
 
-**Current state:** repository is at Phase 0 (foundation), wrapping up. `src/Api` is scaffolded (ASP.NET Core Web API, EF Core, targets `net10.0` to match the Dev Container's SDK — see the note below if you see it targeting `net8.0` again) with a Postgres schema for `vacancies`/`sources`/`applications`/`embeddings` and an initial migration; `src/Web` does not exist yet (Phase I). Check `PLAN.md`'s checkboxes for what's actually been done before assuming a feature/service exists.
+**Current state:** Phase 0 is done; Phase I (MVP core discovery) is in progress. `src/Api` (ASP.NET Core Web API, EF Core, targets `net10.0` to match the Dev Container's SDK — see the note below if you see it targeting `net8.0` again) has the Postgres schema for `vacancies`/`sources`/`applications`/`embeddings`, a `VacanciesController` (`GET /api/vacancies` with keyword/location/date filters, `GET /api/vacancies/{id}`), an `IHhRuVacancyClient` (`src/Api/HhRu/`) for searching hh.ru, and a manual ingest endpoint (`POST /api/ingest/hh-ru`). `src/Web` is scaffolded (React + TS + Vite) with a basic vacancy list + filter form calling the API through the dev-server proxy — still Phase I. Not yet done: Railway deployment (EM-17). Check `PLAN.md`'s checkboxes for what's actually been done before assuming a feature/service exists.
 
 ## Intended architecture (per PLAN.md, not yet all implemented)
 
@@ -34,6 +34,7 @@ This project is developed inside a Dev Container (`.devcontainer/`) — do not a
 - Config: copy `.env.example` to `.env` (gitignored) and fill in `HH_CLIENT_ID`/`HH_CLIENT_SECRET` (from https://dev.hh.ru/), `SENTRY_DSN`, and connection strings. Defaults in `.env.example` target `localhost`; the `app` container instead gets `db`/`ollama` hostnames injected via `docker-compose.yml`'s `environment:` block.
 - **Keep every `.csproj`'s `TargetFramework` on `net10.0`, matching the SDK `devcontainer.json` provisions.** Only the .NET 10 SDK/runtime is installed (no `net8.0` runtime) — a project targeting `net8.0` builds fine (compiling only needs reference assemblies) but fails at `dotnet run` with "You must install or update .NET to run this application." `src/Api/Api.csproj` hit exactly this after being scaffolded before the SDK was bumped from 8 to 10; it's been retargeted and its EF Core/Npgsql/Swashbuckle packages bumped to versions that actually support `net10.0` (Swashbuckle 6.6.2 throws a `TypeLoadException` on `net10.0` — only a `dotnet run`, not `dotnet build`, surfaces that, so build success alone doesn't prove a package set is compatible).
 - **NuGet/npm/marketplace CDN domains in the firewall allowlist can be intermittently unreachable even though they're on the list.** `init-firewall.sh` resolves each domain to whatever IP(s) `dig` returns *once*, at container start, and allowlists only those. Domains like `api.nuget.org` are served by Akamai/Fastly with many rotating edge IPs, so a later request can land on an IP outside that snapshot and get dropped ("Network is unreachable" / `EHOSTUNREACH`) even though the domain itself is allowed. This has been observed causing a `dotnet restore` to fail outright. It's usually transient — retry the command a few times, or re-run `sudo bash .devcontainer/init-firewall.sh` to refresh the snapshot — not a sign the allowlist is missing the domain.
+- **`api.hh.ru` is fronted by DDoS-Guard, which 403s requests from this Dev Container's egress IP regardless of headers or auth** — confirmed with and without the required `HH-User-Agent` header, so it isn't a header-format or auth problem (hh.ru's `GET /vacancies` is anonymous-friendly anyway — no OAuth token needed, no `security` block on that operation in the OpenAPI spec). `hh.ru` is already in the firewall allowlist, so this isn't an outbound-firewall issue either; it's hh.ru's own anti-bot layer flagging the IP range. `IHhRuVacancyClient`/`HhRuIngestService` (`src/Api/HhRu/`) are built directly against hh.ru's published OpenAPI spec (`https://api.hh.ru/openapi/specification/public`) and have only been verified up to the outbound HTTP call — a real ingest run needs an egress IP DDoS-Guard doesn't block (worth checking Railway once EM-17 lands, since that's also a datacenter IP range).
 
 ## Commands
 
@@ -43,11 +44,12 @@ dotnet build EmployMe.sln
 dotnet run --project src/Api
 dotnet ef database update --project src/Api   # dotnet-ef installed globally by post-create.sh
 
-# Frontend — not scaffolded yet (Phase I)
+# Frontend — dev server proxies /api/* to http://localhost:5000 (see src/Web/vite.config.ts),
+# so run the API alongside it for vacancy data to load.
 cd src/Web && npm install && npm run dev
 ```
 
-No frontend (`src/Web`, `package.json`) exists yet — that's Phase I. No test project exists yet either — that's Phase II (xUnit + Testcontainers per `PLAN.md`).
+No test project exists yet — that's Phase II (xUnit + Testcontainers per `PLAN.md`).
 
 ## Tooling map (inside vs. outside the Dev Container)
 
