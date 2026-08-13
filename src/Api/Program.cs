@@ -27,13 +27,25 @@ builder.Services.AddHttpClient<IHhRuVacancyClient, HhRuVacancyClient>((sp, clien
 
 builder.Services.AddScoped<HhRuIngestService>();
 
+// Frontend and API deploy as separate Railway services on separate domains —
+// no shared origin like the Vite dev-server proxy gives locally.
+builder.Services.AddCors(options =>
+    options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.Migrate();
+}
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors();
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
     .WithName("Health");
