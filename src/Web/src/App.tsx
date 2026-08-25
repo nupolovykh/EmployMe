@@ -80,7 +80,7 @@ function App() {
       {loading && <p className="status">Loading…</p>}
       {error && <p className="status error">{error}</p>}
       {!loading && !error && vacancies.length === 0 && (
-        <p className="status">No vacancies yet — run the hh.ru ingest to populate the database.</p>
+        <p className="status">No vacancies yet — run an ingest to populate the database.</p>
       )}
 
       <ul className="vacancy-list">
