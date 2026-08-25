@@ -1,8 +1,44 @@
 # Development Plan
 
-**Rule for progressing between phases:** each phase must be working — and, where applicable, deployed — before the next one starts. Do not go deep into Phase III while Phase I isn't deployed; this guards against the common "wide and shallow" failure pattern.
+**Revision 2 — 22 Aug 2026.** Revision 1 was planned around the hh.ru API. Its public vacancy
+search has returned `403` to unauthorized callers since April 2026, and its developer agreement
+separately forbids transferring retrieved data to third-party services — so a publicly deployed
+aggregator over hh.ru was never shippable. The plan was rebuilt accordingly. The post-mortem is
+Linear EM-9; the falsified assumption is A-000 in [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md).
 
-**Running in parallel with every phase:** actual job applications (10–15/week), not gated on the project's completion.
+**Phase gate:** each phase must be working — and, where applicable, deployed — before the next one
+starts. Do not go deep into Phase III while Phase I isn't deployed; this guards against the common
+"wide and shallow" failure pattern.
+
+**Running in parallel with every phase:** actual job applications (10–15/week), not gated on the
+project's completion.
+
+The Linear project (team `EM`) mirrors this file as the working backlog. This file holds the plan;
+Linear holds the work items.
+
+---
+
+## §01 — Process rules
+
+These came out of the hh.ru incident. They are the part of this plan that is not about job boards.
+
+1. **Evidence over assertion.** A claim about an external service needs a URL, a date and a live
+   response. "The docs say" is level `docs`, and level `docs` is never enough to schedule work
+   against.
+2. **Spike gate.** No integration is scheduled without a committed `spikes/<source>/response.json`,
+   a terms-of-use verdict quoting the terms and linking them, and a live test. An integration issue
+   may not leave Backlog without a link to that artifact.
+3. **Definition of done.** A checkbox needs a link to a commit, PR or CI run. Work that exists only
+   on an unpushed local branch is In Review, not Done.
+4. **Assumption register with expiry dates.** [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md).
+   Every load-bearing claim carries a verification level, a blast radius, a fallback and an expiry.
+5. **Blast radius — N≥3.** No phase may depend on a single external source. The MVP ships with at
+   least four connectors across at least two tiers.
+6. **Sources are rows, not code.** A source is a row in `sources` plus an adapter class. Losing one
+   is a flipped boolean, not a rewritten phase. This is the modelling fix for the incident's root
+   cause.
+7. **Detection, not hope.** From Phase II, a nightly source contract test makes the next upstream
+   closure visible within 24 hours instead of three weeks.
 
 ---
 
@@ -15,7 +51,7 @@ What lives **inside** the Dev Container vs. what runs **outside** it.
 - PostgreSQL + `pgvector` — as a compose service, for local development only
 - Ollama — as a compose service, local embedding model, so matching can be tested from day one without depending on the cloud
 - git, GitHub CLI, `dotnet-ef`, other CLI tooling
-- Claude Code — via the official `ghcr.io/anthropics/devcontainer-features/claude-code` feature. This sandboxes Claude Code to `/workspace` and applies a network firewall with a domain allowlist. **If Claude Code itself (not just the chat client) should reach the MCP servers below, their domains must be explicitly added to that allowlist** — the firewall blocks anything not listed by default.
+- Claude Code — via the official `ghcr.io/anthropics/devcontainer-features/claude-code` feature. This sandboxes Claude Code to `/workspace` and applies a network firewall with a domain allowlist. **If Claude Code itself (not just the chat client) should reach the MCP servers below, their domains must be explicitly added to that allowlist** — the firewall blocks anything not listed by default. The same applies to every source domain in `docs/SOURCES.md`.
 
 **Outside the Dev Container:**
 - **Railway** — the deployment target itself; code is pushed there via CLI/CI, it is not run "inside" the local container.
@@ -26,51 +62,74 @@ What lives **inside** the Dev Container vs. what runs **outside** it.
 
 ---
 
-## Phase 0 — Foundation
+## Phase 0 — Foundation and source qualification
 
-Goal: working environment and data schema; nothing user-facing yet.
+Goal: working environment, data schema, and — new in Revision 2 — proof that the sources exist
+before a line of integration code is written.
 
-- [x] Repository, `LICENSE` (MIT), `.gitignore`, README skeleton
-- [x] Dev Container: `devcontainer.json` + `Dockerfile` with .NET SDK, Node.js, Postgres+pgvector service, Ollama service, Claude Code feature; firewall allowlist extended for MCP domains if needed
-- [x] Draft Postgres schema: `vacancies`, `sources`, `applications`, `embeddings`
-- [x] GitHub Actions skeleton: build on push, same base image as the Dev Container
-- [x] hh.ru API access registered
-- [x] Linear project set up, one issue per task below (this plan becomes the initial backlog)
+- [x] Repository, `LICENSE` (MIT), `.gitignore`, README skeleton — EM-5
+- [x] Dev Container: .NET SDK, Node.js, Postgres+pgvector service, Ollama service, Claude Code feature — EM-6
+- [x] Draft Postgres schema: `vacancies`, `sources`, `applications`, `embeddings` — EM-7
+- [x] GitHub Actions skeleton: build on push, same base image as the Dev Container — EM-8
+- [x] Linear project set up, one issue per task (this plan becomes the initial backlog) — EM-10
+- [x] EF Core migrations against the Phase 0 schema — EM-12
+- [x] Source registry and assumption register committed to `docs/` — EM-44
+- [ ] Rebuild the sources schema: rows with compliance columns, not an enum — EM-51
+- [ ] Spike: Greenhouse boards API (Tier A) — EM-45
+- [ ] Spike: Lever postings API (Tier A) — EM-46
+- [ ] Spike: Himalayas remote jobs API (Tier B) — EM-47
+- [ ] Spike: Jobicy remote jobs API (Tier B) — EM-48
+- [ ] Spike: Arbeitnow job board API (Tier B, EU/DACH) — EM-49
+- [ ] Target-company registry: 30 companies with ATS and board token — EM-50
+- ~~hh.ru API access registered~~ — EM-9, **falsified**. See A-000.
 
-**Exit criterion:** `devcontainer up` (or "Reopen in Container") brings up an empty API and database with no errors, and Claude Code runs inside it.
+**Exit criterion:** `devcontainer up` brings up an empty API and database with no errors, and
+`spikes/` contains real postings from at least four sources across two tiers, each with a written
+terms-of-use verdict.
+
+**Gate:** do not start Phase I with fewer than four sources at level `spike`, at least two of them
+Tier A, at least four cleared for public display.
 
 ---
 
-## Phase I — MVP: core discovery (RU track)
+## Phase I — MVP: multi-source discovery
 
-Goal: a working, deployed vertical slice — source to screen.
+Goal: a deployed vertical slice, multi-sourced from the first commit. No single external source
+can block it.
 
-- [ ] ASP.NET Core Web API: endpoints for listing vacancies
-- [ ] EF Core migrations against the Phase 0 schema
-- [ ] hh.ru API client: search, pagination, mapping into the domain model
-- [ ] Manual (not scheduled) ingest job: one command populates the database
-- [ ] REST endpoints: list, filter by keyword/stack/date
-- [ ] Frontend: React + TS + Vite, vacancy list, basic filters
-- [ ] Initial Railway deployment
+- [ ] ASP.NET Core Web API: endpoints for listing vacancies — EM-11
+- [ ] REST endpoints: list, filter by keyword/stack/date — EM-15
+- [ ] Frontend: React + TS + Vite, vacancy list, basic filters — EM-16
+- [ ] `IJobSource` connector abstraction + source-agnostic ingest command — EM-52
+- [ ] Four adapters: Greenhouse, Lever, Himalayas, Jobicy — EM-53
+- [ ] Render source attribution on every vacancy card — EM-54
+- [ ] Two more adapters, one per tier: Ashby (A) and Arbeitnow (B) — EM-19
+- [ ] Initial Railway deployment — EM-17
+- ~~hh.ru API client~~ — EM-13, cancelled with A-000.
+- ~~Manual hh.ru ingest job~~ — EM-14, cancelled; replaced by the source-agnostic command in EM-52.
 
-**Exit criterion:** the site is live, shows real hh.ru vacancies, and filtering works.
+**Exit criterion:** the site is live, shows real postings from at least four sources across two
+tiers, filtering works, every card credits its source per that source's terms, and no Tier D
+connector is enabled in the deployed environment.
 
 ---
 
-## Phase II — Reliability and a second source
+## Phase II — Reliability and source health
 
-Goal: stops being a script, becomes a service; expands into Georgia or international.
+Goal: stops being a script, becomes a service — and gains the immune system Revision 1 lacked.
 
-- [ ] Scheduler: `BackgroundService`/Hangfire — scheduled ingest, no manual trigger needed
-- [ ] Second source: jobs.ge/headhunter.ge (parsed respectfully, honoring `robots.txt`) **or** one international remote board with RSS/API
-- [ ] `HttpClient` + Polly: retries and rate-limit handling for external API resilience
-- [ ] Serilog structured logging + health checks
-- [ ] Sentry SDK integrated for error monitoring
-- [ ] Tests: xUnit (unit) + Testcontainers (integration, against a real Postgres)
-- [ ] GitHub Actions: tests + lint + build on every PR
-- [ ] Slack channel (or Claude Tag) wired to CI/deploy notifications
+- [ ] Nightly source contract test with alerting — EM-55
+- [ ] Scheduler: `BackgroundService`/Hangfire — scheduled ingest, honoring each source's `min_poll_interval` — EM-18
+- [ ] `HttpClient` + Polly: retries and rate-limit handling for external API resilience — EM-20
+- [ ] Serilog structured logging + health checks — EM-21
+- [ ] Sentry SDK integrated for error monitoring — EM-22
+- [ ] Tests: xUnit (unit) + Testcontainers (integration, against a real Postgres) — EM-23
+- [ ] GitHub Actions: tests + lint + build on every PR — EM-24
+- [ ] Slack channel (or Claude Tag) wired to CI/deploy notifications — EM-25
 
-**Exit criterion:** the service refreshes itself on a schedule, survives an external API outage, is covered by tests and CI, and errors surface in Sentry.
+**Exit criterion:** the service refreshes on schedule, survives an external API outage without data
+loss, detects an upstream endpoint closure within 24 hours, is covered by tests and CI, and errors
+surface in Sentry.
 
 ---
 
@@ -78,16 +137,18 @@ Goal: stops being a script, becomes a service; expands into Georgia or internati
 
 Goal: the layer that differentiates this from a generic aggregator.
 
-- [ ] `pgvector` extension enabled in Postgres
-- [ ] Ollama deployed with a multilingual embedding model (bge-m3 or e5)
-- [ ] Embeddings for vacancies and for my own CV/profile, with caching to avoid recomputation
-- [ ] Fit-score: cosine similarity between CV and vacancy, with an explanation (matched vs. missing requirements)
-- [ ] Semantic deduplication: the same vacancy across sources/languages collapses into one card
-- [ ] LLM extraction into strict JSON: seniority, stack, work format, language requirement
-- [ ] Manual labeling of 50 vacancies + a script measuring extraction/matching precision against that labeled set
-- [ ] UI for the fit-score explanation mocked in Claude Design before implementation
+- [ ] `pgvector` extension enabled in Postgres — EM-26
+- [ ] Ollama deployed with a multilingual embedding model (bge-m3 or e5) — EM-27
+- [ ] Embeddings for vacancies and for my own CV/profile, with caching to avoid recomputation — EM-28
+- [ ] Fit-score: cosine similarity between CV and vacancy, with an explanation (matched vs. missing requirements) — EM-29
+- [ ] Semantic deduplication: the same vacancy across sources/languages collapses into one card — EM-30
+- [ ] LLM extraction into strict JSON: seniority, stack, work format, language requirement — EM-31
+- [ ] Manual labeling of 50 vacancies + a script measuring extraction/matching precision — EM-32
+- [ ] UI for the fit-score explanation mocked in Claude Design before implementation — EM-33
 
-**Exit criterion:** the vacancy list is sorted by personal relevance, duplicates are collapsed, and there is a measured precision figure.
+**Exit criterion:** the vacancy list is sorted by personal relevance, duplicates are collapsed, and
+there is a measured precision figure. Until that number exists, the README claims nothing about
+matching quality (A-010).
 
 ---
 
@@ -95,13 +156,14 @@ Goal: the layer that differentiates this from a generic aggregator.
 
 Goal: a tool used daily, not a demo for a screenshot.
 
-- [ ] Status model: viewed / applied / interview / rejected / offer, plus notes and dates
-- [ ] Endpoints for status changes
-- [ ] UI: list or kanban board with status management, mocked in Claude Design first
-- [ ] Dashboard: applications per week, conversion by stage
-- [ ] Manual QA pass on the deployed Railway staging environment via Claude in Chrome
+- [ ] Status model: viewed / applied / interview / rejected / offer, plus notes and dates — EM-34
+- [ ] Endpoints for status changes — EM-35
+- [ ] UI: list or kanban board with status management, mocked in Claude Design first — EM-36
+- [ ] Dashboard: applications per week, conversion by stage — EM-37
+- [ ] Manual QA pass on the deployed Railway staging environment via Claude in Chrome — EM-38
 
-**Exit criterion:** the spreadsheet is retired — the entire job-search workflow runs through this tool.
+**Exit criterion:** the spreadsheet is retired — the entire job-search workflow runs through this
+tool.
 
 ---
 
@@ -109,24 +171,39 @@ Goal: a tool used daily, not a demo for a screenshot.
 
 Goal: the project survives 20 minutes of interview questions.
 
-- [ ] Full README (this repo's), architecture diagram, setup instructions, screenshots
-- [ ] Deployment write-up: why self-hosted embeddings, why Railway, why hh.ru's API instead of scraping
-- [ ] Metrics section documenting the precision figures from Phase III
-- [ ] Repository cleanup: personal application data removed, seed data added if needed for demos
-- [ ] Interview talking points: architectural decisions and their trade-offs, written down in advance
+- [ ] Full README, architecture diagram, setup instructions, screenshots — EM-39
+- [ ] Write-up: why ATS boards over aggregators, why self-hosted embeddings, why Railway — and the hh.ru post-mortem — EM-40
+- [ ] Metrics section documenting the precision figures from Phase III — EM-41
+- [ ] Repository cleanup: personal application data removed, seed data added if needed for demos — EM-42
+- [ ] Interview talking points: architectural decisions and their trade-offs, written down in advance — EM-43
 
 **Exit criterion:** the project is ready to be linked from a CV and defended live.
 
 ---
 
+## Open questions
+
+1. **How does the target-company registry grow?** By hand, from a harvestable public list of board
+   tokens, or from applications actually sent? 30 by hand is fine; 300 is not. Decide the mechanism
+   while building it (EM-50), not at 200 rows.
+2. **Does normalization across six upstream shapes preserve the structured signal Phase III needs?**
+   A lowest-common-denominator mapping would leave the fit-score with title, company and URL. A-009.
+3. **Is a self-hosted multilingual model good enough across English, German and Russian postings?**
+   Unmeasured until EM-32. A-010.
+
+---
+
 ## Estimated timeline (3–4 hours/day)
+
+Revision 1's estimate assumed one source with a search endpoint. Revision 2 adds source
+qualification up front and six adapters instead of one.
 
 | Phase | Content | Duration |
 |---|---|---|
-| 0 | Foundation | 2–3 days |
-| I | MVP core discovery | ~2 weeks |
-| II | Reliability + second source | ~1.5 weeks |
+| 0 | Foundation + source qualification | ~1 week |
+| I | MVP multi-source discovery | ~2.5 weeks |
+| II | Reliability + source health | ~2 weeks |
 | III | Personalization + semantic layer | ~2 weeks |
 | IV | Application tracker | ~4–5 days |
 | V | Portfolio polish | ~3–4 days |
-| **Total** | | **~7–8 weeks** |
+| **Total** | | **~8–9 weeks** |
