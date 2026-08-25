@@ -179,20 +179,26 @@ non-compliance.** Do not enable this adapter before attribution rendering (EM-54
 **Do not reopen this without new evidence dated later than the entries below.** The full
 post-mortem is Linear EM-9; `ASSUMPTIONS.md` A-000 records the falsification.
 
-Disqualified on two independent grounds:
+Disqualified on three independent grounds:
 
-1. **Technical.** Since April 2026, `GET /vacancies`, `GET /vacancies/{id}` and
+1. **Technical: DDoS-Guard blocks this environment.** The live endpoint `api.hh.ru` returns `403` 
+   when accessed from this project's egress IP (Dev Container and Railway). Confirmed on 2026-08-25 
+   against `GET https://api.hh.ru/vacancies` — DDoS-Guard rate-limit response. This alone blocks 
+   development; mitigation via proxy/VPN violates the terms below.
+
+2. **Technical: Public API sealed.** Since April 2026, `GET /vacancies`, `GET /vacancies/{id}` and
    `GET /employers/{id}` return `403` to unauthorized callers. Only the reference endpoints
    (`/areas`, `/dictionaries`, `/suggests`) remain openly available. Access is oriented to
    verified employer accounts and moderated applications.
-2. **Legal — and this ground survives any technical workaround.** The developer agreement
+
+3. **Legal — and this ground survives any technical workaround.** The developer agreement
    restricts use to recruitment purposes and forbids transferring retrieved data to third-party
    services; only the registered user who initiated the retrieval may use it. A publicly deployed
    site rendering hh.ru vacancies breaches that regardless of how the data was obtained. **This
    project's entire premise is a public deployment.** Even a working token would not have made
    Phase I shippable.
 
-Sources: <https://habr.com/ru/news/1069286/> · <https://dev.hh.ru/admin/developer_agreement>
+Sources: <https://habr.com/ru/news/1069286/> · <https://dev.hh.ru/admin/developer_agreement> · DDoS-Guard block confirmed 2026-08-25
 
 ### jobs.ge / headhunter.ge
 
