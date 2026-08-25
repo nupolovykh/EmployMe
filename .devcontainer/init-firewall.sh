@@ -114,6 +114,7 @@ for domain in \
     "himalayas.app" \
     "jobicy.com" \
     "www.arbeitnow.com" \
+    "railway.app" \
     "mcp.linear.app" \
     "mcp.slack.com" \
     "mcp.sentry.dev" \
