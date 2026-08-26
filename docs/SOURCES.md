@@ -239,13 +239,42 @@ via a spike with a terms verdict, like any other source.
 
 ## Target-company registry
 
-Tier A has no search — it fetches per company, so the registry *is* the query. Seeded at 30
-companies (EM-50): name, ATS, board token, and one line on why it is a target (remote-friendly,
-hires juniors, relocation support, stack match).
+Tier A has no search — it fetches per company, so the registry *is* the query. `TargetCompany`
+rows FK to the adapter-level `Sources` row for their ATS (`greenhouse`/`lever`/...); the ATS
+itself isn't duplicated per company.
 
-**Open question, to be answered while building it, not at 200 rows:** does the registry grow by
-hand, from a harvestable public list of board tokens, or from applications actually sent? 30 by
-hand is fine; 300 is not.
+**Selection criteria, derived from the author's own CV (EM-50):** junior level, .NET/C# primary
+stack (polyglot backend a secondary fit), working-proficiency English. **The hard structural
+filter is hiring geography:** the author is based in Tbilisi, Georgia — outside the EU/EEA — so
+a company only qualifies if it hires through (1) global remote/contractor/EOR with no country
+restriction, (2) a remote region that explicitly includes Georgia, or (3) relocation with visa
+sponsorship. "Remote (EU only)" is a rejection, not a match, however good the stack fit. Rejected
+companies stay recorded with a reason rather than being silently dropped, so they aren't
+re-evaluated later.
+
+**Growth mechanism — resolved 2026-08-26, hybrid (revises the original "30 up front" scope):**
+collecting 30 companies before any spike ran was backwards — EM-45/46's spikes had no registry to
+draw from yet and ended up validated against whatever token answered (GitLab, Palantir), not
+against a real target. The model instead is a **small live-verified seed now, organic growth
+after**: enough real companies to unblock the Tier A spikes with genuine evidence (3 per ATS, not
+30), then every further entry comes from an application actually being sent — a company is never
+collected speculatively.
+
+**Seed batch — verified live 2026-08-26** (`SeedGreenhouseLeverTargetCompanies` migration):
+
+| Company | ATS | Token | Jobs seen | Status | Why |
+|---|---|---|---|---|---|
+| Remote (remote.com) | Greenhouse | `remotecom` | 100 | watch | Global EOR/payroll platform, hires backend; none open in this snapshot |
+| Remote People | Greenhouse | `remotepeople` | 17 | active | Global remote-hiring platform; open Back-End Engineer (Python) + junior-titled roles elsewhere |
+| Xapo Bank | Greenhouse | `xapo61` | 12 | watch | Crypto/digital bank, explicit "Remote - Work from Anywhere"; hiring model is Georgia-compatible |
+| Qonto | Lever | `qonto` | 5 | watch | French fintech, EU-remote; current postings are non-eng |
+| RemoFirst | Lever | `remofirst` | 1 | watch | Global remote-first HR platform; thin volume right now |
+| Peerspace | Lever | `peerspace` | 3 | watch | US marketplace startup, remote-friendly; current opening is senior-only |
+
+`status: watch` means a live, verified board with nothing currently relevant — kept rather than
+discarded, since the point of a registry is to notice when that changes. Tier B/C sources
+(Jobicy, Arbeitnow) don't use this registry at all: Jobicy filters server-side, Arbeitnow returns
+its whole inventory across a handful of `?page=` calls.
 
 ---
 
