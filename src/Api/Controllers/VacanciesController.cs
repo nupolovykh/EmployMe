@@ -69,7 +69,7 @@ public class VacanciesController(AppDbContext db) : ControllerBase
                 v.Currency,
                 v.PublishedAt,
                 v.FetchedAt,
-                v.Source!.Name))
+                v.Source!.DisplayName))
             .ToListAsync(cancellationToken);
 
         return Ok(vacancies);
@@ -94,7 +94,7 @@ public class VacanciesController(AppDbContext db) : ControllerBase
                 v.Currency,
                 v.PublishedAt,
                 v.FetchedAt,
-                v.Source!.Name))
+                v.Source!.DisplayName))
             .FirstOrDefaultAsync(cancellationToken);
 
         return vacancy is null ? NotFound() : Ok(vacancy);

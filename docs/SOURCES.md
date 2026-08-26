@@ -27,6 +27,14 @@ against it.
 **Phase gate:** Phase I may not start with fewer than four sources at level `spike`, at least
 two of them Tier A, at least four cleared for public display.
 
+**Status as of 2026-08-26 (EM-45–49 spikes run): gate met.** 5/5 sources reached `spike`
+(technical) — Greenhouse, Lever, Himalayas, Jobicy, Arbeitnow, 2 of them Tier A. 4/5 are cleared
+for public display: **Greenhouse, Lever, Jobicy, Arbeitnow.** Himalayas is the one exception —
+**not cleared**, its terms explicitly require prior written approval (found live during the
+spike) — and stays excluded from both the adapter set and the "cleared" count until that
+approval exists. All three gate sub-conditions (≥4 spike, ≥2 Tier A, ≥4 cleared for public
+display) are satisfied without Himalayas.
+
 ---
 
 ## Tiers
@@ -60,9 +68,13 @@ the query.
 | Auth | None |
 | Adapter type | `greenhouse` |
 | Assumption | A-001 |
-| Level | `docs` — spike is EM-45 |
+| Level | `spike` (2026-08-26) — `spikes/greenhouse/`. **Legal: cleared** |
 
 **Known caveat:** no native search or filtering. The search layer is ours to build.
+
+**Display condition:** none found — Greenhouse's developer docs describe the API as existing so
+callers "can build careers pages with a unique look and feel," with no attribution requirement
+stated. See `spikes/greenhouse/NOTES.md` for the live quote.
 
 ### Lever
 
@@ -72,7 +84,11 @@ the query.
 | Auth | None |
 | Adapter type | `lever` |
 | Assumption | A-002 |
-| Level | `docs` — spike is EM-46 |
+| Level | `spike` (2026-08-26) — `spikes/lever/`. **Legal: cleared** |
+
+**Display condition:** none found — Lever's developer docs name "create a custom job site" as
+the Postings API's intended use, with no attribution requirement stated. See
+`spikes/lever/NOTES.md` for the live quote.
 
 ### Ashby
 
@@ -103,13 +119,17 @@ a nicety** — see EM-54.
 | OpenAPI | `https://himalayas.app/docs/openapi.json` (3.1) — generate the client, don't hand-roll DTOs |
 | Adapter type | `json_api` |
 | Assumption | A-003 |
-| Level | `docs` — spike is EM-47 |
+| Level | `spike` (2026-08-26) — `spikes/himalayas/`. **⚠️ Legal: FALSIFIED, not cleared** |
 
-**To confirm in the spike:** the actual rate limit (documented only as "rate limited, 429 on
-exceed"); that data refreshes every 24 h, so polling faster is pointless — that value goes into
-`sources.min_poll_interval`; and the exact required attribution wording.
+**Resolved by the spike:** rate limit still not exposed via headers (429 behavior unconfirmed);
+refresh cadence is 24h per the OpenAPI spec, so `min_poll_interval` = 24h.
 
-**Display condition:** visible link back to himalayas.app plus a source credit.
+**Display condition — do not trust the line below, kept for history.** ~~visible link back to
+himalayas.app plus a source credit~~ — **wrong.** `himalayas.app/terms`, read live 2026-08-26,
+explicitly bars scraping/redistribution "without Himalayas' prior written approval." See
+`spikes/himalayas/NOTES.md` for the quotes. **`public_deploy_enabled` must stay `false` for this
+source until written approval exists.** Do not build EM-53's Himalayas adapter against this
+source before that happens.
 
 ### Jobicy
 
@@ -121,14 +141,18 @@ exceed"); that data refreshes every 24 h, so polling faster is pointless — tha
 | Discovery | `?get=locations`, `?get=industries` return valid filter values |
 | Adapter type | `json_api` |
 | Assumption | A-004 |
-| Level | `docs` — spike is EM-48 |
+| Level | `spike` (2026-08-26) — `spikes/jobicy/`. **Legal: cleared** |
 
 **Binding constraint: polling must not exceed once per hour.** This lives in
 `sources.min_poll_interval` and the scheduler reads it from there, never from a constant. A
-scheduler that ignores it gets us banned.
+scheduler that ignores it gets us banned. (Jobicy's own docs page 404'd when re-checked
+2026-08-26 — the 1h figure carries forward from the original desk research, not re-confirmed
+today.)
 
-**Display condition:** Jobicy stays named as the original source, and the canonical Jobicy job
-URL is preserved on display.
+**Display condition, confirmed live from the API's own `friendlyNotice` field (stronger than a
+scraped terms page):** Jobicy stays named as the original source, and application buttons must
+redirect to the original Jobicy job URL — the `url` field already provides this directly. See
+`spikes/jobicy/NOTES.md`.
 
 *Noted for later, out of scope:* Jobicy also exposes an MCP server at `jobicy.com/mcp`.
 
@@ -140,14 +164,19 @@ URL is preserved on display.
 | Auth | None |
 | Adapter type | `json_api` |
 | Assumption | A-005 |
-| Level | `docs` — spike is EM-49 |
+| Level | `spike` (2026-08-26) — `spikes/arbeitnow/`. **Legal: cleared** |
 
 **Observed fields:** `slug`, `company_name`, `title`, `description` (HTML), `remote`, `url`,
-`tags`, `job_types`, `location`, `created_at`.
+`tags`, `job_types`, `location`, `created_at`. **`slug` is the external id — there is no separate
+numeric `id` field**, same shape gotcha as Himalayas' `guid`.
 
-**Unknowns the spike must close:** pagination parameters; rate limits and headers; whether a
-visa-sponsorship flag exists or must be inferred from `tags`; terms of use — not found during
-desk research, and **if none is published, that absence is itself the finding to record**.
+**Resolved by the spike:** pagination is `?page=` (Laravel-style `links`/`meta`, confirmed via a
+live `links.next`); refresh cadence is hourly per `meta.info`, so `min_poll_interval` = 1h.
+Visa-sponsorship flag still unconfirmed — inferred from `tags` for now. **Terms of use: the
+`/terms` page itself is client-rendered JS and couldn't be read via `curl`, but the API response
+carries its own `meta.terms` field** — "free public API... please do not abuse... agree to the
+terms of service present on Arbeitnow.com" — treated as the operative statement. See
+`spikes/arbeitnow/NOTES.md`.
 
 Descriptions are largely German. This drives the multilingual embedding model choice in Phase III.
 
@@ -210,13 +239,59 @@ via a spike with a terms verdict, like any other source.
 
 ## Target-company registry
 
-Tier A has no search — it fetches per company, so the registry *is* the query. Seeded at 30
-companies (EM-50): name, ATS, board token, and one line on why it is a target (remote-friendly,
-hires juniors, relocation support, stack match).
+Tier A has no search — it fetches per company, so the registry *is* the query. `TargetCompany`
+rows FK to the adapter-level `Sources` row for their ATS (`greenhouse`/`lever`/...); the ATS
+itself isn't duplicated per company.
 
-**Open question, to be answered while building it, not at 200 rows:** does the registry grow by
-hand, from a harvestable public list of board tokens, or from applications actually sent? 30 by
-hand is fine; 300 is not.
+**Selection criteria, derived from the author's own CV (EM-50):** junior level, .NET/C# primary
+stack (polyglot backend a secondary fit), working-proficiency English. **The hard structural
+filter is hiring geography:** the author is based in Tbilisi, Georgia — outside the EU/EEA — so
+a company only qualifies if it hires through (1) global remote/contractor/EOR with no country
+restriction, (2) a remote region that explicitly includes Georgia, or (3) relocation with visa
+sponsorship. "Remote (EU only)" is a rejection, not a match, however good the stack fit. Rejected
+companies stay recorded with a reason rather than being silently dropped, so they aren't
+re-evaluated later.
+
+**Growth mechanism — resolved 2026-08-26, hybrid (revises the original "30 up front" scope):**
+collecting 30 companies before any spike ran was backwards — EM-45/46's spikes had no registry to
+draw from yet and ended up validated against whatever token answered (GitLab, Palantir), not
+against a real target. The model instead is a **small live-verified seed now, organic growth
+after**: enough real companies to unblock the Tier A spikes with genuine evidence (3 per ATS, not
+30), then every further entry comes from an application actually being sent — a company is never
+collected speculatively.
+
+**Seed batch — verified live 2026-08-26** (`SeedGreenhouseLeverTargetCompanies` migration):
+
+| Company | ATS | Token | Jobs seen | Status | Why |
+|---|---|---|---|---|---|
+| Remote (remote.com) | Greenhouse | `remotecom` | 100 | watch | Global EOR/payroll platform, hires backend; none open in this snapshot |
+| Remote People | Greenhouse | `remotepeople` | 17 | active | Global remote-hiring platform; open Back-End Engineer (Python) + junior-titled roles elsewhere |
+| Xapo Bank | Greenhouse | `xapo61` | 12 | watch | Crypto/digital bank, explicit "Remote - Work from Anywhere"; hiring model is Georgia-compatible |
+| Qonto | Lever | `qonto` | 5 | watch | French fintech, EU-remote; current postings are non-eng |
+| RemoFirst | Lever | `remofirst` | 1 | watch | Global remote-first HR platform; thin volume right now |
+| Peerspace | Lever | `peerspace` | 3 | watch | US marketplace startup, remote-friendly; current opening is senior-only |
+
+`status: watch` means a live, verified board with nothing currently relevant — kept rather than
+discarded, since the point of a registry is to notice when that changes. Tier B/C sources
+(Jobicy, Arbeitnow) don't use this registry at all: Jobicy filters server-side, Arbeitnow returns
+its whole inventory across a handful of `?page=` calls.
+
+**Rejected entries — kept so they aren't re-discovered for free:**
+
+| Company | ATS | Token | Jobs seen | Why rejected |
+|---|---|---|---|---|
+| Sezzle | Greenhouse | `sezzle` | 183 | Real junior-level hiring ("Junior Software Engineer", "Software Engineer II") on a genuine per-country remote model (Argentina/Brazil/Chile/Colombia/Mexico/Turkey/Poland/India/Venezuela) — the closest structural match found to date. Georgia is not one of the listed countries as of this check. Revisit if that changes. |
+
+Found while mining leftover verification data from an earlier, since-abandoned blind company
+search (not a resumption of batch collection — see the growth-mechanism note above). Two other
+candidates from that search were excluded without a DB row, on principle rather than a point-in-
+time hiring fact: GitLab (a Greenhouse spike fixture from EM-45, not a vetted target — see the
+exclusion criteria in Linear EM-50) and Jobgether (its Lever board turned out to be a staffing
+agency posting unrelated client roles, not a single employer).
+
+`HiringGeo` has no value for "remote in a specific country list that doesn't include Georgia" —
+Sezzle's row uses `GlobalRemote` as the closest fit; the real nuance is in the `why_target` text,
+not the enum. Worth a dedicated value if more rejections hit the same shape.
 
 ---
 
