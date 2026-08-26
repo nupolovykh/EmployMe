@@ -27,6 +27,14 @@ against it.
 **Phase gate:** Phase I may not start with fewer than four sources at level `spike`, at least
 two of them Tier A, at least four cleared for public display.
 
+**Status as of 2026-08-26 (EM-45–49 spikes run): gate met.** 5/5 sources reached `spike`
+(technical) — Greenhouse, Lever, Himalayas, Jobicy, Arbeitnow, 2 of them Tier A. 4/5 are cleared
+for public display: **Greenhouse, Lever, Jobicy, Arbeitnow.** Himalayas is the one exception —
+**not cleared**, its terms explicitly require prior written approval (found live during the
+spike) — and stays excluded from both the adapter set and the "cleared" count until that
+approval exists. All three gate sub-conditions (≥4 spike, ≥2 Tier A, ≥4 cleared for public
+display) are satisfied without Himalayas.
+
 ---
 
 ## Tiers
@@ -60,9 +68,13 @@ the query.
 | Auth | None |
 | Adapter type | `greenhouse` |
 | Assumption | A-001 |
-| Level | `docs` — spike is EM-45 |
+| Level | `spike` (2026-08-26) — `spikes/greenhouse/`. **Legal: cleared** |
 
 **Known caveat:** no native search or filtering. The search layer is ours to build.
+
+**Display condition:** none found — Greenhouse's developer docs describe the API as existing so
+callers "can build careers pages with a unique look and feel," with no attribution requirement
+stated. See `spikes/greenhouse/NOTES.md` for the live quote.
 
 ### Lever
 
@@ -72,7 +84,11 @@ the query.
 | Auth | None |
 | Adapter type | `lever` |
 | Assumption | A-002 |
-| Level | `docs` — spike is EM-46 |
+| Level | `spike` (2026-08-26) — `spikes/lever/`. **Legal: cleared** |
+
+**Display condition:** none found — Lever's developer docs name "create a custom job site" as
+the Postings API's intended use, with no attribution requirement stated. See
+`spikes/lever/NOTES.md` for the live quote.
 
 ### Ashby
 
@@ -103,13 +119,17 @@ a nicety** — see EM-54.
 | OpenAPI | `https://himalayas.app/docs/openapi.json` (3.1) — generate the client, don't hand-roll DTOs |
 | Adapter type | `json_api` |
 | Assumption | A-003 |
-| Level | `docs` — spike is EM-47 |
+| Level | `spike` (2026-08-26) — `spikes/himalayas/`. **⚠️ Legal: FALSIFIED, not cleared** |
 
-**To confirm in the spike:** the actual rate limit (documented only as "rate limited, 429 on
-exceed"); that data refreshes every 24 h, so polling faster is pointless — that value goes into
-`sources.min_poll_interval`; and the exact required attribution wording.
+**Resolved by the spike:** rate limit still not exposed via headers (429 behavior unconfirmed);
+refresh cadence is 24h per the OpenAPI spec, so `min_poll_interval` = 24h.
 
-**Display condition:** visible link back to himalayas.app plus a source credit.
+**Display condition — do not trust the line below, kept for history.** ~~visible link back to
+himalayas.app plus a source credit~~ — **wrong.** `himalayas.app/terms`, read live 2026-08-26,
+explicitly bars scraping/redistribution "without Himalayas' prior written approval." See
+`spikes/himalayas/NOTES.md` for the quotes. **`public_deploy_enabled` must stay `false` for this
+source until written approval exists.** Do not build EM-53's Himalayas adapter against this
+source before that happens.
 
 ### Jobicy
 
@@ -121,14 +141,18 @@ exceed"); that data refreshes every 24 h, so polling faster is pointless — tha
 | Discovery | `?get=locations`, `?get=industries` return valid filter values |
 | Adapter type | `json_api` |
 | Assumption | A-004 |
-| Level | `docs` — spike is EM-48 |
+| Level | `spike` (2026-08-26) — `spikes/jobicy/`. **Legal: cleared** |
 
 **Binding constraint: polling must not exceed once per hour.** This lives in
 `sources.min_poll_interval` and the scheduler reads it from there, never from a constant. A
-scheduler that ignores it gets us banned.
+scheduler that ignores it gets us banned. (Jobicy's own docs page 404'd when re-checked
+2026-08-26 — the 1h figure carries forward from the original desk research, not re-confirmed
+today.)
 
-**Display condition:** Jobicy stays named as the original source, and the canonical Jobicy job
-URL is preserved on display.
+**Display condition, confirmed live from the API's own `friendlyNotice` field (stronger than a
+scraped terms page):** Jobicy stays named as the original source, and application buttons must
+redirect to the original Jobicy job URL — the `url` field already provides this directly. See
+`spikes/jobicy/NOTES.md`.
 
 *Noted for later, out of scope:* Jobicy also exposes an MCP server at `jobicy.com/mcp`.
 
@@ -140,14 +164,19 @@ URL is preserved on display.
 | Auth | None |
 | Adapter type | `json_api` |
 | Assumption | A-005 |
-| Level | `docs` — spike is EM-49 |
+| Level | `spike` (2026-08-26) — `spikes/arbeitnow/`. **Legal: cleared** |
 
 **Observed fields:** `slug`, `company_name`, `title`, `description` (HTML), `remote`, `url`,
-`tags`, `job_types`, `location`, `created_at`.
+`tags`, `job_types`, `location`, `created_at`. **`slug` is the external id — there is no separate
+numeric `id` field**, same shape gotcha as Himalayas' `guid`.
 
-**Unknowns the spike must close:** pagination parameters; rate limits and headers; whether a
-visa-sponsorship flag exists or must be inferred from `tags`; terms of use — not found during
-desk research, and **if none is published, that absence is itself the finding to record**.
+**Resolved by the spike:** pagination is `?page=` (Laravel-style `links`/`meta`, confirmed via a
+live `links.next`); refresh cadence is hourly per `meta.info`, so `min_poll_interval` = 1h.
+Visa-sponsorship flag still unconfirmed — inferred from `tags` for now. **Terms of use: the
+`/terms` page itself is client-rendered JS and couldn't be read via `curl`, but the API response
+carries its own `meta.terms` field** — "free public API... please do not abuse... agree to the
+terms of service present on Arbeitnow.com" — treated as the operative statement. See
+`spikes/arbeitnow/NOTES.md`.
 
 Descriptions are largely German. This drives the multilingual embedding model choice in Phase III.
 

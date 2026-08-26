@@ -74,21 +74,25 @@ before a line of integration code is written.
 - [x] Linear project set up, one issue per task (this plan becomes the initial backlog) — EM-10
 - [x] EF Core migrations against the Phase 0 schema — EM-12
 - [x] Source registry and assumption register committed to `docs/` — EM-44
-- [ ] Rebuild the sources schema: rows with compliance columns, not an enum — EM-51
-- [ ] Spike: Greenhouse boards API (Tier A) — EM-45
-- [ ] Spike: Lever postings API (Tier A) — EM-46
-- [ ] Spike: Himalayas remote jobs API (Tier B) — EM-47
-- [ ] Spike: Jobicy remote jobs API (Tier B) — EM-48
-- [ ] Spike: Arbeitnow job board API (Tier B, EU/DACH) — EM-49
+- [x] Rebuild the sources schema: rows with compliance columns, not an enum — EM-51 (model +
+      `RebuildSourcesSchema` migration, applied and verified against a live Postgres)
+- [x] Spike: Greenhouse boards API (Tier A) — EM-45 (`spikes/greenhouse/`, cleared)
+- [x] Spike: Lever postings API (Tier A) — EM-46 (`spikes/lever/`, cleared)
+- [x] Spike: Himalayas remote jobs API (Tier B) — EM-47 (`spikes/himalayas/`, **not cleared** —
+      terms require Himalayas' prior written approval; source stays disabled)
+- [x] Spike: Jobicy remote jobs API (Tier B) — EM-48 (`spikes/jobicy/`, cleared)
+- [x] Spike: Arbeitnow job board API (Tier B, EU/DACH) — EM-49 (`spikes/arbeitnow/`, cleared)
 - [ ] Target-company registry: 30 companies with ATS and board token — EM-50
 - ~~hh.ru API access registered~~ — EM-9, **falsified**. See A-000.
 
 **Exit criterion:** `devcontainer up` brings up an empty API and database with no errors, and
 `spikes/` contains real postings from at least four sources across two tiers, each with a written
-terms-of-use verdict.
+terms-of-use verdict. **Met 2026-08-26** — see `docs/SOURCES.md`'s gate status note.
 
 **Gate:** do not start Phase I with fewer than four sources at level `spike`, at least two of them
-Tier A, at least four cleared for public display.
+Tier A, at least four cleared for public display. **Met**, without Himalayas: Greenhouse, Lever
+(Tier A) + Jobicy, Arbeitnow (Tier B) are all `spike` and cleared. EM-50 (target-company registry)
+is the only open Phase 0 item remaining.
 
 ---
 
@@ -101,9 +105,15 @@ can block it.
 - [ ] REST endpoints: list, filter by keyword/stack/date — EM-15
 - [ ] Frontend: React + TS + Vite, vacancy list, basic filters — EM-16
 - [ ] `IJobSource` connector abstraction + source-agnostic ingest command — EM-52
-- [ ] Four adapters: Greenhouse, Lever, Himalayas, Jobicy — EM-53
+- [ ] Four adapters: Greenhouse, Lever, **Arbeitnow**, Jobicy — EM-53 (swapped in for Himalayas,
+      2026-08-26: Himalayas' spike found its terms require prior written approval Himalayas
+      hasn't given, so it doesn't qualify as "cleared for public display." Arbeitnow was already
+      spiked and cleared as part of the same gate check, so it moves up from its EM-19 follow-on
+      slot rather than leaving the MVP at three adapters. Revisit if Himalayas' approval comes
+      through — see A-003 in docs/ASSUMPTIONS.md.)
 - [ ] Render source attribution on every vacancy card — EM-54
-- [ ] Two more adapters, one per tier: Ashby (A) and Arbeitnow (B) — EM-19
+- [ ] One more adapter: Ashby (A) — EM-19 (Arbeitnow moved into EM-53's four, see above; Himalayas
+      re-enters here if its approval comes through)
 - [ ] Initial Railway deployment — EM-17
 - ~~hh.ru API client~~ — EM-13, cancelled with A-000.
 - ~~Manual hh.ru ingest job~~ — EM-14, cancelled; replaced by the source-agnostic command in EM-52.
