@@ -3,6 +3,7 @@ using System;
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pgvector;
@@ -12,9 +13,11 @@ using Pgvector;
 namespace Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260826122638_RebuildSourcesSchema")]
+    partial class RebuildSourcesSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -189,49 +192,6 @@ namespace Api.Data.Migrations
                     b.ToTable("Sources");
                 });
 
-            modelBuilder.Entity("Api.Models.TargetCompany", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BoardToken")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("CompanyName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("HiringGeo")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("JobsSeen")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SourceId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("VerifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("WhyTarget")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SourceId", "BoardToken")
-                        .IsUnique();
-
-                    b.ToTable("TargetCompanies");
-                });
-
             modelBuilder.Entity("Api.Models.Vacancy", b =>
                 {
                     b.Property<int>("Id")
@@ -321,17 +281,6 @@ namespace Api.Data.Migrations
                     b.Navigation("Source");
                 });
 
-            modelBuilder.Entity("Api.Models.TargetCompany", b =>
-                {
-                    b.HasOne("Api.Models.Source", "Source")
-                        .WithMany("TargetCompanies")
-                        .HasForeignKey("SourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Source");
-                });
-
             modelBuilder.Entity("Api.Models.Vacancy", b =>
                 {
                     b.HasOne("Api.Models.Source", "Source")
@@ -346,8 +295,6 @@ namespace Api.Data.Migrations
             modelBuilder.Entity("Api.Models.Source", b =>
                 {
                     b.Navigation("RawPostings");
-
-                    b.Navigation("TargetCompanies");
 
                     b.Navigation("Vacancies");
                 });
