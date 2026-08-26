@@ -110,7 +110,12 @@ for domain in \
     "vscode.blob.core.windows.net" \
     "update.code.visualstudio.com" \
     "boards-api.greenhouse.io" \
+    "www.greenhouse.io" \
+    "www.greenhouse.com" \
+    "developers.greenhouse.io" \
+    "docs.greenhouse.io" \
     "api.lever.co" \
+    "hire.lever.co" \
     "himalayas.app" \
     "jobicy.com" \
     "www.arbeitnow.com" \
