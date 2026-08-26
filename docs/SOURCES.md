@@ -276,6 +276,23 @@ discarded, since the point of a registry is to notice when that changes. Tier B/
 (Jobicy, Arbeitnow) don't use this registry at all: Jobicy filters server-side, Arbeitnow returns
 its whole inventory across a handful of `?page=` calls.
 
+**Rejected entries — kept so they aren't re-discovered for free:**
+
+| Company | ATS | Token | Jobs seen | Why rejected |
+|---|---|---|---|---|
+| Sezzle | Greenhouse | `sezzle` | 183 | Real junior-level hiring ("Junior Software Engineer", "Software Engineer II") on a genuine per-country remote model (Argentina/Brazil/Chile/Colombia/Mexico/Turkey/Poland/India/Venezuela) — the closest structural match found to date. Georgia is not one of the listed countries as of this check. Revisit if that changes. |
+
+Found while mining leftover verification data from an earlier, since-abandoned blind company
+search (not a resumption of batch collection — see the growth-mechanism note above). Two other
+candidates from that search were excluded without a DB row, on principle rather than a point-in-
+time hiring fact: GitLab (a Greenhouse spike fixture from EM-45, not a vetted target — see the
+exclusion criteria in Linear EM-50) and Jobgether (its Lever board turned out to be a staffing
+agency posting unrelated client roles, not a single employer).
+
+`HiringGeo` has no value for "remote in a specific country list that doesn't include Georgia" —
+Sezzle's row uses `GlobalRemote` as the closest fit; the real nuance is in the `why_target` text,
+not the enum. Worth a dedicated value if more rejections hit the same shape.
+
 ---
 
 ## How a source is added
