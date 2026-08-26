@@ -48,4 +48,5 @@ public class Source
 
     public ICollection<Vacancy> Vacancies { get; set; } = [];
     public ICollection<RawPosting> RawPostings { get; set; } = [];
+    public ICollection<TargetCompany> TargetCompanies { get; set; } = [];
 }

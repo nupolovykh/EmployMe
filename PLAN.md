@@ -82,7 +82,10 @@ before a line of integration code is written.
       terms require Himalayas' prior written approval; source stays disabled)
 - [x] Spike: Jobicy remote jobs API (Tier B) — EM-48 (`spikes/jobicy/`, cleared)
 - [x] Spike: Arbeitnow job board API (Tier B, EU/DACH) — EM-49 (`spikes/arbeitnow/`, cleared)
-- [ ] Target-company registry: 30 companies with ATS and board token — EM-50
+- [x] Target-company registry — EM-50 (scope revised 2026-08-26: a 6-company live-verified seed
+      against the criteria derived from the author's own CV — junior level, .NET/C# primary
+      stack, Tbilisi/Georgia hiring-geography constraint — not 30 collected up front; see
+      `docs/SOURCES.md`. Registry now grows only from applications actually sent.)
 - ~~hh.ru API access registered~~ — EM-9, **falsified**. See A-000.
 
 **Exit criterion:** `devcontainer up` brings up an empty API and database with no errors, and
@@ -91,8 +94,8 @@ terms-of-use verdict. **Met 2026-08-26** — see `docs/SOURCES.md`'s gate status
 
 **Gate:** do not start Phase I with fewer than four sources at level `spike`, at least two of them
 Tier A, at least four cleared for public display. **Met**, without Himalayas: Greenhouse, Lever
-(Tier A) + Jobicy, Arbeitnow (Tier B) are all `spike` and cleared. EM-50 (target-company registry)
-is the only open Phase 0 item remaining.
+(Tier A) + Jobicy, Arbeitnow (Tier B) are all `spike` and cleared. **All Phase 0 items closed as
+of 2026-08-26.**
 
 ---
 
@@ -193,9 +196,11 @@ Goal: the project survives 20 minutes of interview questions.
 
 ## Open questions
 
-1. **How does the target-company registry grow?** By hand, from a harvestable public list of board
-   tokens, or from applications actually sent? 30 by hand is fine; 300 is not. Decide the mechanism
-   while building it (EM-50), not at 200 rows.
+1. ~~How does the target-company registry grow?~~ **Resolved 2026-08-26, EM-50.** Hybrid: a
+   small live-verified seed (3 Greenhouse + 3 Lever companies) just to unblock EM-45/46's spikes
+   with real evidence instead of spike-of-convenience tokens (GitLab, Palantir) — not 30 collected
+   up front. From here on the registry grows only when an application is actually sent to a new
+   company. See `docs/SOURCES.md`'s "Target-company registry" section.
 2. **Does normalization across six upstream shapes preserve the structured signal Phase III needs?**
    A lowest-common-denominator mapping would leave the fit-score with title, company and URL. A-009.
 3. **Is a self-hosted multilingual model good enough across English, German and Russian postings?**

@@ -10,6 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Application> Applications => Set<Application>();
     public DbSet<Embedding> Embeddings => Set<Embedding>();
     public DbSet<RawPosting> RawPostings => Set<RawPosting>();
+    public DbSet<TargetCompany> TargetCompanies => Set<TargetCompany>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,6 +30,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<RawPosting>()
             .HasIndex(r => new { r.SourceId, r.ExternalId });
+
+        modelBuilder.Entity<TargetCompany>()
+            .HasIndex(t => new { t.SourceId, t.BoardToken })
+            .IsUnique();
 
         modelBuilder.Entity<Application>()
             .HasIndex(a => a.VacancyId)
