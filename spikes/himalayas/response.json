@@ -1,0 +1,92 @@
+{
+  "comments": "21/08/2026: Cursor pagination is now available and is the preferred way to page through the feed. Pass the nextCursor value from each response back as ?cursor=. It is faster than offset and will never return the same job twice. The offset parameter is deprecated and will be removed in a future release. 13/03/2026: The API has been updated to include the companySlug field in the response.",
+  "updatedAt": 1787709613,
+  "offset": 0,
+  "limit": 20,
+  "totalCount": 100592,
+  "nextCursor": "MjAyNi0wOC0yNVQyMDozMjo0Ny40ODI5MzlafDE4MzM5ODk",
+  "jobs": [
+    {
+      "title": "Speech to Text Audio Collection - Malay Speakers",
+      "excerpt": "TELUS Digital is seeking Malay speakers to participate in a Speech-to-Text (STT) audio collection project.",
+      "companyName": "TELUS International AI Inc",
+      "companySlug": "telus-international-ai-inc",
+      "companyLogo": "https://cdn-images.himalayas.app/omzyubeqs0dlp6huhehruwkpipyy",
+      "employmentType": "Part Time",
+      "minSalary": null,
+      "maxSalary": null,
+      "salaryPeriod": "annual",
+      "seniority": [
+        "Mid-level",
+        "Entry-level"
+      ],
+      "currency": "USD",
+      "locationRestrictions": [
+        "Malaysia"
+      ],
+      "timezoneRestrictions": [
+        8
+      ],
+      "categories": [
+        "Speech-Data-Collection",
+        "Audio-Transcription",
+        "Malay-Language-Data-Annotation"
+      ],
+      "parentCategories": [],
+      "description": "<p>TELUS Digital is seeking Malay speakers to participate in a Speech-to-Text (STT) audio collection project. Participants will record voice utterances by reading provided scripts in Malay English (Manglish) using our mobile or web application. During multiple recording sessions, you will receive scripts covering various everyday conversational topics and read them naturally and conversationally—avoiding overly formal or robotic speech patterns.</p><p></p><p><strong>The Primary Objective</strong></p><p>The primary objective of this project is to create high-quality audio recordings paired with corresponding scripts to train and improve speech recognition models. Your participation helps develop speech recognition technology that understands and processes natural speech, ultimately enhancing AI systems and user experience.</p><p></p><p><strong>Expected Project Duration</strong></p><p>July 2026 – September 2026</p><p></p><p><strong>Time to Complete the Task</strong></p><p>10–20 hours</p><p></p><p><strong>Location</strong></p><p>Remote</p><p></p><p>Qualification path</p><p><strong>Payment Rate:</strong></p><ul class=\"list-disc list-outside leading-3 -mt-2\">\n<li class=\"leading-normal -mb-2\"><p>$5 USD per 1 hour of completed task.</p></li>\n<li class=\"leading-normal -mb-2\"><p>This is an Independent Contractor opportunity.</p></li>\n<li class=\"leading-normal -mb-2\"><p>Payments will be made via Hyperwallet, where you can choose PayPal or Bank Transfer as the payment method.</p></li>\n</ul><p></p><p><strong>Other Requirements:</strong></p><ul class=\"list-disc list-outside leading-3 -mt-2\">\n<li class=\"leading-normal -mb-2\"><p>Fluent Malay Speaker</p></li>\n<li class=\"leading-normal -mb-2\"><p>English Proficiency</p></li>\n<li class=\"leading-normal -mb-2\"><p>12–60+ years old</p></li>\n<li class=\"leading-normal -mb-2\"><p>A device with a microphone (phone, tablet, PC, or laptop)</p></li>\n<li class=\"leading-normal -mb-2\"><p>Stable internet connection for the duration of the task</p></li>\n<li class=\"leading-normal -mb-2\"><p>Each participant can only complete the project once</p></li>\n</ul><p>Originally posted on <a href=\"https://himalayas.app\">Himalayas</a></p>",
+      "pubDate": 1787709613,
+      "expiryDate": 1790179112,
+      "applicationLink": "https://himalayas.app/companies/telus-international-ai-inc/jobs/speech-to-text-audio-collection-malay-speakers",
+      "guid": "https://himalayas.app/companies/telus-international-ai-inc/jobs/speech-to-text-audio-collection-malay-speakers"
+    },
+    {
+      "title": "Media Search Analyst - English (AU)",
+      "excerpt": "Job description Ready to say goodbye to the boring, traditional 9-5 routine and embrace a dynamic and exciting work environment that puts you in control?",
+      "companyName": "TELUS Digital",
+      "companySlug": "telus-digital",
+      "companyLogo": "https://cdn-images.himalayas.app/308dt0lvrypdu9cu9rt8eh58o73q",
+      "employmentType": "Part Time",
+      "minSalary": null,
+      "maxSalary": null,
+      "salaryPeriod": "annual",
+      "seniority": [
+        "Entry-level"
+      ],
+      "currency": "USD",
+      "locationRestrictions": [],
+      "timezoneRestrictions": [],
+      "categories": null,
+      "parentCategories": [],
+      "description": "<p><strong>Job description</strong></p><p></p><p>Ready to say goodbye to the boring, traditional 9-5 routine and embrace a dynamic and exciting work environment that puts you in control? This position offers you the flexibility to set your own schedule and complete exciting tasks using an innovative web-based evaluation tool.</p><p></p><p><strong>A Day in the Life of a Media Search Analyst:</strong></p><ul class=\"list-disc list-outside leading-3 -mt-2\">\n<li class=\"leading-normal -mb-2\"><p>In this role, you will be doing a comprehensive assessment of diverse task categories, encompassing music, video, and home pod evaluations spanning various media domains</p></li>\n<li class=\"leading-normal -mb-2\"><p>Analyzing and evaluating search outcomes for App Store Content and conducting research using online tools to assess and validate query accuracy and intent by applying market expertise in conjunction with provided directives to evaluate the relevance and purpose of task-related information for your specific market.</p></li>\n</ul><p><br></p><p>Join us today and be a key player in our community revolutionizing digital media content!</p><p></p><p><strong>TELUS Digital AI Community</strong></p><p>Our global AI Community is a vibrant network of more than one million contributors from diverse backgrounds who help customers collect, enhance, train, translate, and localize content to build better AI models. Become part of our growing community and contribute to the development of innovative AI technologies used by some of the world's largest brands.</p><p></p><p><strong>Qualification path</strong></p><p>No previous professional experience is required to apply to this role, however, working on this project will require you to pass the basic requirements and go through a standard assessment process. This is a part-time long-term project and your work will be subject to our standard quality assurance checks during the term of this agreement.</p><p></p><p><strong>Basic Requirements</strong></p><ul class=\"list-disc list-outside leading-3 -mt-2\">\n<li class=\"leading-normal -mb-2\"><p><strong>Full Professional Proficiency in the English language</strong></p></li>\n<li class=\"leading-normal -mb-2\"><p><strong>Being a resident in Australia for the last year consecutively and having familiarity with current and historical business, media, sport, news, social media, and cultural affairs in Australia</strong></p></li>\n<li class=\"leading-normal -mb-2\"><p><strong>Having an email address associated with an Apple ID and experience and know-how of Apple products</strong></p></li>\n<li class=\"leading-normal -mb-2\"><p>Having up-to-date familiarity with prevailing trends in applications, music &amp; video with a keen interest in internet research</p></li>\n<li class=\"leading-normal -mb-2\"><p>Flexibility to work across a diverse set of task types</p></li>\n<li class=\"leading-normal -mb-2\"><p>Daily access to a broadband internet connection, computer, and relevant software</p></li>\n<li class=\"leading-normal -mb-2\"><p>Independent working and the ability to adapt to innovative methodologies and processes with great attention to detail and exceptional communication skills</p></li>\n<li class=\"leading-normal -mb-2\"><p>While a High School degree or higher certification is preferred, we are open to candidates with exceptional skills and talent.</p></li>\n<li class=\"leading-normal -mb-2\"><p>Additional Incentives provided throughout the assessment process</p></li>\n</ul><p>&nbsp;</p><p><strong>Assessment</strong></p><p>In order to be hired into the program, you’ll take an open book qualification exam that will determine your suitability for the position and complete ID verification. Our team will provide you with guidelines and learning materials before your qualification exam. You will be required to complete the exam in a specific timeframe but at your convenience.</p><p></p><p><strong>Apply Here: </strong></p><p></p><p><strong>Independent Contractor Relationship</strong></p><p>This opportunity is offered on an independent contractor basis. Contributors have the flexibility to choose when and how much they work, subject to project availability and quality requirements. This opportunity is not and should not be construed as creating an employment relationship with TELUS Digital.</p><p>Originally posted on <a href=\"https://himalayas.app\">Himalayas</a></p>",
+      "pubDate": 1787709611,
+      "expiryDate": 1790257763,
+      "applicationLink": "https://himalayas.app/companies/telus-digital/jobs/media-search-analyst-english-au-7327620703",
+      "guid": "https://himalayas.app/companies/telus-digital/jobs/media-search-analyst-english-au-7327620703"
+    },
+    {
+      "title": "Online Data Analyst - Bengali (IN)",
+      "excerpt": "চাকরির বিবরণ আপনি কি বিস্তারিত বিষয়ে মনোযোগী ব্যক্তি যার গবেষণার প্রতি আবেগ এবং জাতীয় এবং স্থানীয় ভূগোলের ভালো বোঝাপড়া আছে?",
+      "companyName": "TELUS Digital",
+      "companySlug": "telus-digital",
+      "companyLogo": "https://cdn-images.himalayas.app/308dt0lvrypdu9cu9rt8eh58o73q",
+      "employmentType": "Part Time",
+      "minSalary": null,
+      "maxSalary": null,
+      "salaryPeriod": "annual",
+      "seniority": [
+        "Entry-level"
+      ],
+      "currency": "USD",
+      "locationRestrictions": [],
+      "timezoneRestrictions": [],
+      "categories": null,
+      "parentCategories": [],
+      "description": "<p><span><strong>চাকরির বিবরণ</strong></span></p><p><span>আপনি কি বিস্তারিত বিষয়ে মনোযোগী ব্যক্তি যার গবেষণার প্রতি আবেগ এবং জাতীয় এবং স্থানীয় ভূগোলের ভালো বোঝাপড়া আছে? এই ফ্রিল্যান্স সুযোগ আপনাকে নিজের গতিতে এবং নিজের বাড়ির আরামে কাজ করতে দেয়।</span></p><p></p><p><span><strong>একজন অনলাইন ডেটা বিশ্লেষকের একটি দিন:</strong></span></p><ul class=\"list-disc list-outside leading-3 -mt-2\">\n<li class=\"leading-normal -mb-2\"><p><span>এই ভূমিকায়, আপনি একটি প্রকল্পে কাজ করবেন যা বিশ্বব্যাপী লক্ষ লক্ষ মানুষ দ্বারা ব্যবহৃত ডিজিটাল মানচিত্রের বিষয়বস্তু এবং গুণমান উন্নত করার লক্ষ্যে রয়েছে।</span></p></li>\n<li class=\"leading-normal -mb-2\"><p><span>ওয়েব-ভিত্তিক পরিবেশে গবেষণা এবং মূল্যায়ন কাজ সম্পন্ন করা যেমন ডেটা যাচাই এবং তুলনা করা, এবং তথ্যের প্রাসঙ্গিকতা ও নির্ভুলতা নির্ধারণ করা।</span></p></li>\n</ul><p></p><p><span>আজই আমাদের সাথে যোগ দিন এবং একটি গতিশীল এবং উদ্ভাবনী দলের অংশ হন যা বিশ্বে পরিবর্তন আনছে!</span></p><p></p><p><span>TELUS Digital AI Community</span></p><p><span>আমাদের বৈশ্বিক AI কমিউনিটি হলো বিভিন্ন পটভূমির দশ লক্ষেরও বেশি অবদানকারীর একটি প্রাণবন্ত নেটওয়ার্ক। তাঁরা গ্রাহকদের উন্নতমানের AI মডেল তৈরির লক্ষ্যে কন্টেন্ট সংগ্রহ, পরিমার্জন, প্রশিক্ষণ, অনুবাদ এবং স্থানীয়করণের কাজে সহায়তা করেন। আমাদের ক্রমবর্ধমান এই কমিউনিটির অংশ হোন এবং বিশ্বের শীর্ষস্থানীয় কিছু ব্র্যান্ডের ব্যবহৃত উদ্ভাবনী AI প্রযুক্তির উন্নয়নে অবদান রাখুন।</span></p><p></p><p><span><strong>যোগ্যতার পথ</strong></span></p><p><span>এই ভূমিকায় আবেদন করার জন্য কোন পূর্ববর্তী পেশাদার অভিজ্ঞতার প্রয়োজন নেই, তবে এই প্রকল্পে কাজ করার জন্য আপনাকে মৌলিক প্রয়োজনীয়তাগুলি পূরণ করতে এবং একটি মান মূল্যায়ন প্রক্রিয়ার মধ্য দিয়ে যেতে হবে। এটি একটি অংশ-সময়ের দীর্ঘমেয়াদী প্রকল্প এবং আপনার কাজ এই চুক্তির শর্তাবলীতে আমাদের মান গুণমান নিশ্চিতকরণ পরীক্ষার সাপেক্ষে থাকবে।</span></p><p></p><p><span><strong>মৌলিক প্রয়োজনীয়তা</strong></span></p><ul class=\"list-disc list-outside leading-3 -mt-2\">\n<li class=\"leading-normal -mb-2\"><p><span>বাংলা এবং ইংরেজি ভাষায় সম্পূর্ণ পেশাদার দক্ষতা</span></p></li>\n<li class=\"leading-normal -mb-2\"><p><span>গত ৫ বছর ধরে ভারতের বাসিন্দা থাকা এবং ভারতের বর্তমান এবং ঐতিহাসিক ব্যবসা, মিডিয়া, ক্রীড়া, সংবাদ, সোশ্যাল মিডিয়া এবং সাংস্কৃতিক বিষয়ে পরিচিত থাকা</span></p></li>\n<li class=\"leading-normal -mb-2\"><p><span>নির্দেশিকা অনুসরণ করার এবং সার্চ ইঞ্জিন, অনলাইন মানচিত্র এবং ওয়েবসাইট তথ্য ব্যবহার করে অনলাইন গবেষণা পরিচালনা করার ক্ষমতা</span></p></li>\n<li class=\"leading-normal -mb-2\"><p><span>মানচিত্র, সংবাদ, অডিও কাজ এবং প্রাসঙ্গিকতা সহ বিভিন্ন ধরনের কাজ জুড়ে কাজ করার নমনীয়তা</span></p></li>\n<li class=\"leading-normal -mb-2\"><p><span>প্রতিদিন ব্রডব্যান্ড ইন্টারনেট সংযোগ, কম্পিউটার এবং প্রাসঙ্গিক সফটওয়্যার অ্যাক্সেস</span></p></li>\n</ul><p></p><p><span><strong>মূল্যায়ন</strong></span></p><p><span>প্রোগ্রামে নিয়োগ করার জন্য, আপনি একটি খোলা বই যোগ্যতা পরীক্ষা নেবেন যা আপনার এই অবস্থানের জন্য উপযুক্ততা নির্ধারণ করবে এবং আইডি যাচাইকরণ সম্পন্ন করবেন। আমাদের দল আপনার যোগ্যতা পরীক্ষার আগে নির্দেশিকা এবং শেখার উপকরণ প্রদান করবে। আপনাকে নির্দিষ্ট সময়ের মধ্যে পরীক্ষা সম্পন্ন করতে হবে কিন্তু আপনার সুবিধা অনুযায়ী।</span></p><p><br></p><p><span>এখানে আবেদন করুন:</span></p><p></p><p></p><p><span><strong>স্বাধীন ঠিকাদার সম্পর্ক</strong></span></p><p><span>এই সুযোগটি একজন স্বতন্ত্র ঠিকাদার (independent contractor) হিসেবে কাজ করার ভিত্তিতে প্রদান করা হচ্ছে। প্রকল্পের প্রাপ্যতা ও গুণগত মানের শর্ত সাপেক্ষে, অবদানকারীরা কখন এবং কতটা কাজ করবেন, তা নির্ধারণ করার স্বাধীনতা তাদের রয়েছে। এই সুযোগটিকে TELUS Digital-এর সাথে কোনো কর্মসংস্থান বা চাকরির সম্পর্ক হিসেবে গণ্য করা যাবে না।</span></p><p><br></p><p>Originally posted on <a href=\"https://himalayas.app\">Himalayas</a></p>",
+      "pubDate": 1787709610,
+      "expiryDate": 1790257951,
+      "applicationLink": "https://himalayas.app/companies/telus-digital/jobs/online-data-analyst-bengali-in-3174088034",
+      "guid": "https://himalayas.app/companies/telus-digital/jobs/online-data-analyst-bengali-in-3174088034"
+    }
+  ],
+  "_spike_note": "Truncated to 3 of 20 jobs in this page (totalCount=100592 across the whole feed)."
+}

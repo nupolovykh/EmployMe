@@ -52,46 +52,82 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 
 ### A-001 — Greenhouse boards API is public, unauthenticated, and displayable
 
-- **Level:** `docs` → `spike` via EM-45
+- **Level:** `spike` (2026-08-26, EM-45). `spikes/greenhouse/response.json` + `NOTES.md`
+  committed: live `GET /v1/boards/gitlab/jobs?content=true` → `200`, 217 real jobs.
 - **Blast radius:** high. One of the two Tier A adapters in the MVP.
+- **Legal status: cleared.** Fixed a firewall gap (`www.greenhouse.io`/`.com`,
+  `developers.greenhouse.io`, `docs.greenhouse.io` weren't allowlisted) and read the developer
+  docs live: they state the API exists so callers "can build careers pages with a unique look
+  and feel" — Greenhouse's own words for exactly what this project does. See
+  `spikes/greenhouse/NOTES.md` for the quote.
 - **Fallback:** Lever (A-002) alone at Tier A, plus Ashby (A-008) pulled forward.
-- **Expiry:** 22 Feb 2027
+- **Expiry:** 22 Feb 2027.
 
 ### A-002 — Lever postings API is public, unauthenticated, and displayable
 
-- **Level:** `docs` → `spike` via EM-46
+- **Level:** `spike` (2026-08-26, EM-46). `spikes/lever/response.json` + `NOTES.md` committed:
+  live `GET /v0/postings/palantir?mode=json` → `200`, 305 real postings. (Also confirmed a valid
+  *empty* response — `lever` and `plaid` site tokens returned `200` with `[]` — worth handling as
+  a non-error case in the adapter, not retried as a failure.)
 - **Blast radius:** high. The other Tier A adapter in the MVP.
+- **Legal status: cleared.** Same firewall fix as A-001 (`hire.lever.co` added), then read
+  live: Lever's own developer docs name "create a custom job site" as the Postings API's
+  intended use. See `spikes/lever/NOTES.md` for the quote.
 - **Fallback:** Greenhouse (A-001) alone at Tier A, plus Ashby (A-008) pulled forward.
-- **Expiry:** 22 Feb 2027
+- **Expiry:** 22 Feb 2027.
 
 ### A-003 — Himalayas API is free, keyless, and displayable with attribution
 
-- **Level:** `docs` → `spike` via EM-47
+- **Level:** `spike` (2026-08-26, EM-47) for the technical claim. `spikes/himalayas/
+  response.json` + `NOTES.md` committed: live `GET /jobs/api` → `200`, cursor-paginated,
+  `totalCount` 100,592.
 - **Blast radius:** medium. One of two Tier B adapters in the MVP.
-- **Unverified specifics:** the actual rate limit; the 24 h refresh interval that sets
-  `min_poll_interval`; the exact required attribution wording.
-- **Fallback:** Jobicy (A-004) plus Arbeitnow (A-005).
-- **Expiry:** 22 Feb 2027
+- **Legal status: FALSIFIED, not just unverified.** `https://himalayas.app/terms`, read live on
+  2026-08-26, explicitly bars scraping/data-mining/redistribution **"without Himalayas' prior
+  written approval"** — a real quote, not an inference. Nothing in the API's own OpenAPI spec
+  carves the `/jobs/api` endpoint out of that restriction. This directly contradicts what this
+  entry previously assumed ("displayable with attribution") — that claim was `docs`-level,
+  inferred from the tier's general pattern, and turned out wrong on inspection. **Do not set
+  `public_deploy_enabled = true` for this source without Himalayas' written approval.** This is
+  the same failure shape as A-000 (hh.ru) at smaller scale, caught before an adapter was written
+  instead of after.
+- **Resolved specifics:** rate limit still not exposed via headers; refresh cadence is 24h per
+  the OpenAPI spec (`min_poll_interval` should be set to 24h, not the CDN's 2h cache window);
+  attribution wording is moot until the approval question is resolved.
+- **Fallback:** Jobicy (A-004) plus Arbeitnow (A-005) — both cleared. Do not backfill Himalayas
+  into the "≥4 cleared for public display" gate count.
+- **Expiry:** on written approval, or 22 Feb 2027, whichever is first.
 
 ### A-004 — Jobicy API is free, keyless, and displayable at ≤1 poll/hour
 
-- **Level:** `docs` → `spike` via EM-48
+- **Level:** `spike` (2026-08-26, EM-48). `spikes/jobicy/response.json` + `NOTES.md` committed:
+  live `GET /api/v2/remote-jobs?count=5` → `200`, 5 real jobs, full untruncated response.
 - **Blast radius:** medium. The other Tier B adapter in the MVP.
+- **Legal status: cleared.** The API embeds its own terms in every response's `friendlyNotice`
+  field (live quote in `NOTES.md`): credit Jobicy, and application buttons must redirect to the
+  original job URL — which the `url` field already provides directly. Stronger evidence than a
+  scraped ToS page, since Jobicy states it on every call.
 - **The constraint that bites:** polling faster than hourly risks a ban. It lives in
-  `sources.min_poll_interval` and the scheduler reads it from there — never a constant.
-  Attribution must name Jobicy and preserve the canonical Jobicy job URL.
-- **Fallback:** Himalayas (A-003) plus Arbeitnow (A-005).
-- **Expiry:** 22 Feb 2027
+  `sources.min_poll_interval` and the scheduler reads it from there — never a constant. Jobicy's
+  own docs page (`jobi.cy/apidocs`) 404'd when checked live — the 1h figure is carried forward
+  from the original desk research, not re-confirmed today; flagged as a small follow-up, not a
+  blocker.
+- **Fallback:** Himalayas (A-003, currently blocked) plus Arbeitnow (A-005).
+- **Expiry:** 22 Feb 2027.
 
 ### A-005 — Arbeitnow's job-board API is free, keyless, and displayable
 
-- **Level:** `docs` → `spike` via EM-49
+- **Level:** `spike` (2026-08-26, EM-49). `spikes/arbeitnow/response.json` + `NOTES.md`
+  committed: live `GET /api/job-board-api` → `200`, 175 real postings on page 1.
 - **Blast radius:** low. Phase I follow-on (EM-19), not an MVP dependency.
-- **Weakest point:** no terms of use were found during desk research. If none is published, that
-  absence is the finding, and it must be recorded rather than read as permission. Pagination and
-  rate limits are also unknown.
+- **Legal status: cleared.** The "no terms found during desk research" gap is resolved: the
+  standalone `/terms` page is client-rendered JS (unfetchable via plain `curl` from this
+  environment), but the API response itself carries `meta.terms` (live quote in `NOTES.md`):
+  free public API, don't abuse it, link-back appreciated, full site ToS incorporated by
+  reference. Pagination (`?page=`) and refresh cadence (hourly, per `meta.info`) are both
+  resolved the same way — stated directly in the live response.
 - **Fallback:** drop EU/DACH coverage from Phase I; the two Tier B MVP adapters stand alone.
-- **Expiry:** 22 Feb 2027
+- **Expiry:** 22 Feb 2027.
 
 ### A-006 — Remotive permits redisplay with credit and a link back
 
