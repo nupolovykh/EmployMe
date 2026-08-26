@@ -3,7 +3,8 @@ set -euo pipefail  # Exit on error, undefined vars, and pipeline failures
 IFS=$'\n\t'       # Stricter word splitting
 
 # Based on the reference firewall from anthropics/claude-code's .devcontainer,
-# extended with the domains this project's tooling needs (NuGet, hh.ru API,
+# extended with the domains this project's tooling needs (NuGet, the job
+# sources listed in docs/SOURCES.md,
 # and the remote MCP servers listed in PLAN.md's tooling map).
 
 # 1. Extract Docker DNS info BEFORE any flushing
@@ -108,8 +109,12 @@ for domain in \
     "marketplace.visualstudio.com" \
     "vscode.blob.core.windows.net" \
     "update.code.visualstudio.com" \
-    "api.hh.ru" \
-    "hh.ru" \
+    "boards-api.greenhouse.io" \
+    "api.lever.co" \
+    "himalayas.app" \
+    "jobicy.com" \
+    "www.arbeitnow.com" \
+    "railway.app" \
     "mcp.linear.app" \
     "mcp.slack.com" \
     "mcp.sentry.dev" \
