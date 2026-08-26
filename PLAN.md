@@ -101,9 +101,15 @@ can block it.
 - [ ] REST endpoints: list, filter by keyword/stack/date — EM-15
 - [ ] Frontend: React + TS + Vite, vacancy list, basic filters — EM-16
 - [ ] `IJobSource` connector abstraction + source-agnostic ingest command — EM-52
-- [ ] Four adapters: Greenhouse, Lever, Himalayas, Jobicy — EM-53
+- [ ] Four adapters: Greenhouse, Lever, **Arbeitnow**, Jobicy — EM-53 (swapped in for Himalayas,
+      2026-08-26: Himalayas' spike on `claude/phase-0-api-foundation` found its terms require
+      prior written approval Himalayas hasn't given, so it doesn't qualify as "cleared for public
+      display." Arbeitnow was already spiked and cleared as part of the same gate check, so it
+      moves up from its EM-19 follow-on slot rather than leaving the MVP at three adapters.
+      Revisit if Himalayas' approval comes through — see A-003 in docs/ASSUMPTIONS.md.)
 - [ ] Render source attribution on every vacancy card — EM-54
-- [ ] Two more adapters, one per tier: Ashby (A) and Arbeitnow (B) — EM-19
+- [ ] One more adapter: Ashby (A) — EM-19 (Arbeitnow moved into EM-53's four, see above; Himalayas
+      re-enters here if its approval comes through)
 - [ ] Initial Railway deployment — EM-17
 - ~~hh.ru API client~~ — EM-13, cancelled with A-000.
 - ~~Manual hh.ru ingest job~~ — EM-14, cancelled; replaced by the source-agnostic command in EM-52.
