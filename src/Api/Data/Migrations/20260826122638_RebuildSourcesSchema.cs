@@ -12,10 +12,23 @@ namespace Api.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
+            // Not a RenameColumn: the old SourceType{HhRu=0,JobsGe=1,International=2} and the new
+            // SourceTier{A=0,B=1,C=2,D=3} enums don't share ordinal meaning. Renaming the column
+            // would silently reinterpret any stored value under the new enum (e.g. HhRu(0) read
+            // back as Tier.A(0)) — exactly the failure shape CLAUDE.md already documents for why
+            // SourceType.HhRu couldn't just be removed from the old enum. Drop and re-add instead,
+            // defaulting new rows to the most restrictive tier (D) rather than inheriting a
+            // meaning from the column being replaced.
+            migrationBuilder.DropColumn(
                 name: "Type",
+                table: "Sources");
+
+            migrationBuilder.AddColumn<int>(
+                name: "Tier",
                 table: "Sources",
-                newName: "Tier");
+                type: "integer",
+                nullable: false,
+                defaultValue: 3);
 
             migrationBuilder.RenameColumn(
                 name: "Name",
@@ -215,10 +228,16 @@ namespace Api.Data.Migrations
                 name: "TermsUrl",
                 table: "Sources");
 
-            migrationBuilder.RenameColumn(
+            migrationBuilder.DropColumn(
                 name: "Tier",
+                table: "Sources");
+
+            migrationBuilder.AddColumn<int>(
+                name: "Type",
                 table: "Sources",
-                newName: "Type");
+                type: "integer",
+                nullable: false,
+                defaultValue: 0);
 
             migrationBuilder.RenameColumn(
                 name: "Slug",
