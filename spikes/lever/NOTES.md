@@ -1,6 +1,44 @@
 # Spike: Lever postings API (Tier A) — EM-46
 
-**Date:** 2026-08-26. **Assumption:** A-002.
+**Date:** 2026-08-26, **re-run 2026-08-27.** **Assumption:** A-002.
+
+## Re-run — 2026-08-27, against the target-company registry
+
+The original spike below was reopened because it did not meet its own acceptance criteria: it
+sampled `palantir` alone — a token found by guessing, and one the registry explicitly excludes as
+a prestige-filtered employer that a junior with one year of experience will not be hired by.
+"Spike fodder is not a target company" (EM-50).
+
+Re-run against the three live-verified Lever tokens from EM-50's registry. All three returned
+`HTTP 200` with a flat array at the root:
+
+| Company | Token | Status | Postings | Full response |
+|---|---|---:|---:|---:|
+| Qonto | `qonto` | 200 | 40 | 1,118,875 bytes |
+| RemoFirst | `remofirst` | 200 | 1 | 11,841 bytes |
+| Peerspace | `peerspace` | 200 | 3 | 115,440 bytes |
+| | | | **44** | |
+
+`response.json` now carries all three, truncated to 2 postings each; `postings_total` and
+`response_bytes` record the untruncated figures.
+
+**Cross-checked against the adapter, not just curl:** the EM-53 Lever adapter ingested these same
+three tokens and produced exactly 44 vacancies, matching the count above. That is the live-endpoint
+check this spike was missing — an assertion in a test project belongs to EM-55's nightly contract
+test, since the test infrastructure itself is EM-23 in Phase II and cannot be pulled into Phase 0
+without breaking the phase gate in the other direction.
+
+**Two shape claims confirmed by the re-run**, both of which the adapter depends on:
+1. The root is a flat array for every one of the three boards — the `postings` key in this file is
+   a truncation container, not the API's shape.
+2. No posting carries an employer name. `Vacancy.Company` has to come from the registry row, which
+   is what the adapter does.
+
+**Terms verdict is unchanged and was never in dispute** — see below. Only the evidence base was.
+
+---
+
+## Original spike — 2026-08-26 (kept for history)
 
 ## Request
 
@@ -13,8 +51,8 @@ customer, or wrong token), `lever` → 200 but `[]` (Lever's own board currently
 postings — a real, valid, empty response), `plaid` → 200 but `[]`, `palantir` → 200 with 305
 postings. Used `palantir` as the sample.
 
-**Result:** `HTTP 200`, 305 postings, 5,898,248 bytes. `response.json` here is truncated to the
-first 3 — see `_spike_note`.
+**Result:** `HTTP 200`, 305 postings, 5,898,248 bytes. *(The `palantir` sample is no longer
+carried in `response.json` — it was replaced by the three registry companies in the re-run above.)*
 
 ## Shape / field mapping sketch
 
