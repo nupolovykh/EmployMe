@@ -127,7 +127,12 @@ can block it.
       criterion needs four sources and those already ship, so a fifth connector ahead of a
       deployment is the wide-and-shallow failure the phase gate exists to prevent. Blocked by
       EM-57.)
-- [ ] Initial Railway deployment — EM-17
+- [ ] Initial Railway deployment — EM-17 (**required environment variables**, added 2026-08-27:
+      `Ingest__TriggerToken` — a shared secret, without which the manual ingest endpoint refuses
+      to run at all on a public deployment; and `ConnectionStrings__Default`.
+      `Ingest__PublicDeployment` is deliberately *not* required — unset resolves to "public unless
+      Development", so forgetting it keeps the compliance guards on rather than silently switching
+      them off.)
 - ~~hh.ru API client~~ — EM-13, cancelled with A-000.
 - ~~Manual hh.ru ingest job~~ — EM-14, cancelled; replaced by the source-agnostic command in EM-52.
 
