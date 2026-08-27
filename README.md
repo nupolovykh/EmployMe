@@ -69,11 +69,11 @@ This project is developed inside a [Dev Container](https://containers.dev/), so 
 5. Run the backend: `dotnet run --project src/Api`
 6. Run the frontend: `npm install && npm run dev` (from `src/Web`)
 
-Production deployment, error monitoring, and project tracking are external services (Railway, Sentry, Linear) — see [`PLAN.md`](./PLAN.md) for how they fit into the workflow.
+Production deployment, error monitoring, and project tracking are external services (Railway, Sentry, Linear) — see [`docs/PLAN.md`](./docs/PLAN.md) for how they fit into the workflow.
 
 ## Project status
 
-Actively in development, following a phased plan — see [`PLAN.md`](./PLAN.md) for the full roadmap, acceptance criteria per phase, and estimated timeline. The plan is at Revision 2: the original hh.ru-based design was falsified and rebuilt around multi-source ingestion. That post-mortem is [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md) entry A-000, and it is deliberately kept in the repository.
+Actively in development, following a phased plan — see [`docs/PLAN.md`](./docs/PLAN.md) for the full roadmap, acceptance criteria per phase, and estimated timeline. The plan is at Revision 2: the original hh.ru-based design was falsified and rebuilt around multi-source ingestion. That post-mortem is [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md) entry A-000, and it is deliberately kept in the repository.
 
 Supporting documents: [`docs/SOURCES.md`](./docs/SOURCES.md) (source registry, tiers, terms of use) and [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md) (assumption register with verification levels and expiry dates).
 

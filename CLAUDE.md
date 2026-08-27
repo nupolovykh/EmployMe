@@ -1,35 +1,57 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code (claude.ai/code) working in this repository.
+
+This file is the entry point, not the whole story: it carries the hard rules and the
+environment gotchas that break a build if you don't know them. Everything narrative lives in
+`docs/`.
+
+## Documents
+
+Read the one that governs what you are about to touch. These are binding, not background.
+
+| Document | Governs |
+|---|---|
+| [`docs/CONVENTIONS.md`](./docs/CONVENTIONS.md) | **Naming — branches, commits, PRs, issues. Follow it for anything you name.** |
+| [`docs/PLAN.md`](./docs/PLAN.md) | Phased roadmap, §01 process rules, per-phase exit criteria. Its checkboxes are the source of truth for what is actually done. |
+| [`docs/SOURCES.md`](./docs/SOURCES.md) | Source registry: tiers, endpoints, auth, rate limits, terms of use, verification level, disqualified sources. |
+| [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md) | Assumption register: every load-bearing claim with a verification level (`assumed` → `docs` → `spike` → `live`), blast radius, fallback, expiry. |
+| [`README.md`](./README.md) | The pitch, for a human landing on the repo. |
+
+`docs/SOURCES.md` and `docs/ASSUMPTIONS.md` must be updated alongside any source work — a source
+change that touches neither is incomplete.
 
 ## Project
 
-EmployMe (working title) — a personal job vacancy aggregator that ingests postings from employers' own ATS boards (Tier A: Greenhouse, Lever, Ashby, Workable, Recruitee, Personio) and public remote-job APIs (Tier B: Himalayas, Jobicy, Remotive, RemoteOK, Arbeitnow), ranks them against the author's own CV via semantic embeddings, deduplicates cross-source postings, and tracks the application pipeline (viewed → applied → interview → rejected → offer). Built as a portfolio project that also drives the author's actual job search — see `README.md` for the pitch and `PLAN.md` for the phased roadmap and current status.
+EmployMe (working title) — a personal job vacancy aggregator that ingests postings from employers'
+own ATS boards (Tier A: Greenhouse, Lever, Ashby, Workable, Recruitee, Personio) and public
+remote-job APIs (Tier B: Himalayas, Jobicy, Remotive, RemoteOK, Arbeitnow), ranks them against the
+author's own CV via semantic embeddings, deduplicates cross-source postings, and tracks the
+application pipeline (viewed → applied → interview → rejected → offer). A portfolio project that
+also drives the author's actual job search.
 
-**`PLAN.md` is at Revision 2.** Revision 1 was built around the hh.ru API; it was falsified (403 to unauthorized callers since April 2026, *and* a developer agreement forbidding transfer of retrieved data to third-party services — the legal ground survives any technical workaround). **hh.ru is Tier D: never re-add it, and never enable a Tier D source in a deployed environment.** The post-mortem is Linear EM-9 and `docs/ASSUMPTIONS.md` entry A-000.
+Layout: `src/Api` (ASP.NET Core Web API + EF Core), `src/Web` (React + TS + Vite), `spikes/<source>/`
+(committed live responses that qualify a source), `docs/` (everything above). Postgres with
+`pgvector` and Ollama run as compose services. Railway is the deploy target, Sentry the error
+monitor, Linear the backlog — all outside the container; see `docs/PLAN.md`'s tooling map.
 
-Two documents govern external sources and must be updated alongside any source work:
-- `docs/SOURCES.md` — the source registry: tiers, endpoints, auth, rate limits, terms of use, verification level, and disqualified sources.
-- `docs/ASSUMPTIONS.md` — the assumption register: every load-bearing claim with a verification level (`assumed` → `docs` → `spike` → `live`), blast radius, fallback and expiry date.
+## Hard rules
 
-**Process rules that bind Claude too (`PLAN.md` §01):** evidence over assertion — a claim about an external service needs a URL, a date and a live response; no integration is scheduled without a committed `spikes/<source>/response.json` and a terms-of-use verdict; a checkbox needs a link to a commit, PR or CI run, so unpushed work is In Review, not Done; and no phase may depend on a single external source (N≥3).
-
-**Current state:** repository is at Phase 0 (foundation and source qualification). `src/Api` is scaffolded (ASP.NET Core Web API, EF Core, targets `net10.0` to match the Dev Container's SDK — see the note below if you see it targeting `net8.0` again) with a Postgres schema for `vacancies`/`sources`/`applications`/`embeddings` and an initial migration. `src/Web` (React + TS + Vite) exists only on the unmerged Phase I branch. No source spike has been run yet, so `spikes/` is empty and no adapter may be written — see the Phase 0 gate in `PLAN.md`. The `sources` table is still an enum and must be rebuilt as rows with compliance columns (EM-51) before any adapter lands. Check `PLAN.md`'s checkboxes for what's actually been done before assuming a feature/service exists.
-
-## Intended architecture (per PLAN.md, not yet all implemented)
-
-- **Backend**: ASP.NET Core Web API + EF Core, at `src/Api`.
-- **Database**: PostgreSQL with the `pgvector` extension, run as the `db` compose service.
-- **Embeddings**: Ollama (bge-m3 / e5 models) run as the `ollama` compose service; embeddings for vacancies and CV are compared via cosine similarity for the fit-score.
-- **Frontend**: React + TypeScript via Vite, at `src/Web`.
-- **Scheduling**: `BackgroundService` / Hangfire for scheduled ingest (Phase II+).
-- **Resilience**: `HttpClient` + Polly for external API calls. Poll intervals come from `sources.min_poll_interval`, never a constant — Jobicy caps polling at once per hour and ignoring it gets the project banned.
-- **Testing**: xUnit for unit tests, Testcontainers for integration tests against a real Postgres.
-- **Deployment**: Railway. **Error monitoring**: Sentry. **CI**: GitHub Actions, intended to build on the same base image as the Dev Container so local and CI stay identical.
-
-Data flows: external sources → background ingest service → Postgres (+pgvector) ← Ollama embeddings; LLM structured extraction writes into Postgres too → ASP.NET Core API → React frontend.
-
-Follow the phase gate in `PLAN.md`: each phase must be working (and, where applicable, deployed) before starting the next — don't build Phase III (semantic layer) work ahead of a deployed Phase I, for example.
+- **hh.ru is Tier D: never re-add it, and never enable a Tier D source in a deployed environment.**
+  `docs/PLAN.md` is at Revision 2 because Revision 1 was built on hh.ru and falsified — 403 to
+  unauthorized callers since April 2026, *and* a developer agreement forbidding transfer of
+  retrieved data to third parties, a legal ground that survives any technical workaround. The
+  post-mortem is Linear EM-9 and `docs/ASSUMPTIONS.md` entry A-000.
+- **Follow the phase gate.** Each phase must be working — and where applicable deployed — before
+  the next starts. Don't build Phase III semantic-layer work ahead of a deployed Phase I.
+- **§01 process rules bind Claude too.** Evidence over assertion: a claim about an external service
+  needs a URL, a date and a live response. No integration is scheduled without a committed
+  `spikes/<source>/response.json` and a terms-of-use verdict. A checkbox needs a link to a commit,
+  PR or CI run — unpushed work is In Review, not Done. No phase may depend on a single external
+  source (N≥3).
+- **Poll intervals come from `sources.min_poll_interval`, never a constant.** Jobicy caps polling
+  at once per hour and ignoring it gets the project banned.
+- **Never assume a feature or service exists.** Check `docs/PLAN.md`'s checkboxes first.
 
 ## Dev environment
 
@@ -55,11 +77,5 @@ dotnet ef database update --project src/Api   # dotnet-ef installed globally by 
 cd src/Web && npm install && npm run dev
 ```
 
-No frontend (`src/Web`, `package.json`) exists yet — that's Phase I. No test project exists yet either — that's Phase II (xUnit + Testcontainers per `PLAN.md`).
-
-## Tooling map (inside vs. outside the Dev Container)
-
-From `PLAN.md` — worth checking before assuming something needs to be installed or configured locally:
-
-- **Inside**: .NET SDK, Node.js, Postgres+pgvector, Ollama, git/GitHub CLI/`dotnet-ef`, Claude Code.
-- **Outside**: Railway (deploy target, pushed to via CLI/CI — not run in-container), Sentry/Linear/Slack (SaaS, only API keys/DSNs are stored as env vars), the MCP endpoints for those services (remote servers a Claude client connects to), GitHub Actions (hosted runners), and Claude-adjacent tools (Cowork, Claude Design, Claude in Chrome) that live entirely outside the repo.
+No frontend (`src/Web`, `package.json`) exists yet — that's Phase I. No test project exists yet
+either — that's Phase II (xUnit + Testcontainers per `docs/PLAN.md`).

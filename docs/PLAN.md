@@ -4,7 +4,7 @@
 search has returned `403` to unauthorized callers since April 2026, and its developer agreement
 separately forbids transferring retrieved data to third-party services — so a publicly deployed
 aggregator over hh.ru was never shippable. The plan was rebuilt accordingly. The post-mortem is
-Linear EM-9; the falsified assumption is A-000 in [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md).
+Linear EM-9; the falsified assumption is A-000 in [`docs/ASSUMPTIONS.md`](./ASSUMPTIONS.md).
 
 **Phase gate:** each phase must be working — and, where applicable, deployed — before the next one
 starts. Do not go deep into Phase III while Phase I isn't deployed; this guards against the common
@@ -30,7 +30,7 @@ These came out of the hh.ru incident. They are the part of this plan that is not
    may not leave Backlog without a link to that artifact.
 3. **Definition of done.** A checkbox needs a link to a commit, PR or CI run. Work that exists only
    on an unpushed local branch is In Review, not Done.
-4. **Assumption register with expiry dates.** [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md).
+4. **Assumption register with expiry dates.** [`docs/ASSUMPTIONS.md`](./ASSUMPTIONS.md).
    Every load-bearing claim carries a verification level, a blast radius, a fallback and an expiry.
 5. **Blast radius — N≥3.** No phase may depend on a single external source. The MVP ships with at
    least four connectors across at least two tiers.
