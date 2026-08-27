@@ -15,7 +15,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("Default"),
         o => o.UseVector()));
 
-builder.Services.Configure<IngestOptions>(builder.Configuration.GetSection(IngestOptions.SectionName));
+// Unset PublicDeployment resolves to "public unless Development", so a
+// deployment that forgets the setting keeps the compliance guards on rather
+// than silently turning them off.
+builder.Services.AddOptions<IngestOptions>()
+    .Bind(builder.Configuration.GetSection(IngestOptions.SectionName))
+    .PostConfigure<IHostEnvironment>((o, env) => o.PublicDeployment ??= !env.IsDevelopment());
 builder.Services.AddHttpClient(IngestHttp.ClientName, client =>
 {
     client.Timeout = TimeSpan.FromSeconds(60);

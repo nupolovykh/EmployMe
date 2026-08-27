@@ -61,7 +61,7 @@ public sealed class IngestService(
             return new SourceIngestResult(source.Slug, "skipped", Detail: "source is disabled");
         }
 
-        if (options.Value.PublicDeployment && !source.PublicDeployEnabled)
+        if (options.Value.PublicDeployment is not false && !source.PublicDeployEnabled)
         {
             return new SourceIngestResult(
                 source.Slug, "skipped", Detail: "not cleared for display on a public deployment");
