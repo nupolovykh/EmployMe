@@ -9,8 +9,14 @@ namespace Api.Controllers;
 [Route("api/[controller]")]
 public class VacanciesController(AppDbContext db) : ControllerBase
 {
+    private const string LikeEscape = "\\";
+
     [HttpGet]
     public async Task<ActionResult<PagedResult<VacancyDto>>> GetVacancies(
+        string? keyword = null,
+        string? location = null,
+        DateTimeOffset? publishedAfter = null,
+        DateTimeOffset? publishedBefore = null,
         int page = 1,
         int pageSize = 20,
         CancellationToken cancellationToken = default)
@@ -18,7 +24,39 @@ public class VacanciesController(AppDbContext db) : ControllerBase
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
-        var query = db.Vacancies.AsNoTracking();
+        var query = db.Vacancies.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            // No structured tech-stack field exists yet (that's Phase III's LLM
+            // extraction, EM-31) — free-text search over title/company/description
+            // is what "filter by stack" reduces to for now.
+            var pattern = $"%{EscapeLike(keyword)}%";
+            query = query.Where(v =>
+                EF.Functions.ILike(v.Title, pattern, LikeEscape) ||
+                (v.Company != null && EF.Functions.ILike(v.Company, pattern, LikeEscape)) ||
+                (v.Description != null && EF.Functions.ILike(v.Description, pattern, LikeEscape)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(location))
+        {
+            var pattern = $"%{EscapeLike(location)}%";
+            query = query.Where(v =>
+                v.Location != null && EF.Functions.ILike(v.Location, pattern, LikeEscape));
+        }
+
+        if (publishedAfter is not null)
+        {
+            query = query.Where(v => v.PublishedAt >= publishedAfter);
+        }
+
+        if (publishedBefore is not null)
+        {
+            query = query.Where(v => v.PublishedAt <= publishedBefore);
+        }
+
+        // Counted after the filters are applied: a total describing the whole
+        // table would have the client offering pages the filter cannot fill.
         var total = await query.CountAsync(cancellationToken);
 
         var vacancies = await query
@@ -68,4 +106,13 @@ public class VacanciesController(AppDbContext db) : ControllerBase
 
         return vacancy is null ? NotFound() : Ok(vacancy);
     }
+
+    /// <summary>
+    /// ILIKE reads % and _ as wildcards, so an unescaped keyword silently widens
+    /// the search — "100%" would match every row rather than the literal string.
+    /// </summary>
+    private static string EscapeLike(string input) => input
+        .Replace(LikeEscape, LikeEscape + LikeEscape)
+        .Replace("%", LikeEscape + "%")
+        .Replace("_", LikeEscape + "_");
 }
