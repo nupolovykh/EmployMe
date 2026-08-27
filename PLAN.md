@@ -115,8 +115,18 @@ can block it.
       slot rather than leaving the MVP at three adapters. Revisit if Himalayas' approval comes
       through — see A-003 in docs/ASSUMPTIONS.md.)
 - [ ] Render source attribution on every vacancy card — EM-54
+- [ ] Spike: Ashby boards API (Tier A) — EM-57 (blocks EM-19. Opened 2026-08-27: EM-19 had been
+      blocked on a spike that never had an issue — EM-45–49 qualified five sources and Ashby was
+      not among them, so A-008 is still `assumed` and `spikes/ashby/` does not exist. **Step 0 is
+      the firewall:** `api.ashbyhq.com` is not in `init-firewall.sh`'s allowlist, and a spike run
+      without it fails as a network error that reads exactly like an unavailable source. Ashby is
+      also the only Tier A source that can carry salary, which A-009 measured at 0% on both
+      Greenhouse and Lever.)
 - [ ] One more adapter: Ashby (A) — EM-19 (Arbeitnow moved into EM-53's four, see above; Himalayas
-      re-enters here if its approval comes through)
+      re-enters here if its approval comes through. **Runs after EM-17**, not before: the exit
+      criterion needs four sources and those already ship, so a fifth connector ahead of a
+      deployment is the wide-and-shallow failure the phase gate exists to prevent. Blocked by
+      EM-57.)
 - [ ] Initial Railway deployment — EM-17
 - ~~hh.ru API client~~ — EM-13, cancelled with A-000.
 - ~~Manual hh.ru ingest job~~ — EM-14, cancelled; replaced by the source-agnostic command in EM-52.

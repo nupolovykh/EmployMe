@@ -107,6 +107,12 @@ register when a company in the target registry actually uses one.
 
 ## Tier B — Public remote-job APIs
 
+**Adapter types, 2026-08-26 (EM-53):** the three rows below previously read
+`json_api`. That was a placeholder — the three payload shapes have nothing in
+common (`jobs[]` vs `data[]`, `id` vs `slug` as the external id, different field
+names throughout), so each source now names its own adapter class. `json_api`
+no longer appears in this file.
+
 Searchable, but each one imposes conditions. **Every condition below is a display condition, not
 a nicety** — see EM-54.
 
@@ -117,7 +123,7 @@ a nicety** — see EM-54.
 | Endpoints | `GET https://himalayas.app/jobs/api`, `GET https://himalayas.app/jobs/api/search` |
 | Auth | None |
 | OpenAPI | `https://himalayas.app/docs/openapi.json` (3.1) — generate the client, don't hand-roll DTOs |
-| Adapter type | `json_api` |
+| Adapter type | `himalayas` (row seeded, **no adapter class** — see the display condition below) |
 | Assumption | A-003 |
 | Level | `spike` (2026-08-26) — `spikes/himalayas/`. **⚠️ Legal: FALSIFIED, not cleared** |
 
@@ -139,7 +145,7 @@ source before that happens.
 | Auth | None |
 | Params | `count` (1–100), `geo`, `industry`, `tag` |
 | Discovery | `?get=locations`, `?get=industries` return valid filter values |
-| Adapter type | `json_api` |
+| Adapter type | `jobicy` |
 | Assumption | A-004 |
 | Level | `spike` (2026-08-26) — `spikes/jobicy/`. **Legal: cleared** |
 
@@ -162,7 +168,7 @@ redirect to the original Jobicy job URL — the `url` field already provides thi
 |---|---|
 | Endpoint | `GET https://www.arbeitnow.com/api/job-board-api` |
 | Auth | None |
-| Adapter type | `json_api` |
+| Adapter type | `arbeitnow` |
 | Assumption | A-005 |
 | Level | `spike` (2026-08-26) — `spikes/arbeitnow/`. **Legal: cleared** |
 
@@ -179,6 +185,14 @@ terms of service present on Arbeitnow.com" — treated as the operative statemen
 `spikes/arbeitnow/NOTES.md`.
 
 Descriptions are largely German. This drives the multilingual embedding model choice in Phase III.
+
+**Observed in the first live ingest (2026-08-26, EM-53): descriptions can contain
+malformed HTML.** Arbeitnow redacts email addresses out of description bodies, and
+the redaction can consume the opening `<` of a neighbouring tag, leaving an
+orphan fragment like `class="MsoNormal">` as literal text with no tag to strip.
+1 posting in 1021 across all four sources was affected. Any consumer of
+`vacancies.description` should treat it as best-effort plain text, not as
+guaranteed-clean prose.
 
 ### Remotive
 

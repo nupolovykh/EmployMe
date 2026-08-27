@@ -160,14 +160,33 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 
 ### A-009 — Six upstream shapes normalize into one vacancy model without losing what matters
 
-- **Level:** `assumed`
+- **Level:** `spike` (2026-08-26) — **partially falsified.** EM-52/53's first live ingest pulled
+  1,021 postings from four sources; field coverage of the normalized model measured across them:
+
+  | Source | Rows | company | location | workFormat | salary | publishedAt |
+  |---|---:|---:|---:|---:|---:|---:|
+  | Greenhouse | 227 | 100% | 100% | **0%** | **0%** | 100% |
+  | Lever | 44 | 100% | 100% | 100% | **0%** | 100% |
+  | Jobicy | 100 | 100% | 100% | 100% | 77% | 100% |
+  | Arbeitnow | 649 | 100% | 96% | **5%** | **0%** | 100% |
+
+  Title, company, URL, location and publication date survive normalization everywhere. The two
+  fields Phase III would most want do not: **salary exists on Jobicy alone** (77% of its rows,
+  and only where `salaryPeriod` is yearly — an hourly figure in the same column would make it
+  meaningless), and **work format is absent from Greenhouse entirely** and near-absent from
+  Arbeitnow, whose `remote: false` means "not flagged", not "known to be onsite". Lever carries
+  no employer name in its payload at all; the target-company registry supplies it.
 - **Blast radius:** high. It is the core of EM-52 and the part of this project most worth
   discussing in an interview.
-- **The risk:** a lowest-common-denominator mapping that reduces every source to title, company
-  and URL, discarding exactly the structured signal Phase III's fit-score needs.
+- **The risk:** confirmed in the shape above, not in the shape feared. The mapping does not
+  collapse to title/company/URL — but a fit-score that weights salary or remote-ness would be
+  scoring Jobicy and Lever against everyone else, not scoring roles. Phase III must either derive
+  these from the description via LLM extraction (EM-31) or exclude them from the score.
 - **Fallback:** `raw_postings` stores every fetch before mapping, so a mapping decision can be
-  revisited and replayed without re-hitting a rate-limited source.
-- **Expiry:** resolved by EM-52, not by a date.
+  revisited and replayed without re-hitting a rate-limited source. Exercised in this run: 1,021
+  raw rows written against 1,020 distinct vacancies (one Arbeitnow slug arrived twice in a single
+  page set).
+- **Expiry:** re-measure when a fifth source lands (EM-19). Resolved for the MVP's four.
 
 ### A-010 — A self-hosted multilingual embedding model is good enough for the fit-score
 
