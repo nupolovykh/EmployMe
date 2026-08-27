@@ -12,6 +12,9 @@ export interface Vacancy {
   publishedAt: string | null
   fetchedAt: string
   sourceName: string
+  sourceSlug: string
+  sourceUrl: string | null
+  attributionRequired: boolean
 }
 
 export interface VacancyFilters {
