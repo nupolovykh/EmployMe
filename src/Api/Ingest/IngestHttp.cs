@@ -23,14 +23,24 @@ public static class IngestHttp
             ? value.GetString()
             : null;
 
+    /// <summary>
+    /// Try-parsed, not cast: a JSON number that is fractional or wider than the
+    /// target throws from Get*, and one malformed salary would take down the
+    /// whole run for that source rather than dropping a single field.
+    /// </summary>
     public static int? Int(this JsonElement element, string name) =>
-        element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Number
-            ? value.GetInt32()
+        element.TryGetProperty(name, out var value)
+        && value.ValueKind == JsonValueKind.Number
+        && value.TryGetInt32(out var parsed)
+            ? parsed
             : null;
 
+    /// <inheritdoc cref="Int"/>
     public static long? Long(this JsonElement element, string name) =>
-        element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Number
-            ? value.GetInt64()
+        element.TryGetProperty(name, out var value)
+        && value.ValueKind == JsonValueKind.Number
+        && value.TryGetInt64(out var parsed)
+            ? parsed
             : null;
 
     /// <summary>

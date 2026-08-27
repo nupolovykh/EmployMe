@@ -1,5 +1,6 @@
 using Api.Data;
 using Api.Ingest;
+using Api.Ingest.Adapters;
 using Microsoft.EntityFrameworkCore;
 using Pgvector.EntityFrameworkCore;
 
@@ -23,6 +24,12 @@ builder.Services.AddHttpClient(IngestHttp.ClientName, client =>
     client.DefaultRequestHeaders.UserAgent.ParseAdd("EmployMe/0.1 (+https://github.com/nupolovykh/EmployMe)");
 });
 
+// Adapters are resolved by sources.adapter_type, so registering one here plus a
+// row in `sources` is the whole cost of adding a source.
+builder.Services.AddSingleton<IJobSource, GreenhouseJobSource>();
+builder.Services.AddSingleton<IJobSource, LeverJobSource>();
+builder.Services.AddSingleton<IJobSource, JobicyJobSource>();
+builder.Services.AddSingleton<IJobSource, ArbeitnowJobSource>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IngestService>();
 
