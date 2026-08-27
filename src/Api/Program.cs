@@ -25,6 +25,8 @@ builder.Services.AddHttpClient<IHhRuVacancyClient, HhRuVacancyClient>((sp, clien
     client.DefaultRequestHeaders.Add("HH-User-Agent", options.UserAgent);
 });
 
+builder.Services.AddScoped<HhRuIngestService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
