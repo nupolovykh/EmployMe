@@ -185,7 +185,10 @@ surface in Sentry.
 
 Goal: the layer that differentiates this from a generic aggregator.
 
-- [ ] `pgvector` extension enabled in Postgres — EM-26
+- [x] `pgvector` extension enabled in Postgres — EM-26 (landed with the Phase 0 schema, not as
+      Phase III work: `HasPostgresExtension("vector")` + `InitialCreate`'s `vector(1024)`
+      column, on `main`. Closed by the 2026-08-27 sync audit. Nothing writes to the column
+      yet — EM-27/EM-28 remain Phase III.)
 - [ ] Ollama deployed with a multilingual embedding model (bge-m3 or e5) — EM-27
 - [ ] Embeddings for vacancies and for my own CV/profile, with caching to avoid recomputation — EM-28
 - [ ] Fit-score: cosine similarity between CV and vacancy, with an explanation (matched vs. missing requirements) — EM-29
