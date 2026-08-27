@@ -112,7 +112,22 @@ function App() {
                 {v.workFormat && <span>{v.workFormat}</span>}
                 {salary && <span>{salary}</span>}
               </p>
-              <p className="source">via {v.sourceName}</p>
+              <p className="source">
+                {/* EM-54: Tier B terms make the credit and the link back a
+                    condition of display, not a nicety. */}
+                via{' '}
+                {v.attributionRequired && v.sourceUrl ? (
+                  <a href={v.sourceUrl} target="_blank" rel="noreferrer">
+                    {v.sourceName}
+                  </a>
+                ) : (
+                  v.sourceName
+                )}
+                {' · '}
+                <a href={v.url} target="_blank" rel="noreferrer">
+                  Apply on the original posting
+                </a>
+              </p>
             </li>
           )
         })}

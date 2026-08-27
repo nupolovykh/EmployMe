@@ -13,4 +13,7 @@ public record VacancyDto(
     string? Currency,
     DateTimeOffset? PublishedAt,
     DateTimeOffset FetchedAt,
-    string SourceName);
+    string SourceName,
+    string SourceSlug,
+    string? SourceUrl,
+    bool AttributionRequired);

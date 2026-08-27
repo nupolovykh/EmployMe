@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using Api.Data;
+using Api.Models;
 using Api.Models.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +12,27 @@ namespace Api.Controllers;
 public class VacanciesController(AppDbContext db) : ControllerBase
 {
     private const string LikeEscape = "\\";
+
+    // EM-54: every card credits its source, so the source columns travel with
+    // every projection rather than being bolted onto one endpoint.
+    private static readonly Expression<Func<Vacancy, VacancyDto>> VacancyProjection =
+        v => new VacancyDto(
+            v.Id,
+            v.ExternalId,
+            v.Title,
+            v.Company,
+            v.Url,
+            v.Location,
+            v.WorkFormat,
+            v.SalaryMin,
+            v.SalaryMax,
+            v.Currency,
+            v.PublishedAt,
+            v.FetchedAt,
+            v.Source!.DisplayName,
+            v.Source!.Slug,
+            v.Source!.BaseUrl,
+            v.Source!.AttributionRequired);
 
     [HttpGet]
     public async Task<ActionResult<PagedResult<VacancyDto>>> GetVacancies(
@@ -63,20 +86,7 @@ public class VacanciesController(AppDbContext db) : ControllerBase
             .OrderByDescending(v => v.PublishedAt ?? v.FetchedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(v => new VacancyDto(
-                v.Id,
-                v.ExternalId,
-                v.Title,
-                v.Company,
-                v.Url,
-                v.Location,
-                v.WorkFormat,
-                v.SalaryMin,
-                v.SalaryMax,
-                v.Currency,
-                v.PublishedAt,
-                v.FetchedAt,
-                v.Source!.DisplayName))
+            .Select(VacancyProjection)
             .ToListAsync(cancellationToken);
 
         return Ok(new PagedResult<VacancyDto>(vacancies, total, page, pageSize));
@@ -88,20 +98,7 @@ public class VacanciesController(AppDbContext db) : ControllerBase
         var vacancy = await db.Vacancies
             .AsNoTracking()
             .Where(v => v.Id == id)
-            .Select(v => new VacancyDto(
-                v.Id,
-                v.ExternalId,
-                v.Title,
-                v.Company,
-                v.Url,
-                v.Location,
-                v.WorkFormat,
-                v.SalaryMin,
-                v.SalaryMax,
-                v.Currency,
-                v.PublishedAt,
-                v.FetchedAt,
-                v.Source!.DisplayName))
+            .Select(VacancyProjection)
             .FirstOrDefaultAsync(cancellationToken);
 
         return vacancy is null ? NotFound() : Ok(vacancy);
