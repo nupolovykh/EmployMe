@@ -77,7 +77,10 @@ before a line of integration code is written.
 - [x] Rebuild the sources schema: rows with compliance columns, not an enum — EM-51 (model +
       `RebuildSourcesSchema` migration, applied and verified against a live Postgres)
 - [x] Spike: Greenhouse boards API (Tier A) — EM-45 (`spikes/greenhouse/`, cleared)
-- [x] Spike: Lever postings API (Tier A) — EM-46 (`spikes/lever/`, cleared)
+- [x] Spike: Lever postings API (Tier A) — EM-46 (`spikes/lever/`, cleared; **re-run 2026-08-27**
+      against the three registry tokens `qonto`/`remofirst`/`peerspace` — 200/200/200, 44 postings
+      — replacing the original guessed `palantir` sample. The live-endpoint assertion is assigned
+      to EM-55, since the test infrastructure is EM-23 in Phase II.)
 - [x] Spike: Himalayas remote jobs API (Tier B) — EM-47 (`spikes/himalayas/`, **not cleared** —
       terms require Himalayas' prior written approval; source stays disabled)
 - [x] Spike: Jobicy remote jobs API (Tier B) — EM-48 (`spikes/jobicy/`, cleared)
@@ -94,8 +97,25 @@ terms-of-use verdict. **Met 2026-08-26** — see `docs/SOURCES.md`'s gate status
 
 **Gate:** do not start Phase I with fewer than four sources at level `spike`, at least two of them
 Tier A, at least four cleared for public display. **Met**, without Himalayas: Greenhouse, Lever
-(Tier A) + Jobicy, Arbeitnow (Tier B) are all `spike` and cleared. **All Phase 0 items closed as
-of 2026-08-26.**
+(Tier A) + Jobicy, Arbeitnow (Tier B) are all `spike` and cleared.
+
+**Phase 0 status, 2026-08-27:** gate met and **all Phase 0 items closed.** EM-46 was the last one
+outstanding — it had been reopened for sampling a guessed token (`palantir`) instead of the three
+registry companies its own criteria required. Re-run and re-committed on 2026-08-27 against
+`qonto`/`remofirst`/`peerspace`.
+
+One acceptance criterion was deliberately *not* satisfied in place: EM-46 asked for a committed
+live-endpoint test, but the test infrastructure is EM-23, a Phase II item. Satisfying it here would
+mean pulling xUnit into Phase 0 and breaking the phase gate in the other direction, so the
+obligation is assigned to EM-55 (nightly source contract test).
+
+**How salvaged pre-Revision-2 code is treated against this gate** (the clarification EM-56 asked
+for and never got): EM-11/15/16 were written before Revision 2 existed, against the old hh.ru
+plan, and were carried forward rather than rewritten. They are read-path code with no source
+integration in them, so they cannot violate a gate about source qualification. The gate binds
+**ingest** work — EM-52/53 — and those were genuinely not started until the four spikes landed.
+A future phase gate should be read the same way: it constrains new work against external sources,
+not the salvage of code that touches none.
 
 ---
 
