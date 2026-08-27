@@ -1,4 +1,5 @@
 using Api.Data;
+using Api.Ingest;
 using Microsoft.EntityFrameworkCore;
 using Pgvector.EntityFrameworkCore;
 
@@ -12,6 +13,18 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("Default"),
         o => o.UseVector()));
+
+builder.Services.Configure<IngestOptions>(builder.Configuration.GetSection(IngestOptions.SectionName));
+builder.Services.AddHttpClient(IngestHttp.ClientName, client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(60);
+    // Arbeitnow's meta.terms asks callers not to abuse the free API; identifying
+    // the caller is the minimum courtesy that makes a block reversible.
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("EmployMe/0.1 (+https://github.com/nupolovykh/EmployMe)");
+});
+
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<IngestService>();
 
 // Frontend and API deploy as separate Railway services on separate domains —
 // no shared origin like the Vite dev-server proxy gives locally.
