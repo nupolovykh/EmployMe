@@ -65,10 +65,19 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 
 ### A-002 — Lever postings API is public, unauthenticated, and displayable
 
-- **Level:** `spike` (2026-08-26, EM-46). `spikes/lever/response.json` + `NOTES.md` committed:
-  live `GET /v0/postings/palantir?mode=json` → `200`, 305 real postings. (Also confirmed a valid
-  *empty* response — `lever` and `plaid` site tokens returned `200` with `[]` — worth handling as
-  a non-error case in the adapter, not retried as a failure.)
+- **Level:** `spike` (2026-08-26, **re-run 2026-08-27**, EM-46). `spikes/lever/response.json` +
+  `NOTES.md` committed. The original sample was `GET /v0/postings/palantir?mode=json` → `200`,
+  305 postings — but `palantir` was a guessed token and is excluded from the registry as a
+  prestige-filtered employer, so the spike was re-run against EM-50's three live-verified tokens:
+  `qonto` → `200`/40, `remofirst` → `200`/1, `peerspace` → `200`/3, for 44 postings across three
+  boards.
+  (Also confirmed a valid *empty* response — `lever` and `plaid` site tokens returned `200` with
+  `[]` — worth handling as a non-error case in the adapter, not retried as a failure. Note the
+  spread: one board of 40 and one of 1 in the same registry, so "the board is live" and "the board
+  has volume" are separate facts.)
+- **Confirmed by the re-run, and load-bearing for any Lever adapter:** the root is a flat JSON
+  array on every board tested, and *no* posting carries an employer name — `Vacancy.Company` must
+  come from the target-company registry row, not the payload.
 - **Blast radius:** high. The other Tier A adapter in the MVP.
 - **Legal status: cleared.** Same firewall fix as A-001 (`hire.lever.co` added), then read
   live: Lever's own developer docs name "create a custom job site" as the Postings API's
