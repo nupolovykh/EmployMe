@@ -124,6 +124,8 @@ for domain in \
     "neon.tech" \
     "ep-polished-poetry-b2qvi361-pooler.c-6.eu-central-1.aws.neon.tech" \
     "render.com" \
+    "employme-4uql.onrender.com" \
+    "employme-api.onrender.com" \
     "supabase.com" \
     "mcp.linear.app" \
     "mcp.slack.com" \
