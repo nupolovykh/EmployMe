@@ -120,6 +120,11 @@ for domain in \
     "jobicy.com" \
     "www.arbeitnow.com" \
     "railway.app" \
+    "neon.com" \
+    "neon.tech" \
+    "ep-polished-poetry-b2qvi361-pooler.c-6.eu-central-1.aws.neon.tech" \
+    "render.com" \
+    "supabase.com" \
     "mcp.linear.app" \
     "mcp.slack.com" \
     "mcp.sentry.dev" \

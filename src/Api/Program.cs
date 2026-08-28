@@ -13,7 +13,18 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("Default"),
-        o => o.UseVector()));
+        o =>
+        {
+            o.UseVector();
+            // Serverless Postgres (Neon) suspends its compute after five minutes
+            // of inactivity and the free plan cannot turn that off, so the first
+            // query after an idle spell meets a pooled connection the server has
+            // already dropped. Without a retry that surfaces as a failed request
+            // to whoever woke the site up; with one it costs the resume latency
+            // and succeeds. Harmless on an always-on Postgres, where the
+            // transient errors it retries simply do not occur.
+            o.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorCodesToAdd: null);
+        }));
 
 // Unset PublicDeployment resolves to "public unless Development", so a
 // deployment that forgets the setting keeps the compliance guards on rather
