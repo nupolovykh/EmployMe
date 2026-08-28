@@ -54,7 +54,9 @@ What lives **inside** the Dev Container vs. what runs **outside** it.
 - Claude Code — via the official `ghcr.io/anthropics/devcontainer-features/claude-code` feature. This sandboxes Claude Code to `/workspace` and applies a network firewall with a domain allowlist. **If Claude Code itself (not just the chat client) should reach the MCP servers below, their domains must be explicitly added to that allowlist** — the firewall blocks anything not listed by default. The same applies to every source domain in `docs/SOURCES.md`.
 
 **Outside the Dev Container:**
-- **Railway** — the deployment target itself; code is pushed there via CLI/CI, it is not run "inside" the local container.
+- **Render** (API as a Docker web service, frontend as a static site) and **Neon** (Postgres with
+  pgvector) — the deployment target. Chosen over Railway on 2026-08-28 when its trial expired and
+  left no free path; see A-011. Neither runs "inside" the local container.
 - **Sentry, Linear, Slack** — SaaS products. The project only holds an API key/DSN as an environment variable; the services themselves are never self-hosted.
 - **MCP endpoints** for the above (`mcp.linear.app`, `mcp.slack.com`, `mcp.sentry.dev`, `mcp.railway.com`) — remote servers that a Claude client connects to (the chat interface, or Claude Code if configured separately). Nothing to install or deploy for these.
 - **GitHub Actions** — runs on GitHub-hosted runners, separate from the local machine. Worth building CI on the same base image as the Dev Container, so "works locally" and "works in CI" stay identical.
@@ -124,17 +126,17 @@ not the salvage of code that touches none.
 Goal: a deployed vertical slice, multi-sourced from the first commit. No single external source
 can block it.
 
-- [ ] ASP.NET Core Web API: endpoints for listing vacancies — EM-11
-- [ ] REST endpoints: list, filter by keyword/stack/date — EM-15
-- [ ] Frontend: React + TS + Vite, vacancy list, basic filters — EM-16
-- [ ] `IJobSource` connector abstraction + source-agnostic ingest command — EM-52
-- [ ] Four adapters: Greenhouse, Lever, **Arbeitnow**, Jobicy — EM-53 (swapped in for Himalayas,
+- [x] ASP.NET Core Web API: endpoints for listing vacancies — EM-11
+- [x] REST endpoints: list, filter by keyword/stack/date — EM-15
+- [x] Frontend: React + TS + Vite, vacancy list, basic filters — EM-16
+- [x] `IJobSource` connector abstraction + source-agnostic ingest command — EM-52
+- [x] Four adapters: Greenhouse, Lever, **Arbeitnow**, Jobicy — EM-53 (swapped in for Himalayas,
       2026-08-26: Himalayas' spike found its terms require prior written approval Himalayas
       hasn't given, so it doesn't qualify as "cleared for public display." Arbeitnow was already
       spiked and cleared as part of the same gate check, so it moves up from its EM-19 follow-on
       slot rather than leaving the MVP at three adapters. Revisit if Himalayas' approval comes
       through — see A-003 in docs/ASSUMPTIONS.md.)
-- [ ] Render source attribution on every vacancy card — EM-54
+- [x] Render source attribution on every vacancy card — EM-54
 - [ ] Spike: Ashby boards API (Tier A) — EM-57 (blocks EM-19. Opened 2026-08-27: EM-19 had been
       blocked on a spike that never had an issue — EM-45–49 qualified five sources and Ashby was
       not among them, so A-008 is still `assumed` and `spikes/ashby/` does not exist. **Step 0 is
@@ -147,11 +149,14 @@ can block it.
       criterion needs four sources and those already ship, so a fifth connector ahead of a
       deployment is the wide-and-shallow failure the phase gate exists to prevent. Blocked by
       EM-57.)
-- [ ] Initial Railway deployment — EM-17 (**required environment variables**, added 2026-08-27:
-      `Ingest__TriggerToken` — a shared secret, without which the manual ingest endpoint refuses
-      to run at all on a public deployment; `ConnectionStrings__Default`; and
-      `Cors__AllowedOrigins__0` — the frontend's origin, without which the API allows no
-      cross-origin caller and the deployed frontend cannot read it.
+- [x] Initial deployment — EM-17 (**Render + Neon, live 2026-08-28.** API
+      `employme-api.onrender.com` as a Docker web service, frontend `employme-4uql.onrender.com`
+      as a static site, Postgres on Neon `eu-central-1` with pgvector 0.8.6. Railway was the
+      original target and was dropped when its trial expired — see A-011. **Required environment
+      variables:** `ConnectionStrings__Default` in Npgsql key-value form, *not* the URI Neon hands
+      you — Npgsql rejects `channel_binding`; `Ingest__TriggerToken`, without which the manual
+      ingest endpoint refuses to run at all on a public deployment; and `Cors__AllowedOrigins__0`,
+      the frontend's origin, without which the API allows no cross-origin caller.
       `Ingest__PublicDeployment` is deliberately *not* required — unset resolves to "public unless
       Development", so forgetting it keeps the compliance guards on rather than silently switching
       them off.)
@@ -160,7 +165,21 @@ can block it.
 
 **Exit criterion:** the site is live, shows real postings from at least four sources across two
 tiers, filtering works, every card credits its source per that source's terms, and no Tier D
-connector is enabled in the deployed environment.
+connector is enabled in the deployed environment. **Met 2026-08-28**, verified against the
+deployed instance rather than a local run:
+
+- 995 vacancies from four sources across two tiers — Greenhouse 229 and Lever 37 (Tier A),
+  Arbeitnow 629 and Jobicy 100 (Tier B).
+- Filtering answers on the deployed API: `keyword=engineer` → 336, `location=Berlin` → 116. A
+  keyword of a bare `%` returns 225 rather than all 995, so the ILIKE escaping holds in production.
+- Every row carries its source name, home URL and `attributionRequired`.
+- The guards that only a deployed environment can exercise: ingest returns `401` with no token and
+  with a wrong one, and Himalayas — enabled `false`, cleared for public display `false` — is
+  skipped with its reason named in the report. No Tier D row exists in the deployed database at
+  all.
+
+**Still open in this phase:** EM-57 (Ashby spike) and EM-19 (the Ashby adapter), which by their
+own note run after the deployment rather than before it.
 
 ---
 
@@ -213,7 +232,7 @@ Goal: a tool used daily, not a demo for a screenshot.
 - [ ] Endpoints for status changes — EM-35
 - [ ] UI: list or kanban board with status management, mocked in Claude Design first — EM-36
 - [ ] Dashboard: applications per week, conversion by stage — EM-37
-- [ ] Manual QA pass on the deployed Railway staging environment via Claude in Chrome — EM-38
+- [ ] Manual QA pass on the deployed Render environment via Claude in Chrome — EM-38
 
 **Exit criterion:** the spreadsheet is retired — the entire job-search workflow runs through this
 tool.
@@ -225,7 +244,7 @@ tool.
 Goal: the project survives 20 minutes of interview questions.
 
 - [ ] Full README, architecture diagram, setup instructions, screenshots — EM-39
-- [ ] Write-up: why ATS boards over aggregators, why self-hosted embeddings, why Railway — and the hh.ru post-mortem — EM-40
+- [ ] Write-up: why ATS boards over aggregators, why self-hosted embeddings, why the host changed — and the hh.ru post-mortem — EM-40
 - [ ] Metrics section documenting the precision figures from Phase III — EM-41
 - [ ] Repository cleanup: personal application data removed, seed data added if needed for demos — EM-42
 - [ ] Interview talking points: architectural decisions and their trade-offs, written down in advance — EM-43

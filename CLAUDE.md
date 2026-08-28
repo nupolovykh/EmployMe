@@ -32,8 +32,8 @@ also drives the author's actual job search.
 
 Layout: `src/Api` (ASP.NET Core Web API + EF Core), `src/Web` (React + TS + Vite), `spikes/<source>/`
 (committed live responses that qualify a source), `docs/` (everything above). Postgres with
-`pgvector` and Ollama run as compose services. Railway is the deploy target, Sentry the error
-monitor, Linear the backlog — all outside the container; see `docs/PLAN.md`'s tooling map.
+`pgvector` and Ollama run as compose services. Render hosts the deployed API and frontend and
+Neon the deployed Postgres, Sentry is the error monitor and Linear the backlog — all outside the container; see `docs/PLAN.md`'s tooling map.
 
 ## Hard rules
 

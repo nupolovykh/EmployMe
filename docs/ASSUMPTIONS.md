@@ -208,3 +208,37 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 - **Verification:** EM-32 — 50 hand-labeled vacancies and a measured precision figure. Until that
   number exists, no claim about matching quality goes in the README.
 - **Expiry:** on Phase III start.
+
+### A-011 — Render Free + Neon Free host the API, the frontend and Postgres with pgvector at zero cost
+
+- **Level:** `live` (2026-08-28, EM-17). Both services deployed and exercised end to end:
+  `employme-api.onrender.com/health` → `200`, `/api/vacancies` serving real rows from Neon,
+  `employme-4uql.onrender.com` serving the built frontend with the API's origin compiled in.
+- **Why it exists at all:** this register had ten entries and every one of them was about a job
+  source or the semantic layer. Nothing recorded what the project *runs on*, so "we can host this
+  for nothing" sat unexamined until the Railway trial expired and it failed by surprise. The gap
+  was in the register's coverage, not in any one claim.
+- **What was verified live, not read off a pricing page:**
+  - Neon runs Postgres 18.6. `employme_owner` is **not** a superuser and `CREATE EXTENSION vector`
+    still succeeds — pgvector 0.8.6. Every migration applies, `Embeddings.Vector` lands as a real
+    `vector` column. Strict TLS works; `Trust Server Certificate` is not needed.
+  - Render's free instance runs a Dockerfile build, which its own docs never state outright.
+  - The compliance guards hold in a deployed environment, which is the one thing local runs
+    cannot show: ingest answers `401` without a token and with a wrong one, and a source that is
+    disabled or not cleared for public display is skipped with the reason named in the report.
+  - CORS names the frontend's origin only — a foreign `Origin` gets no allow header back.
+- **Blast radius:** medium. Losing it costs the deployment, not the data: Neon holds the database
+  and Render builds from the repository, so both sides are re-creatable from what is committed.
+- **The two costs accepted with open eyes:**
+  - The API sleeps after 15 minutes idle and takes about a minute to wake. Tolerable while ingest
+    is manual; it stops being tolerable at EM-18, when a scheduler needs a host that stays up.
+  - Neon's free plan is 0.5 GB and suspends compute after 5 minutes, which cannot be disabled.
+    Measured on live data: one full ingest writes ~7.4 KB per posting to `raw_postings`, about
+    7.5 MB per run, and nothing ever deletes them — roughly 65 runs before the plan is full.
+    That is a retention defect in the code, not a property of the host; on any larger plan it is
+    merely deferred. It must be fixed before EM-18 schedules ingest hourly.
+- **Fallback:** Railway Hobby at $5/mo, which removes the sleep and raises storage to 5 GB. The
+  Dockerfiles carry no host-specific assumption — the entrypoint reads `PORT` at start — so
+  moving is a re-point, not a rewrite.
+- **Expiry:** on EM-18 start, when "does not sleep" becomes a functional requirement rather than
+  a convenience.

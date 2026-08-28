@@ -54,7 +54,7 @@ flowchart LR
 | Resilience | `HttpClient` + Polly |
 | Testing | xUnit, Testcontainers |
 | CI/CD | GitHub Actions |
-| Deployment | Railway |
+| Deployment | Render (API + static frontend) · Neon (Postgres with pgvector) |
 | Error monitoring | Sentry |
 | Dev environment | Dev Container (Docker/Podman) |
 
@@ -69,7 +69,7 @@ This project is developed inside a [Dev Container](https://containers.dev/), so 
 5. Run the backend: `dotnet run --project src/Api`
 6. Run the frontend: `npm install && npm run dev` (from `src/Web`)
 
-Production deployment, error monitoring, and project tracking are external services (Railway, Sentry, Linear) — see [`docs/PLAN.md`](./docs/PLAN.md) for how they fit into the workflow.
+Production deployment, error monitoring, and project tracking are external services (Render, Neon, Sentry, Linear) — see [`docs/PLAN.md`](./docs/PLAN.md) for how they fit into the workflow.
 
 ## Project status
 
