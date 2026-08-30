@@ -94,9 +94,36 @@ the Postings API's intended use, with no attribution requirement stated. See
 
 | | |
 |---|---|
+| Endpoint | `GET https://api.ashbyhq.com/posting-api/job-board/{name}?includeCompensation=true` |
+| Auth | none — no key, no header |
 | Adapter type | `ashby` |
 | Assumption | A-008 |
-| Level | `assumed` — scheduled as a Phase I follow-on (EM-19) |
+| Level | `spike` (2026-08-30, EM-57) — `spikes/ashby/` |
+| Poll interval | no documented rate limit; 1 h, matching the other Tier A rows, until one is observed |
+| Attribution required | none stated |
+| Canonical URL required | none stated; `jobUrl` is the canonical posting either way |
+| Terms URL | <https://developers.ashbyhq.com/docs/public-job-posting-api> (reviewed 2026-08-30) |
+| Terms verdict | **not cleared — no permission stated either way.** See below. |
+
+**Why this row is not cleared.** The customer Terms of Service never mention the posting API. The
+developer documentation's only statement of purpose is *"This API allows you to get data for all
+currently published Job Postings **for your organization**. **If you host your own careers page**,
+you can use this data to populate it."* Nothing forbids third-party use, sets a rate limit or
+requires attribution — but that sentence addresses the Ashby customer publishing their own jobs,
+not a third party aggregating other companies' boards. Greenhouse was cleared on wording about
+what *callers* may build; this is narrower. Absence of permission is not permission.
+
+**What the spike settled.** Compensation. A-009 measured salary at 0% on Greenhouse and 0% on
+Lever across 1,021 postings; Ashby carries it on **74 of 78 (94%)**, with **73 (93%)** structured
+as annual salary with min, max and currency. Also of note: `descriptionPlain` arrives as real
+plain text, and board tokens are **case-sensitive** (`Ashby` → `200`, `ashbyhq` → `404`), unlike
+Greenhouse's and Lever's.
+
+**Open, and not the source's fault.** No company on Ashby has yet been found that passes the
+target-company registry's geography filter — Ashby's own board is region-locked to EU/US/UK/Canada,
+zencastr's roles are US-office-anchored, and Nango lists "Europe" without resolving Georgia while
+every engineering role there is Staff level. A cleared source with no reachable target company
+does not earn an adapter.
 
 ### Workable · Recruitee · Personio
 

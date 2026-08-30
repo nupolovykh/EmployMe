@@ -115,6 +115,11 @@ for domain in \
     "developers.greenhouse.io" \
     "docs.greenhouse.io" \
     "api.lever.co" \
+    "jobs.ashbyhq.com" \
+    "www.ashbyhq.com" \
+    "api.ashbyhq.com" \
+    "docs.ashbyhq.com" \
+    "developers.ashbyhq.com" \
     "hire.lever.co" \
     "himalayas.app" \
     "jobicy.com" \
