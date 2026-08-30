@@ -156,12 +156,34 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 
 ### A-008 — Ashby exposes a public per-company board API
 
-- **Level:** `assumed` — Phase I follow-on (EM-19)
+- **Level:** `spike` (2026-08-30, EM-57). `spikes/ashby/response.json` + `NOTES.md` committed.
+  `GET /posting-api/job-board/{name}?includeCompensation=true`, no auth of any kind, three boards
+  sampled — `Ashby` → `200`/67, `Nango` → `200`/7, `zencastr` → `200`/4, 78 postings.
 - **Blast radius:** low. A third Tier A adapter, not an MVP dependency, but the designated
   fallback if A-001 or A-002 fails.
+- **Legal status: NOT cleared — no permission stated either way.** Ashby's customer Terms of
+  Service do not mention the posting API at all. Its developer documentation gives the only
+  statement of purpose: *"This API allows you to get data for all currently published Job Postings
+  **for your organization**. **If you host your own careers page**, you can use this data to
+  populate it."* Nothing prohibits third-party use, sets a rate limit or demands attribution — but
+  that sentence addresses the Ashby *customer* publishing their own jobs, not a third party
+  aggregating other companies' boards. Greenhouse (A-001) was cleared on wording about what
+  *callers* may build; this is narrower. Absence of permission is not permission, and A-003 is the
+  precedent for not treating technical success as qualification. **EM-19 stays blocked** under §01
+  rule 2 until this resolves.
+- **What the spike did settle — the reason it was run:** compensation. A-009 measured salary
+  coverage at 0% on Greenhouse and 0% on Lever across 1,021 postings. Ashby carries it on **74 of
+  78 postings (94%)**, with **73 (93%)** structured as an annual salary with min, max and currency
+  across ten currencies. If compensation is ever to be weighted in the Phase III fit-score without
+  scoring sources instead of roles, this is the Tier A source that supplies it.
+- **Unresolved, and not the source's fault:** no company found on Ashby so far passes the
+  target-company registry's geography filter (EM-50). Ashby's own board is region-locked to
+  EU/US/UK/Canada, zencastr's roles are US-office-anchored, and Nango's "Europe" is undecided for
+  Georgia while every engineering role there is Staff level. A cleared source with no reachable
+  target company does not earn an adapter.
 - **Fallback:** Workable, Recruitee or Personio, whichever the target-company registry actually
   needs.
-- **Expiry:** on scheduling.
+- **Expiry:** on EM-19 scheduling, or 28 Feb 2027, whichever is sooner.
 
 ---
 
