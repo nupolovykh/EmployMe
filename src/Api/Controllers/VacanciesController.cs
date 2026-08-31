@@ -51,7 +51,12 @@ public class VacanciesController(AppDbContext db) : ControllerBase
         // Clamped at both ends. Only the lower bound was checked, so a large page
         // number overflowed (page - 1) * pageSize into a negative offset, which
         // Postgres rejects — an unauthenticated 500 from a query string.
-        page = Math.Clamp(page, 1, (int.MaxValue / pageSize) + 1);
+        //
+        // No `+ 1` on the upper bound: at pageSize 1 that is int.MaxValue + 1,
+        // which wraps negative and makes Clamp itself throw with max below min —
+        // trading one 500 for another. The bound as written is the largest page
+        // whose offset still fits.
+        page = Math.Clamp(page, 1, int.MaxValue / pageSize);
 
         var query = db.Vacancies.AsNoTracking().AsQueryable();
 
