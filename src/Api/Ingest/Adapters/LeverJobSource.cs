@@ -34,7 +34,11 @@ public sealed class LeverJobSource(
             {
                 document = await IngestHttp.GetJsonAsync(client, url, cancellationToken);
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            // Only the caller giving up re-throws. HttpClient's timeout arrives as
+            // TaskCanceledException, which derives from OperationCanceledException,
+            // so filtering on the base type let a hung board past the one handler
+            // written to contain it.
+            catch (Exception ex) when (!(ex is OperationCanceledException && cancellationToken.IsCancellationRequested))
             {
                 logger.LogWarning(
                     ex, "Lever board {BoardToken} ({Company}) failed; skipping it",
