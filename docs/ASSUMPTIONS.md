@@ -255,10 +255,17 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
   - The API sleeps after 15 minutes idle and takes about a minute to wake. Tolerable while ingest
     is manual; it stops being tolerable at EM-18, when a scheduler needs a host that stays up.
   - Neon's free plan is 0.5 GB and suspends compute after 5 minutes, which cannot be disabled.
-    Measured on live data: one full ingest writes ~7.4 KB per posting to `raw_postings`, about
-    7.5 MB per run, and nothing ever deletes them — roughly 65 runs before the plan is full.
-    That is a retention defect in the code, not a property of the host; on any larger plan it is
-    merely deferred. It must be fixed before EM-18 schedules ingest hourly.
+    The unbounded-growth defect this originally recorded is fixed (EM-58): `RawPostings` now keeps
+    one row per posting rather than one per fetch, verified by three consecutive full runs leaving
+    the count unchanged at 1,730 (`created=0, updated=999` on the third).
+    **The steady-state figure first written here was wrong.** It assumed the table would settle at
+    the size of the catalogue, ~1,000 rows. It does not: upstream boards rotate, so the table is
+    bounded by *distinct postings ever seen*, which keeps growing — 995 rows on 28 Aug, 1,730 by
+    31 Aug, because Jobicy serves only its newest 100 and Arbeitnow's 650 turn over. Growth is now
+    proportional to how much the job market moves rather than to how often we poll it, which is
+    what makes hourly scheduling safe; it is not zero. At 15 MB for 1,730 rows the 0.5 GB plan
+    holds on the order of 50,000 distinct postings, and a Phase II decision about pruning postings
+    that have disappeared upstream will eventually be needed.
 - **Fallback:** Railway Hobby at $5/mo, which removes the sleep and raises storage to 5 GB. The
   Dockerfiles carry no host-specific assumption — the entrypoint reads `PORT` at start — so
   moving is a re-point, not a rewrite.
