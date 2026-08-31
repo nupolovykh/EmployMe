@@ -41,28 +41,53 @@ public static class SeniorityMap
     /// entries that mean a level are picked out and the rest ignored —
     /// "Full Time" and "Permanent" say nothing about seniority.
     /// <para>
-    /// Counts observed across 650 postings: Experienced 93, berufserfahren 45,
-    /// Mid/mid 33, Working student 26, Entry 26, Intern 17, Internship 13.
+    /// Taken from the full distinct list in the deployed database, not a sample:
+    /// experienced 91, berufserfahren 44, entry 31, mid 29, working student 27,
+    /// intern 16, internship 16, student 16, berufseinstieg 10, and a long tail
+    /// of German terms down to geschäftsleitung 3.
+    /// <para>
+    /// Contract types — full time 188, permanent 78, freelance 7 — say nothing
+    /// about seniority and are deliberately absent, as is an empty array: 233 of
+    /// 650 postings name no type at all and stay Unknown.
     /// </para>
     /// </summary>
     private static readonly Dictionary<string, Seniority> Arbeitnow = new(StringComparer.OrdinalIgnoreCase)
     {
+        // Intern-grade. German working-student and dual-study terms sit here:
+        // they are student contracts, not graduate roles.
         ["Intern"] = Seniority.Intern,
         ["Internship"] = Seniority.Intern,
+        ["Traineeship"] = Seniority.Intern,
+        ["Trainee"] = Seniority.Intern,
         ["Praktikum"] = Seniority.Intern,
         ["Working student"] = Seniority.Intern,
         ["Werkstudent"] = Seniority.Intern,
         ["Student"] = Seniority.Intern,
+        ["Student school"] = Seniority.Intern,
+        ["Hilfstätigkeit / Student"] = Seniority.Intern,
+        ["Dual studies"] = Seniority.Intern,
+        ["Combined-study"] = Seniority.Intern,
+
         ["Entry"] = Seniority.Junior,
         ["Entry level"] = Seniority.Junior,
         ["Junior"] = Seniority.Junior,
+        ["Berufseinstieg"] = Seniority.Junior,
         ["Berufseinsteiger"] = Seniority.Junior,
+
         ["Mid"] = Seniority.Mid,
-        ["Experienced"] = Seniority.Senior,
-        ["berufserfahren"] = Seniority.Senior,
+        ["Associate"] = Seniority.Mid,
+
         ["Senior"] = Seniority.Senior,
+        ["Experienced"] = Seniority.Senior,
+        ["Professional / experienced"] = Seniority.Senior,
+        ["berufserfahren"] = Seniority.Senior,
+        ["Mid-senior"] = Seniority.Senior,
+
         ["Lead"] = Seniority.Lead,
         ["Manager"] = Seniority.Lead,
+        ["Executive"] = Seniority.Lead,
+        ["Teamleitung"] = Seniority.Lead,
+        ["Geschäftsleitung"] = Seniority.Lead,
     };
 
     public static Seniority FromJobicy(string? jobLevel) =>
