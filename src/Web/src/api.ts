@@ -8,6 +8,7 @@ export async function fetchVacancies(filters: VacancyFilters): Promise<Paged<Vac
   if (filters.location) params.set('location', filters.location)
   if (filters.publishedAfter) params.set('publishedAfter', filters.publishedAfter)
   if (filters.publishedBefore) params.set('publishedBefore', filters.publishedBefore)
+  if (filters.seniority) params.set('seniority', filters.seniority)
   if (filters.page && filters.page > 1) params.set('page', String(filters.page))
 
   const response = await fetch(`${API_BASE}/api/vacancies?${params.toString()}`)

@@ -1,3 +1,6 @@
+/** Mirrors the API's Seniority enum. `unknown` is the default and is never a match. */
+export type Seniority = 'Unknown' | 'Intern' | 'Junior' | 'Mid' | 'Senior' | 'Lead'
+
 export interface Vacancy {
   id: number
   externalId: string
@@ -11,6 +14,7 @@ export interface Vacancy {
   currency: string | null
   publishedAt: string | null
   fetchedAt: string
+  seniority: Seniority
   sourceName: string
   sourceSlug: string
   sourceUrl: string | null
@@ -22,6 +26,7 @@ export interface VacancyFilters {
   location?: string
   publishedAfter?: string
   publishedBefore?: string
+  seniority?: Seniority
   page?: number
 }
 

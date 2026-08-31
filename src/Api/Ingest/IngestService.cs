@@ -51,9 +51,15 @@ public sealed class IngestService(
     {
         // Unconditional, and checked before Enabled: a Tier D row is disqualified,
         // not merely switched off. See docs/SOURCES.md's disqualified sources.
-        if (source.Tier == SourceTier.D)
+        // Tier C and D are refused by tier, before Enabled is read, because a
+        // boolean is the wrong thing to rest this on: Tier D is disqualified and
+        // Tier C needs an approval this schema has nowhere to record. Both were
+        // reachable through a single UPDATE ... SET Enabled = true until the tier
+        // itself carried the refusal.
+        if (source.Tier is SourceTier.C or SourceTier.D)
         {
-            return new SourceIngestResult(source.Slug, "skipped", Detail: "tier D is never ingested");
+            return new SourceIngestResult(
+                source.Slug, "skipped", Detail: $"tier {source.Tier} is never ingested");
         }
 
         if (!source.Enabled)
@@ -105,14 +111,27 @@ public sealed class IngestService(
 
             return new SourceIngestResult(source.Slug, "ok", fetched, created, updated);
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        // Only the caller giving up re-throws. `ex is not OperationCanceledException`
+        // looked equivalent and is not: HttpClient's timeout surfaces as
+        // TaskCanceledException, which derives from it, so a source that simply
+        // hung was the one failure this handler let past — aborting the whole run
+        // and skipping every source ordered after it, with no error recorded.
+        catch (Exception ex) when (!(ex is OperationCanceledException && cancellationToken.IsCancellationRequested))
         {
             // The failed SaveChanges left this source's postings in the change
-            // tracker. Clearing it does two things: the error bookkeeping below
-            // can't fail for the same reason the ingest did, and the next source
-            // in the loop starts from a clean context instead of retrying these
-            // rows. The update is issued as SQL so it needs no tracked entity.
-            db.ChangeTracker.Clear();
+            // tracker, and they must not be retried inside the next source's save.
+            // Only those are detached: Clear() would also detach every other Source
+            // loaded by RunAsync, and a later success would then quietly fail to
+            // persist its LastSuccessAt — leaving the poll interval unenforced for
+            // a source that was working fine.
+            foreach (var entry in db.ChangeTracker.Entries().Where(e => e.Entity is not Source).ToList())
+            {
+                entry.State = EntityState.Detached;
+            }
+
+            // This source's own row may carry a half-written success from the
+            // moment before the throw, so it is reloaded rather than left dirty.
+            await db.Entry(source).ReloadAsync(CancellationToken.None);
 
             var failedAt = clock.GetUtcNow();
             await db.Sources
@@ -124,7 +143,11 @@ public sealed class IngestService(
                     CancellationToken.None);
 
             logger.LogError(ex, "Ingest failed for {Source}", source.Slug);
-            return new SourceIngestResult(source.Slug, "failed", Detail: ex.Message);
+
+            // The exception is logged in full one line above. It is not repeated
+            // here: Npgsql and HttpClient messages carry host names, ports,
+            // usernames and SQL fragments, and this report is returned over HTTP.
+            return new SourceIngestResult(source.Slug, "failed", Detail: "see server logs");
         }
     }
 
@@ -159,6 +182,16 @@ public sealed class IngestService(
             .ToDictionaryAsync(r => r.ExternalId, r => r.Id, StringComparer.Ordinal, cancellationToken);
 
         var seenRaw = new HashSet<string>(StringComparer.Ordinal);
+
+        // Same one-query lookup for vacancies. This path used to issue a query per
+        // posting — ~650 sequential round trips for one Arbeitnow run, each paying
+        // the distance to the database. Only the ids are loaded: every field is
+        // overwritten from the upstream payload below, so the stored values are
+        // never read.
+        var existingVacancies = await db.Vacancies
+            .Where(v => v.SourceId == source.Id)
+            .Select(v => new { v.Id, v.ExternalId })
+            .ToDictionaryAsync(v => v.ExternalId, v => v.Id, StringComparer.Ordinal, cancellationToken);
 
         await foreach (var posting in adapter.FetchAsync(context, cancellationToken))
         {
@@ -196,11 +229,26 @@ public sealed class IngestService(
 
             if (!pending.TryGetValue(normalized.ExternalId, out var vacancy))
             {
-                vacancy = await db.Vacancies.FirstOrDefaultAsync(
-                    v => v.SourceId == source.Id && v.ExternalId == normalized.ExternalId,
-                    cancellationToken);
+                if (existingVacancies.TryGetValue(normalized.ExternalId, out var vacancyId))
+                {
+                    vacancy = new Vacancy
+                    {
+                        Id = vacancyId,
+                        SourceId = source.Id,
+                        ExternalId = normalized.ExternalId,
+                        Title = normalized.Title,
+                        Url = normalized.Url,
+                    };
+                    db.Attach(vacancy);
 
-                if (vacancy is null)
+                    // Marked modified wholesale, not field by field. The stub
+                    // carries the upstream Title and Url already, and Attach takes
+                    // whatever it is handed as the original values — so a changed
+                    // title would compare equal to itself and never be written.
+                    db.Entry(vacancy).State = EntityState.Modified;
+                    updated++;
+                }
+                else
                 {
                     vacancy = new Vacancy
                     {
@@ -211,10 +259,6 @@ public sealed class IngestService(
                     };
                     db.Vacancies.Add(vacancy);
                     created++;
-                }
-                else
-                {
-                    updated++;
                 }
 
                 pending[normalized.ExternalId] = vacancy;
@@ -241,7 +285,19 @@ public sealed class IngestService(
         // cap is one poll per hour, that is the breach the interval exists to
         // prevent.
         source.LastSuccessAt = clock.GetUtcNow();
-        source.ConsecutiveFailures = 0;
+
+        // The failure counter is only reset by a run that actually returned
+        // something. A source whose board tokens have all rotated, or whose
+        // response no longer has the shape the adapter looks for, completes
+        // without throwing and yields nothing — the per-board handlers log a
+        // warning and carry on by design. Resetting on that would silence the
+        // only broken-source signal this project has in exactly the case it
+        // exists for. LastSuccessAt is still stamped: we did reach the source,
+        // and not stamping it would skip the poll interval on the next run.
+        if (fetched > 0)
+        {
+            source.ConsecutiveFailures = 0;
+        }
 
         await db.SaveChangesAsync(cancellationToken);
         return (fetched, created, updated);

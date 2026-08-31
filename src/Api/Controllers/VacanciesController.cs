@@ -46,8 +46,12 @@ public class VacanciesController(AppDbContext db) : ControllerBase
         int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 100);
+
+        // Clamped at both ends. Only the lower bound was checked, so a large page
+        // number overflowed (page - 1) * pageSize into a negative offset, which
+        // Postgres rejects — an unauthenticated 500 from a query string.
+        page = Math.Clamp(page, 1, (int.MaxValue / pageSize) + 1);
 
         var query = db.Vacancies.AsNoTracking().AsQueryable();
 
@@ -70,14 +74,18 @@ public class VacanciesController(AppDbContext db) : ControllerBase
                 v.Location != null && EF.Functions.ILike(v.Location, pattern, LikeEscape));
         }
 
+        // Compared against the same fallback the ordering uses. Filtering on
+        // PublishedAt alone silently dropped every posting without one — all of
+        // Greenhouse's and Lever's — because NULL >= x is NULL in SQL, so touching
+        // the date filter made two whole sources disappear with no indication.
         if (publishedAfter is not null)
         {
-            query = query.Where(v => v.PublishedAt >= publishedAfter);
+            query = query.Where(v => (v.PublishedAt ?? v.FetchedAt) >= publishedAfter);
         }
 
         if (publishedBefore is not null)
         {
-            query = query.Where(v => v.PublishedAt <= publishedBefore);
+            query = query.Where(v => (v.PublishedAt ?? v.FetchedAt) <= publishedBefore);
         }
 
         // Filtering for a level excludes Unknown rather than including it.
@@ -95,6 +103,12 @@ public class VacanciesController(AppDbContext db) : ControllerBase
 
         var vacancies = await query
             .OrderByDescending(v => v.PublishedAt ?? v.FetchedAt)
+            // Id breaks ties. The sort key is not unique — Jobicy publishes to the
+            // day and Arbeitnow to the second, so dozens of rows share one — and
+            // Postgres gives no stable order among equals across separate
+            // LIMIT/OFFSET queries, which makes a row appear on two pages while
+            // another is never returned at all.
+            .ThenByDescending(v => v.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(VacancyProjection)

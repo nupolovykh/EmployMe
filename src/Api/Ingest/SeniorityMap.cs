@@ -26,7 +26,6 @@ public static class SeniorityMap
     /// </summary>
     private static readonly Dictionary<string, Seniority> Jobicy = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["Entry-Level, Junior"] = Seniority.Junior,
         ["Entry-Level"] = Seniority.Junior,
         ["Junior"] = Seniority.Junior,
         ["Midweight"] = Seniority.Mid,
@@ -90,23 +89,32 @@ public static class SeniorityMap
         ["Geschäftsleitung"] = Seniority.Lead,
     };
 
+    /// <summary>
+    /// Split, not matched whole. The observed value "Entry-Level, Junior" proves
+    /// the field is a comma-joined list, and matching the whole string meant any
+    /// combination nobody had enumerated — "Senior, Director", or either pair in
+    /// the other order — fell through to Unknown and dropped the posting out of
+    /// every level filter.
+    /// </summary>
     public static Seniority FromJobicy(string? jobLevel) =>
-        jobLevel is not null && Jobicy.TryGetValue(jobLevel.Trim(), out var level)
-            ? level
-            : Seniority.Unknown;
+        Highest(jobLevel?.Split(',') ?? [], Jobicy);
+
+    public static Seniority FromArbeitnow(IEnumerable<string>? jobTypes) =>
+        Highest(jobTypes ?? [], Arbeitnow);
 
     /// <summary>
     /// The most senior level named wins. A posting tagged both "Entry" and
     /// "Experienced" is not an entry role that happens to mention experience —
     /// reading it as junior would put it in front of exactly the wrong search.
+    /// Unrecognised entries contribute nothing rather than resetting the answer.
     /// </summary>
-    public static Seniority FromArbeitnow(IEnumerable<string>? jobTypes)
+    private static Seniority Highest(IEnumerable<string> values, Dictionary<string, Seniority> map)
     {
         var best = Seniority.Unknown;
 
-        foreach (var type in jobTypes ?? [])
+        foreach (var value in values)
         {
-            if (Arbeitnow.TryGetValue(type.Trim(), out var level) && level > best)
+            if (map.TryGetValue(value.Trim(), out var level) && level > best)
             {
                 best = level;
             }
