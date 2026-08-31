@@ -229,6 +229,7 @@ public sealed class IngestService(
             vacancy.SalaryMin = normalized.SalaryMin;
             vacancy.SalaryMax = normalized.SalaryMax;
             vacancy.Currency = normalized.Currency;
+            vacancy.Seniority = normalized.Seniority;
             vacancy.PublishedAt = normalized.PublishedAt?.ToUniversalTime();
             vacancy.FetchedAt = fetchedAt;
         }

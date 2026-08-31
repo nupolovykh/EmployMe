@@ -13,6 +13,7 @@ public record VacancyDto(
     string? Currency,
     DateTimeOffset? PublishedAt,
     DateTimeOffset FetchedAt,
+    Seniority Seniority,
     string SourceName,
     string SourceSlug,
     string? SourceUrl,

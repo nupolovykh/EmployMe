@@ -69,6 +69,7 @@ public sealed class JobicyJobSource(IHttpClientFactory httpClientFactory) : IJob
             SalaryMin = yearly ? job.Int("salaryMin") : null,
             SalaryMax = yearly ? job.Int("salaryMax") : null,
             Currency = yearly ? job.String("salaryCurrency") : null,
+            Seniority = SeniorityMap.FromJobicy(job.String("jobLevel")),
             PublishedAt = job.Timestamp("pubDate"),
         };
 
