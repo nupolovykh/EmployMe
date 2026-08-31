@@ -137,18 +137,6 @@ can block it.
       slot rather than leaving the MVP at three adapters. Revisit if Himalayas' approval comes
       through — see A-003 in docs/ASSUMPTIONS.md.)
 - [x] Render source attribution on every vacancy card — EM-54
-- [ ] Spike: Ashby boards API (Tier A) — EM-57 (blocks EM-19. Opened 2026-08-27: EM-19 had been
-      blocked on a spike that never had an issue — EM-45–49 qualified five sources and Ashby was
-      not among them, so A-008 is still `assumed` and `spikes/ashby/` does not exist. **Step 0 is
-      the firewall:** `api.ashbyhq.com` is not in `init-firewall.sh`'s allowlist, and a spike run
-      without it fails as a network error that reads exactly like an unavailable source. Ashby is
-      also the only Tier A source that can carry salary, which A-009 measured at 0% on both
-      Greenhouse and Lever.)
-- [ ] One more adapter: Ashby (A) — EM-19 (Arbeitnow moved into EM-53's four, see above; Himalayas
-      re-enters here if its approval comes through. **Runs after EM-17**, not before: the exit
-      criterion needs four sources and those already ship, so a fifth connector ahead of a
-      deployment is the wide-and-shallow failure the phase gate exists to prevent. Blocked by
-      EM-57.)
 - [x] Initial deployment — EM-17 (**Render + Neon, live 2026-08-28.** API
       `employme-api.onrender.com` as a Docker web service, frontend `employme-4uql.onrender.com`
       as a static site, Postgres on Neon `eu-central-1` with pgvector 0.8.6. Railway was the
@@ -162,6 +150,25 @@ can block it.
       them off.)
 - ~~hh.ru API client~~ — EM-13, cancelled with A-000.
 - ~~Manual hh.ru ingest job~~ — EM-14, cancelled; replaced by the source-agnostic command in EM-52.
+
+- [x] Bound `RawPostings` to one row per posting — EM-58 (it appended a row per *fetch*, so the
+      table grew with polling frequency: ~6 MB a run against Neon's 0.5 GB, about four days once
+      EM-18 schedules it hourly. The newest fetch now overwrites the previous one, enforced by a
+      unique index rather than by the service. Verified on the deployed instance: three
+      consecutive full runs, count unchanged at 1,730, the third reporting `created=0`.)
+- [x] Spike: Ashby boards API (Tier A) — EM-57 (`spikes/ashby/`, A-008 at `spike`. **Not cleared**
+      — the API's stated purpose addresses the Ashby customer publishing their own careers page,
+      not a third party aggregating boards. Compensation measured at **94% coverage** against
+      A-009's 0% on Greenhouse and 0% on Lever, which is why it is worth returning to.)
+- [x] Map seniority from fields the sources already return — EM-59 (Jobicy `jobLevel`, Arbeitnow
+      `job_types`. 388 of 1,730 rows classified; the rest stay `Unknown`, and the filter excludes
+      `Unknown` rather than counting it as a match. `hiring_geo` was split out to EM-63 after
+      measurement showed Arbeitnow carries **no** eligibility field — 0 of 650 — so 63% of the
+      database cannot be answered without EM-31.)
+- [ ] One more adapter: Ashby (A) — EM-19 (**moved to Phase III.** Blocked on the target-company
+      registry, not on the source: no Ashby board found hires from Georgia. Its value is the
+      compensation data EM-29 needs, and the route is ingest with `public_deploy_enabled = false`
+      rather than a terms reinterpretation.)
 
 **Exit criterion:** the site is live, shows real postings from at least four sources across two
 tiers, filtering works, every card credits its source per that source's terms, and no Tier D
@@ -178,8 +185,7 @@ deployed instance rather than a local run:
   skipped with its reason named in the report. No Tier D row exists in the deployed database at
   all.
 
-**Still open in this phase:** EM-57 (Ashby spike) and EM-19 (the Ashby adapter), which by their
-own note run after the deployment rather than before it.
+**Still open in this phase:** nothing. EM-19 moved to Phase III; EM-63 to Phase III.
 
 ---
 
