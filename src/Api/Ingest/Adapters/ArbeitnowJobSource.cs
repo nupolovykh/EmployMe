@@ -53,6 +53,18 @@ public sealed class ArbeitnowJobSource(
         }
     }
 
+    /// <summary>
+    /// `job_types` mixes contract type and level in one array — "Full Time"
+    /// alongside "berufserfahren" — so the whole list is handed to the map,
+    /// which ignores what it does not recognise.
+    /// </summary>
+    private static IEnumerable<string> StringArray(JsonElement job, string name) =>
+        job.TryGetProperty(name, out var array) && array.ValueKind == JsonValueKind.Array
+            ? array.EnumerateArray()
+                .Where(e => e.ValueKind == JsonValueKind.String)
+                .Select(e => e.GetString()!)
+            : [];
+
     private static bool SameOrigin(string? candidate, string baseUrl) =>
         Uri.TryCreate(candidate, UriKind.Absolute, out var next)
         && Uri.TryCreate(baseUrl, UriKind.Absolute, out var origin)
@@ -85,6 +97,7 @@ public sealed class ArbeitnowJobSource(
             // known to be onsite.
             WorkFormat = isRemote ? "remote" : null,
             Description = HtmlText.ToPlainText(job.String("description")),
+            Seniority = SeniorityMap.FromArbeitnow(StringArray(job, "job_types")),
             PublishedAt = job.Long("created_at") is { } createdAt
                 ? DateTimeOffset.FromUnixTimeSeconds(createdAt)
                 : null,

@@ -18,4 +18,10 @@ public sealed record NormalizedVacancy
     public int? SalaryMax { get; init; }
     public string? Currency { get; init; }
     public DateTimeOffset? PublishedAt { get; init; }
+
+    /// <summary>
+    /// Only where the source states it. Unknown is the default and is never
+    /// treated as a match — see <see cref="Api.Models.Seniority"/>.
+    /// </summary>
+    public Api.Models.Seniority Seniority { get; init; } = Api.Models.Seniority.Unknown;
 }

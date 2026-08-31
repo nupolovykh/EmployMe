@@ -29,6 +29,7 @@ public class VacanciesController(AppDbContext db) : ControllerBase
             v.Currency,
             v.PublishedAt,
             v.FetchedAt,
+            v.Seniority,
             v.Source!.DisplayName,
             v.Source!.Slug,
             v.Source!.BaseUrl,
@@ -40,6 +41,7 @@ public class VacanciesController(AppDbContext db) : ControllerBase
         string? location = null,
         DateTimeOffset? publishedAfter = null,
         DateTimeOffset? publishedBefore = null,
+        Seniority? seniority = null,
         int page = 1,
         int pageSize = 20,
         CancellationToken cancellationToken = default)
@@ -76,6 +78,15 @@ public class VacanciesController(AppDbContext db) : ControllerBase
         if (publishedBefore is not null)
         {
             query = query.Where(v => v.PublishedAt <= publishedBefore);
+        }
+
+        // Filtering for a level excludes Unknown rather than including it.
+        // Most rows are Unknown — Greenhouse and Lever state no level at all
+        // until EM-31 can infer one — and treating "not stated" as a match
+        // would make the filter useless in exactly the case it exists for.
+        if (seniority is not null)
+        {
+            query = query.Where(v => v.Seniority == seniority);
         }
 
         // Counted after the filters are applied: a total describing the whole
