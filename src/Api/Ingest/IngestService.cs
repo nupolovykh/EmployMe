@@ -143,19 +143,56 @@ public sealed class IngestService(
         // (SourceId, ExternalId) would reject the second insert.
         var pending = new Dictionary<string, Vacancy>(StringComparer.Ordinal);
 
+        // Raw payloads are kept per posting, not per fetch. Appending a row every
+        // run made the table grow with how often ingest runs rather than with how
+        // many postings exist — measured at ~5.7 KB a row, a scheduled hourly
+        // ingest would fill a 0.5 GB database in under four days. Replaying a
+        // mapping bug needs the current shape of a posting, not every historical
+        // copy of it, so the newest overwrites the previous one.
+        //
+        // Only the ids are loaded, never the payloads: they are about to be
+        // replaced, and pulling ~6 MB of jsonb per run to immediately discard it
+        // would trade one waste for another.
+        var existingRaw = await db.RawPostings
+            .Where(r => r.SourceId == source.Id)
+            .Select(r => new { r.Id, r.ExternalId })
+            .ToDictionaryAsync(r => r.ExternalId, r => r.Id, StringComparer.Ordinal, cancellationToken);
+
+        var seenRaw = new HashSet<string>(StringComparer.Ordinal);
+
         await foreach (var posting in adapter.FetchAsync(context, cancellationToken))
         {
             fetched++;
             var normalized = posting.Vacancy;
             var fetchedAt = clock.GetUtcNow();
 
-            db.RawPostings.Add(new RawPosting
+            if (seenRaw.Add(normalized.ExternalId))
             {
-                SourceId = source.Id,
-                ExternalId = normalized.ExternalId,
-                Payload = posting.Payload,
-                FetchedAt = fetchedAt,
-            });
+                if (existingRaw.TryGetValue(normalized.ExternalId, out var rawId))
+                {
+                    var stub = new RawPosting
+                    {
+                        Id = rawId,
+                        SourceId = source.Id,
+                        ExternalId = normalized.ExternalId,
+                        Payload = posting.Payload,
+                        FetchedAt = fetchedAt,
+                    };
+                    db.Attach(stub);
+                    db.Entry(stub).Property(r => r.Payload).IsModified = true;
+                    db.Entry(stub).Property(r => r.FetchedAt).IsModified = true;
+                }
+                else
+                {
+                    db.RawPostings.Add(new RawPosting
+                    {
+                        SourceId = source.Id,
+                        ExternalId = normalized.ExternalId,
+                        Payload = posting.Payload,
+                        FetchedAt = fetchedAt,
+                    });
+                }
+            }
 
             if (!pending.TryGetValue(normalized.ExternalId, out var vacancy))
             {
