@@ -1,6 +1,43 @@
 version: 2
+
 updates:
-  - package-ecosystem: "nuget"
+  # Backend NuGet packages. directory "/" rather than "/src/Api": Dependabot
+  # follows EmployMe.sln, so the Phase II test project is picked up the day it
+  # is added to the solution instead of needing an entry here.
+  #
+  # Grouped so a routine patch bump is one PR, while a major bump — the kind
+  # that broke Swashbuckle on net10.0 — still arrives on its own.
+  - package-ecosystem: nuget
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: monthly
+    open-pull-requests-limit: 5
+    groups:
+      nuget-minor-and-patch:
+        update-types: [minor, patch]
+
+  # GitHub Actions used by the workflows in this repository.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # Dev Container features (.devcontainer/devcontainer.json).
+  - package-ecosystem: devcontainers
+    directory: "/"
+    schedule:
+      interval: monthly
+
+  # Frontend. src/Web only exists on the Phase I branch; uncomment when it lands
+  # on main, otherwise Dependabot reports a missing-manifest error on every run.
+  # - package-ecosystem: npm
+  #   directory: "/src/Web"
+  #   schedule:
+  #     interval: monthly
+  #   open-pull-requests-limit: 5
+  #   groups:
+  #     npm-minor-and-patch:
+  #       update-types: [minor, patch]
