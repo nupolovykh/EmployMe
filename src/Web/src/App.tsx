@@ -53,6 +53,12 @@ function App() {
     setFilters(pendingFilters)
   }
 
+  // Distinguishes "the database is empty" from "this search matched nothing".
+  // The empty state used to give the ingest hint for both, which sent the reader
+  // to fix a database that was fine — with 1,889 rows loaded, a search that
+  // returns nothing is overwhelmingly the second case.
+  const filtered = Object.values(filters).some((v) => v !== undefined && v !== '')
+
   const vacancies = result?.items ?? []
   const total = result?.total ?? 0
   const pageSize = result?.pageSize ?? 0
@@ -112,13 +118,28 @@ function App() {
             onChange={(e) => setPendingFilters((f) => ({ ...f, publishedAfter: e.target.value }))}
           />
         </label>
+        {/* The API, VacancyFilters and api.ts all carried publishedBefore already;
+            only the control was missing, so the upper bound of a date range was
+            reachable by hand-editing the URL and no other way. */}
+        <label className="filter-field">
+          Published before
+          <input
+            type="date"
+            value={pendingFilters.publishedBefore ?? ''}
+            onChange={(e) => setPendingFilters((f) => ({ ...f, publishedBefore: e.target.value }))}
+          />
+        </label>
         <button type="submit">Search</button>
       </form>
 
       {loading && <p className="status">Loading…</p>}
       {error && <p className="status error">{error}</p>}
       {!loading && !error && vacancies.length === 0 && (
-        <p className="status">No vacancies yet — run an ingest to populate the database.</p>
+        <p className="status">
+          {filtered
+            ? 'Nothing matched these filters.'
+            : 'No vacancies yet — run an ingest to populate the database.'}
+        </p>
       )}
 
       {!loading && !error && total > 0 && (

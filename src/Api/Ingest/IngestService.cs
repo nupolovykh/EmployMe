@@ -90,19 +90,38 @@ public sealed class IngestService(
                 source.Slug, "skipped", Detail: $"min poll interval not elapsed; next due {due:u}");
         }
 
-        // Watch rows are still fetched: they are companies worth working for that
-        // simply have no fitting role open right now, and noticing when that
-        // changes is the point of the registry. Only Rejected is excluded.
-        var targets = source.Tier == SourceTier.A
-            ? await db.TargetCompanies
-                .Where(t => t.SourceId == source.Id && t.Status != TargetCompanyStatus.Rejected)
-                .ToListAsync(cancellationToken)
-            : [];
-
-        var context = new JobSourceContext(source, targets);
+        // Nothing used to stop two runs overlapping. LastSuccessAt is written only
+        // at the very end of PersistAsync, with the whole fetch sitting between the
+        // interval check above and that write, so two concurrent calls both read the
+        // pre-run value, both concluded the interval had elapsed, and both hit the
+        // source inside its own cap. On Jobicy, whose cap is one poll per hour, that
+        // is the breach the interval exists to prevent — reachable by a double-click
+        // or a retry after a platform timeout, with force=true never involved.
+        //
+        // A compare-and-set on LastSuccessAt was tried first and does not hold: the
+        // second run reads the value the first just wrote, so its own CAS matches
+        // and it proceeds. Measured, not reasoned about — two concurrent forced
+        // ingests both fetched 100 postings. Exclusion has to last for the duration
+        // of the run, which is what a session-scoped advisory lock gives.
+        if (!await TryAcquireLockAsync(source.Id, cancellationToken))
+        {
+            return new SourceIngestResult(
+                source.Slug, "skipped", Detail: "another ingest run holds this source");
+        }
 
         try
         {
+            // Watch rows are still fetched: they are companies worth working for
+            // that simply have no fitting role open right now, and noticing when
+            // that changes is the point of the registry. Only Rejected is excluded.
+            var targets = source.Tier == SourceTier.A
+                ? await db.TargetCompanies
+                    .Where(t => t.SourceId == source.Id && t.Status != TargetCompanyStatus.Rejected)
+                    .ToListAsync(cancellationToken)
+                : [];
+
+            var context = new JobSourceContext(source, targets);
+
             var (fetched, created, updated) = await PersistAsync(source, adapter, context, cancellationToken);
 
             logger.LogInformation(
@@ -149,6 +168,50 @@ public sealed class IngestService(
             // usernames and SQL fragments, and this report is returned over HTTP.
             return new SourceIngestResult(source.Slug, "failed", Detail: "see server logs");
         }
+        finally
+        {
+            await ReleaseLockAsync(source.Id);
+        }
+    }
+
+    /// <summary>
+    /// Keeps ingest's advisory locks in their own key space, so locking source id
+    /// 3 cannot collide with an unrelated caller locking the bare integer 3.
+    /// </summary>
+    private const int LockNamespace = 0x656D_6749;
+
+    /// <summary>
+    /// The connection is pinned open deliberately: a PostgreSQL advisory lock
+    /// belongs to the session holding it, and EF would otherwise hand the
+    /// connection back to the pool between commands and drop the lock with it.
+    /// </summary>
+    private async Task<bool> TryAcquireLockAsync(int sourceId, CancellationToken cancellationToken)
+    {
+        await db.Database.OpenConnectionAsync(cancellationToken);
+
+        var acquired = await db.Database
+            .SqlQuery<bool>($"SELECT pg_try_advisory_lock({LockNamespace}, {sourceId}) AS \"Value\"")
+            .SingleAsync(cancellationToken);
+
+        if (!acquired)
+        {
+            await db.Database.CloseConnectionAsync();
+        }
+
+        return acquired;
+    }
+
+    /// <summary>
+    /// Released explicitly rather than left to the pool. Npgsql's DISCARD ALL on
+    /// return would drop it too, but only once the connection is actually
+    /// recycled, which is not a guarantee worth resting a rate limit on.
+    /// </summary>
+    private async Task ReleaseLockAsync(int sourceId)
+    {
+        await db.Database.ExecuteSqlAsync(
+            $"SELECT pg_advisory_unlock({LockNamespace}, {sourceId})", CancellationToken.None);
+
+        await db.Database.CloseConnectionAsync();
     }
 
     private async Task<(int Fetched, int Created, int Updated)> PersistAsync(

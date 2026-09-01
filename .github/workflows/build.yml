@@ -14,4 +14,7 @@ jobs:
       - name: Build inside the Dev Container
         uses: devcontainers/ci@v0.3
         with:
-          runCmd: dotnet build EmployMe.sln
+          runCmd: |
+            dotnet build EmployMe.sln
+            npm --prefix src/Web ci
+            npm --prefix src/Web run build

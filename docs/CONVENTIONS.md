@@ -92,11 +92,25 @@ Fix: EM-53 - Greenhouse timestamps not normalized to UTC before persist
 Fix: dev-server proxy dropped the query string on /api/vacancies
 ```
 
-`Fix:` and `Chore:` are the only two markers that displace the ticket from the first position, and
-both do it for the same reason — the kind of commit is what you scan for. Everything else leads
-with `EM-<n>:`. The ticket is whichever one the miss belongs to. The phase is still in flight,
-so the fix travels with it instead of becoming separate backlog. Once the phase has merged, this
-option is gone — see "Gaps found after a phase has merged" under GitHub Issues.
+**A review round on an open PR.** A round of review on a PR that has not merged is answered by one
+commit carrying `PostReview:`, with the ticket list after the marker in the same shape `Fix:` uses:
+
+```
+PostReview: EM-15, EM-16, EM-52, EM-59 - post-review pass on PR #15
+```
+
+Separate from `Fix:` deliberately. `Fix:` is a gap the author found while working the phase;
+`PostReview:` answers someone else's review, so its reader is a reviewer checking whether their
+findings were addressed, and the body owes them which were fixed and which were deferred and why.
+**One commit per round, not one per finding.** A round answered across six commits is what makes a
+branch read as churn — PR #15's first round was answered that way and produced two commits that a
+later one erased whole.
+
+`Fix:`, `Chore:` and `PostReview:` are the only three markers that displace the ticket from the
+first position, and all three do it for the same reason — the kind of commit is what you scan for.
+Everything else leads with `EM-<n>:`. The ticket is whichever one the miss belongs to. The phase is
+still in flight, so the fix travels with it instead of becoming separate backlog. Once the phase
+has merged, this option is gone — see "Gaps found after a phase has merged" under GitHub Issues.
 
 Body (when there is one) explains **why**, not what — matches this repo's own commit-message
 instruction in the personal CLAUDE.md. In this history the why is almost always evidence: what was

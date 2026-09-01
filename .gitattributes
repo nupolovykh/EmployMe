@@ -1,0 +1,13 @@
+# Normalise line endings on commit. Without this a file saved on Windows keeps
+# its CRLF, and the next editor to touch it flips the whole file to LF — git
+# then reports every line as changed. src/Api/appsettings.json did exactly that:
+# adding three lines of CORS configuration showed up as 19 insertions and 16
+# deletions, which makes a config change unreviewable.
+* text=auto eol=lf
+
+# Binary, never normalised.
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary

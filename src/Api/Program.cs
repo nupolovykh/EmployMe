@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Api.Data;
 using Api.Ingest;
 using Api.Ingest.Adapters;
@@ -6,7 +7,15 @@ using Pgvector.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+// Enums travel as their names, not their numbers. The default numeric form is
+// what broke EM-59 on the deployed site: the API answered `"seniority": 0` while
+// the frontend types the field as a string union and hides the badge with
+// `v.seniority !== 'Unknown'`. A number never equals that string, so the guard
+// never fired and every card rendered a bare digit. The query direction hid it —
+// ASP.NET binds enum *names* from the query string, so `?seniority=Junior`
+// worked and looked like proof the whole path was fine.
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
