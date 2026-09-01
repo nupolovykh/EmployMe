@@ -12,9 +12,20 @@ main {
   margin-bottom: 32px;
 }
 
-.filters input[type='text'],
-.filters input[type='date'],
-.filters select {
+/* One shape for every filter: a visible label above its control. Two of the
+   four used to rely on a placeholder alone, which disappears the moment the
+   field has a value and left the form looking inconsistent — one labelled
+   field next to three unlabelled ones. */
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.filter-field input[type='text'],
+.filter-field input[type='date'],
+.filter-field select {
   font: inherit;
   padding: 8px 12px;
   border: 1px solid var(--border);
@@ -23,11 +34,18 @@ main {
   color: var(--text-h);
 }
 
-.date-filter {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 14px;
+/* Sized to fit their own placeholder text instead of the browser's ~20-column
+   default, which cut "Title, company, description" off mid-word. `ch` tracks
+   the "0" glyph, narrower than this font's average letter, so each width
+   carries real margin over its placeholder's character count rather than
+   matching it exactly — the previous fix used one flat value for both fields
+   and left the longer one still tight. */
+.filter-field:nth-child(1) input[type='text'] {
+  width: 32ch; /* "Title, company, description" — 27 characters */
+}
+
+.filter-field:nth-child(2) input[type='text'] {
+  width: 18ch; /* "Any location" — 12 characters */
 }
 
 .filters button {
