@@ -13,7 +13,8 @@ main {
 }
 
 .filters input[type='text'],
-.filters input[type='date'] {
+.filters input[type='date'],
+.filters select {
   font: inherit;
   padding: 8px 12px;
   border: 1px solid var(--border);
