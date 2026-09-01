@@ -63,39 +63,48 @@ function App() {
       <h1>EmployMe</h1>
 
       <form className="filters" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Keyword (title, company, description)"
-          value={pendingFilters.keyword ?? ''}
-          onChange={(e) => setPendingFilters((f) => ({ ...f, keyword: e.target.value }))}
-        />
-        <input
-          type="text"
-          placeholder="Location"
-          value={pendingFilters.location ?? ''}
-          onChange={(e) => setPendingFilters((f) => ({ ...f, location: e.target.value }))}
-        />
-        <select
-          value={pendingFilters.seniority ?? ''}
-          onChange={(e) =>
-            setPendingFilters((f) => ({
-              ...f,
-              seniority: (e.target.value || undefined) as Seniority | undefined,
-            }))
-          }
-        >
-          {/* Unknown is offered explicitly rather than folded into "any level".
-              Most rows are Unknown — Greenhouse and Lever state no level at all —
-              so hiding it would hide the majority of the database. */}
-          <option value="">Any level</option>
-          <option value="Intern">Intern</option>
-          <option value="Junior">Junior</option>
-          <option value="Mid">Mid</option>
-          <option value="Senior">Senior</option>
-          <option value="Lead">Lead</option>
-          <option value="Unknown">Level not stated</option>
-        </select>
-        <label className="date-filter">
+        <label className="filter-field">
+          Keyword
+          <input
+            type="text"
+            placeholder="Title, company, description"
+            value={pendingFilters.keyword ?? ''}
+            onChange={(e) => setPendingFilters((f) => ({ ...f, keyword: e.target.value }))}
+          />
+        </label>
+        <label className="filter-field">
+          Location
+          <input
+            type="text"
+            placeholder="Any location"
+            value={pendingFilters.location ?? ''}
+            onChange={(e) => setPendingFilters((f) => ({ ...f, location: e.target.value }))}
+          />
+        </label>
+        <label className="filter-field">
+          Level
+          <select
+            value={pendingFilters.seniority ?? ''}
+            onChange={(e) =>
+              setPendingFilters((f) => ({
+                ...f,
+                seniority: (e.target.value || undefined) as Seniority | undefined,
+              }))
+            }
+          >
+            {/* Unknown is offered explicitly rather than folded into "any level".
+                Most rows are Unknown — Greenhouse and Lever state no level at all —
+                so hiding it would hide the majority of the database. */}
+            <option value="">Any level</option>
+            <option value="Intern">Intern</option>
+            <option value="Junior">Junior</option>
+            <option value="Mid">Mid</option>
+            <option value="Senior">Senior</option>
+            <option value="Lead">Lead</option>
+            <option value="Unknown">Level not stated</option>
+          </select>
+        </label>
+        <label className="filter-field">
           Published after
           <input
             type="date"
