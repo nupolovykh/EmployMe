@@ -271,3 +271,43 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
   moving is a re-point, not a rewrite.
 - **Expiry:** on EM-18 start, when "does not sleep" becomes a functional requirement rather than
   a convenience.
+
+### A-012 — A session-scoped advisory lock gives ingest mutual exclusion per source
+
+- **Level:** `live` (2026-09-01, EM-52). Three concurrent pairs of forced ingests against Jobicy,
+  each pair producing exactly one `ok` (100 postings) and one `skipped` — and the lock releases,
+  since a single run straight afterwards succeeds. The weaker design it replaced was falsified the
+  same way: a compare-and-set on `LastSuccessAt` let **both** runs fetch 100 postings, because the
+  second reads the value the first just wrote and its own CAS matches.
+- **Where it lapses:** `Program.cs` enables `EnableRetryOnFailure`. A PostgreSQL advisory lock
+  belongs to the session of one connection, so if a transient error kills the pinned connection
+  mid-run, EF retries on a **new** one and the lock dies with the old — while the code carries on
+  believing it holds exclusivity. The honest claim is "mutual exclusion except across a transient
+  reconnect", not an unconditional one.
+- **Blast radius:** narrow, and bounded by what it protects. On a lapse two runs can hit one source
+  inside its `min_poll_interval`; on Jobicy, capped at one poll per hour, that is the ban the
+  interval exists to prevent. Nothing in the database is corrupted either way — the upsert is
+  idempotent on `(SourceId, ExternalId)`.
+- **Fallback:** move the claim out of the session and into state — an `ingest_started_at` column
+  with a stale-claim timeout. It survives reconnects because it is a row rather than a session, and
+  it needs no held connection, which also resolves A-013. One piece of work answers both.
+- **Expiry:** **EM-18.** A scheduler firing while a manual run is in flight makes concurrent runs
+  routine rather than accidental, which is the point at which "except across a reconnect" stops
+  being an acceptable qualifier.
+
+### A-013 — Holding one Neon connection for the duration of an ingest run is affordable
+
+- **Level:** `assumed`. True by inspection at one API instance with ingest triggered by hand; not
+  measured under concurrent load, which is precisely the condition that would falsify it.
+- **What changed:** taking the A-012 lock pins a connection open for the whole run, including every
+  upstream HTTP fetch. Arbeitnow alone is up to `MaxPagesPerSource` (5) sequential round trips
+  against a 60-second-timeout client, so a connection can sit held-but-idle for minutes. Before the
+  lock, the connection returned to the pool between EF operations and was only borrowed for queries.
+- **Blast radius:** the API, not the ingest. Connection exhaustion surfaces as failed *user*
+  requests — the site erroring while a background job holds what it needs.
+- **Fallback:** the claim-column design in A-012's fallback, which holds no connection at all.
+- **Expiry:** **EM-18.** Scheduled ingest running alongside user traffic on the same Neon ceiling is
+  when this gets tested for real.
+- **How to measure it rather than argue about it:** Render exposes `active_connections` for the Neon
+  instance. A full four-source run while the site is being browsed gives the actual peak, and turns
+  this entry from `assumed` into `live` or into a falsification.

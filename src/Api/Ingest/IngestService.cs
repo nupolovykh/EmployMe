@@ -170,7 +170,22 @@ public sealed class IngestService(
         }
         finally
         {
-            await ReleaseLockAsync(source.Id);
+            try
+            {
+                await ReleaseLockAsync(source.Id);
+            }
+            catch (Exception ex)
+            {
+                // Releasing the lock must never replace the result. A throw from a
+                // finally discards the return the catch block just produced and
+                // unwinds past RunAsync's loop, so every source ordered after this
+                // one goes unpolled and the caller gets no report at all — the same
+                // failure shape as the OperationCanceledException filter, by another
+                // route. The lock is not leaked by swallowing this: Npgsql sends
+                // DISCARD ALL when the connection returns to the pool, and that
+                // includes pg_advisory_unlock_all().
+                logger.LogWarning(ex, "Releasing the ingest lock for {Source} failed", source.Slug);
+            }
         }
     }
 
