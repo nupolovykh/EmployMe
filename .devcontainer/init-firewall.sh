@@ -115,11 +115,23 @@ for domain in \
     "developers.greenhouse.io" \
     "docs.greenhouse.io" \
     "api.lever.co" \
+    "jobs.ashbyhq.com" \
+    "www.ashbyhq.com" \
+    "api.ashbyhq.com" \
+    "docs.ashbyhq.com" \
+    "developers.ashbyhq.com" \
     "hire.lever.co" \
     "himalayas.app" \
     "jobicy.com" \
     "www.arbeitnow.com" \
     "railway.app" \
+    "neon.com" \
+    "neon.tech" \
+    "ep-polished-poetry-b2qvi361-pooler.c-6.eu-central-1.aws.neon.tech" \
+    "render.com" \
+    "employme-4uql.onrender.com" \
+    "employme-api.onrender.com" \
+    "supabase.com" \
     "mcp.linear.app" \
     "mcp.slack.com" \
     "mcp.sentry.dev" \

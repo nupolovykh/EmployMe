@@ -18,6 +18,12 @@ public class Vacancy
     public int? SalaryMax { get; set; }
     public string? Currency { get; set; }
     public DateTimeOffset? PublishedAt { get; set; }
+
+    /// <summary>
+    /// Populated only by sources that return the level as a field (EM-59).
+    /// Inference from the description is EM-31.
+    /// </summary>
+    public Seniority Seniority { get; set; } = Seniority.Unknown;
     public DateTimeOffset FetchedAt { get; set; }
 
     public Application? Application { get; set; }

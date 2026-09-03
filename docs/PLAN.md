@@ -4,7 +4,7 @@
 search has returned `403` to unauthorized callers since April 2026, and its developer agreement
 separately forbids transferring retrieved data to third-party services — so a publicly deployed
 aggregator over hh.ru was never shippable. The plan was rebuilt accordingly. The post-mortem is
-Linear EM-9; the falsified assumption is A-000 in [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md).
+Linear EM-9; the falsified assumption is A-000 in [`docs/ASSUMPTIONS.md`](./ASSUMPTIONS.md).
 
 **Phase gate:** each phase must be working — and, where applicable, deployed — before the next one
 starts. Do not go deep into Phase III while Phase I isn't deployed; this guards against the common
@@ -30,7 +30,7 @@ These came out of the hh.ru incident. They are the part of this plan that is not
    may not leave Backlog without a link to that artifact.
 3. **Definition of done.** A checkbox needs a link to a commit, PR or CI run. Work that exists only
    on an unpushed local branch is In Review, not Done.
-4. **Assumption register with expiry dates.** [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md).
+4. **Assumption register with expiry dates.** [`docs/ASSUMPTIONS.md`](./ASSUMPTIONS.md).
    Every load-bearing claim carries a verification level, a blast radius, a fallback and an expiry.
 5. **Blast radius — N≥3.** No phase may depend on a single external source. The MVP ships with at
    least four connectors across at least two tiers.
@@ -54,7 +54,9 @@ What lives **inside** the Dev Container vs. what runs **outside** it.
 - Claude Code — via the official `ghcr.io/anthropics/devcontainer-features/claude-code` feature. This sandboxes Claude Code to `/workspace` and applies a network firewall with a domain allowlist. **If Claude Code itself (not just the chat client) should reach the MCP servers below, their domains must be explicitly added to that allowlist** — the firewall blocks anything not listed by default. The same applies to every source domain in `docs/SOURCES.md`.
 
 **Outside the Dev Container:**
-- **Railway** — the deployment target itself; code is pushed there via CLI/CI, it is not run "inside" the local container.
+- **Render** (API as a Docker web service, frontend as a static site) and **Neon** (Postgres with
+  pgvector) — the deployment target. Chosen over Railway on 2026-08-28 when its trial expired and
+  left no free path; see A-011. Neither runs "inside" the local container.
 - **Sentry, Linear, Slack** — SaaS products. The project only holds an API key/DSN as an environment variable; the services themselves are never self-hosted.
 - **MCP endpoints** for the above (`mcp.linear.app`, `mcp.slack.com`, `mcp.sentry.dev`, `mcp.railway.com`) — remote servers that a Claude client connects to (the chat interface, or Claude Code if configured separately). Nothing to install or deploy for these.
 - **GitHub Actions** — runs on GitHub-hosted runners, separate from the local machine. Worth building CI on the same base image as the Dev Container, so "works locally" and "works in CI" stay identical.
@@ -124,26 +126,66 @@ not the salvage of code that touches none.
 Goal: a deployed vertical slice, multi-sourced from the first commit. No single external source
 can block it.
 
-- [ ] ASP.NET Core Web API: endpoints for listing vacancies — EM-11
-- [ ] REST endpoints: list, filter by keyword/stack/date — EM-15
-- [ ] Frontend: React + TS + Vite, vacancy list, basic filters — EM-16
-- [ ] `IJobSource` connector abstraction + source-agnostic ingest command — EM-52
-- [ ] Four adapters: Greenhouse, Lever, **Arbeitnow**, Jobicy — EM-53 (swapped in for Himalayas,
+- [x] ASP.NET Core Web API: endpoints for listing vacancies — EM-11
+- [x] REST endpoints: list, filter by keyword/stack/date — EM-15
+- [x] Frontend: React + TS + Vite, vacancy list, basic filters — EM-16
+- [x] `IJobSource` connector abstraction + source-agnostic ingest command — EM-52
+- [x] Four adapters: Greenhouse, Lever, **Arbeitnow**, Jobicy — EM-53 (swapped in for Himalayas,
       2026-08-26: Himalayas' spike found its terms require prior written approval Himalayas
       hasn't given, so it doesn't qualify as "cleared for public display." Arbeitnow was already
       spiked and cleared as part of the same gate check, so it moves up from its EM-19 follow-on
       slot rather than leaving the MVP at three adapters. Revisit if Himalayas' approval comes
       through — see A-003 in docs/ASSUMPTIONS.md.)
-- [ ] Render source attribution on every vacancy card — EM-54
-- [ ] One more adapter: Ashby (A) — EM-19 (Arbeitnow moved into EM-53's four, see above; Himalayas
-      re-enters here if its approval comes through)
-- [ ] Initial Railway deployment — EM-17
+- [x] Render source attribution on every vacancy card — EM-54
+- [x] Initial deployment — EM-17 (**Render + Neon, live 2026-08-28.** API
+      `employme-api.onrender.com` as a Docker web service, frontend `employme-4uql.onrender.com`
+      as a static site, Postgres on Neon `eu-central-1` with pgvector 0.8.6. Railway was the
+      original target and was dropped when its trial expired — see A-011. **Required environment
+      variables:** `ConnectionStrings__Default` in Npgsql key-value form, *not* the URI Neon hands
+      you — Npgsql rejects `channel_binding`; `Ingest__TriggerToken`, without which the manual
+      ingest endpoint refuses to run at all on a public deployment; and `Cors__AllowedOrigins__0`,
+      the frontend's origin, without which the API allows no cross-origin caller.
+      `Ingest__PublicDeployment` is deliberately *not* required — unset resolves to "public unless
+      Development", so forgetting it keeps the compliance guards on rather than silently switching
+      them off.)
 - ~~hh.ru API client~~ — EM-13, cancelled with A-000.
 - ~~Manual hh.ru ingest job~~ — EM-14, cancelled; replaced by the source-agnostic command in EM-52.
 
+- [x] Bound `RawPostings` to one row per posting — EM-58 (it appended a row per *fetch*, so the
+      table grew with polling frequency: ~6 MB a run against Neon's 0.5 GB, about four days once
+      EM-18 schedules it hourly. The newest fetch now overwrites the previous one, enforced by a
+      unique index rather than by the service. Verified on the deployed instance: three
+      consecutive full runs, count unchanged at 1,730, the third reporting `created=0`.)
+- [x] Spike: Ashby boards API (Tier A) — EM-57 (`spikes/ashby/`, A-008 at `spike`. **Not cleared**
+      — the API's stated purpose addresses the Ashby customer publishing their own careers page,
+      not a third party aggregating boards. Compensation measured at **94% coverage** against
+      A-009's 0% on Greenhouse and 0% on Lever, which is why it is worth returning to.)
+- [x] Map seniority from fields the sources already return — EM-59 (Jobicy `jobLevel`, Arbeitnow
+      `job_types`. 388 of 1,730 rows classified; the rest stay `Unknown`, and the filter excludes
+      `Unknown` rather than counting it as a match. `hiring_geo` was split out to EM-63 after
+      measurement showed Arbeitnow carries **no** eligibility field — 0 of 650 — so 63% of the
+      database cannot be answered without EM-31.)
+- [ ] One more adapter: Ashby (A) — EM-19 (**moved to Phase III.** Blocked on the target-company
+      registry, not on the source: no Ashby board found hires from Georgia. Its value is the
+      compensation data EM-29 needs, and the route is ingest with `public_deploy_enabled = false`
+      rather than a terms reinterpretation.)
+
 **Exit criterion:** the site is live, shows real postings from at least four sources across two
 tiers, filtering works, every card credits its source per that source's terms, and no Tier D
-connector is enabled in the deployed environment.
+connector is enabled in the deployed environment. **Met 2026-08-28**, verified against the
+deployed instance rather than a local run:
+
+- 995 vacancies from four sources across two tiers — Greenhouse 229 and Lever 37 (Tier A),
+  Arbeitnow 629 and Jobicy 100 (Tier B).
+- Filtering answers on the deployed API: `keyword=engineer` → 336, `location=Berlin` → 116. A
+  keyword of a bare `%` returns 225 rather than all 995, so the ILIKE escaping holds in production.
+- Every row carries its source name, home URL and `attributionRequired`.
+- The guards that only a deployed environment can exercise: ingest returns `401` with no token and
+  with a wrong one, and Himalayas — enabled `false`, cleared for public display `false` — is
+  skipped with its reason named in the report. No Tier D row exists in the deployed database at
+  all.
+
+**Still open in this phase:** nothing. EM-19 moved to Phase III; EM-63 to Phase III.
 
 ---
 
@@ -170,7 +212,10 @@ surface in Sentry.
 
 Goal: the layer that differentiates this from a generic aggregator.
 
-- [ ] `pgvector` extension enabled in Postgres — EM-26
+- [x] `pgvector` extension enabled in Postgres — EM-26 (landed with the Phase 0 schema, not as
+      Phase III work: `HasPostgresExtension("vector")` + `InitialCreate`'s `vector(1024)`
+      column, on `main`. Closed by the 2026-08-27 sync audit. Nothing writes to the column
+      yet — EM-27/EM-28 remain Phase III.)
 - [ ] Ollama deployed with a multilingual embedding model (bge-m3 or e5) — EM-27
 - [ ] Embeddings for vacancies and for my own CV/profile, with caching to avoid recomputation — EM-28
 - [ ] Fit-score: cosine similarity between CV and vacancy, with an explanation (matched vs. missing requirements) — EM-29
@@ -193,7 +238,7 @@ Goal: a tool used daily, not a demo for a screenshot.
 - [ ] Endpoints for status changes — EM-35
 - [ ] UI: list or kanban board with status management, mocked in Claude Design first — EM-36
 - [ ] Dashboard: applications per week, conversion by stage — EM-37
-- [ ] Manual QA pass on the deployed Railway staging environment via Claude in Chrome — EM-38
+- [ ] Manual QA pass on the deployed Render environment via Claude in Chrome — EM-38
 
 **Exit criterion:** the spreadsheet is retired — the entire job-search workflow runs through this
 tool.
@@ -205,7 +250,7 @@ tool.
 Goal: the project survives 20 minutes of interview questions.
 
 - [ ] Full README, architecture diagram, setup instructions, screenshots — EM-39
-- [ ] Write-up: why ATS boards over aggregators, why self-hosted embeddings, why Railway — and the hh.ru post-mortem — EM-40
+- [ ] Write-up: why ATS boards over aggregators, why self-hosted embeddings, why the host changed — and the hh.ru post-mortem — EM-40
 - [ ] Metrics section documenting the precision figures from Phase III — EM-41
 - [ ] Repository cleanup: personal application data removed, seed data added if needed for demos — EM-42
 - [ ] Interview talking points: architectural decisions and their trade-offs, written down in advance — EM-43

@@ -28,8 +28,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .Property(r => r.Payload)
             .HasColumnType("jsonb");
 
+        // Unique, not merely indexed: it is what enforces one row per posting.
+        // Without it the retention rule lives only in IngestService and a second
+        // writer would silently restore unbounded growth.
         modelBuilder.Entity<RawPosting>()
-            .HasIndex(r => new { r.SourceId, r.ExternalId });
+            .HasIndex(r => new { r.SourceId, r.ExternalId })
+            .IsUnique();
 
         modelBuilder.Entity<TargetCompany>()
             .HasIndex(t => new { t.SourceId, t.BoardToken })

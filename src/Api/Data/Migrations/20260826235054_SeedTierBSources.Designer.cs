@@ -3,6 +3,7 @@ using System;
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pgvector;
@@ -12,9 +13,11 @@ using Pgvector;
 namespace Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260826235054_SeedTierBSources")]
+    partial class SeedTierBSources
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,8 +114,7 @@ namespace Api.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SourceId", "ExternalId")
-                        .IsUnique();
+                    b.HasIndex("SourceId", "ExternalId");
 
                     b.ToTable("RawPostings");
                 });
@@ -267,9 +269,6 @@ namespace Api.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int?>("SalaryMin")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Seniority")
                         .HasColumnType("integer");
 
                     b.Property<int>("SourceId")

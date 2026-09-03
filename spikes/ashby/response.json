@@ -1,0 +1,978 @@
+{
+  "_spike_note": {
+    "issue": "EM-57",
+    "captured": "2026-08-30",
+    "endpoint": "GET https://api.ashbyhq.com/posting-api/job-board/{name}?includeCompensation=true",
+    "auth": "none — no key, no header",
+    "boards_sampled": {
+      "Ashby": 67,
+      "Nango": 7,
+      "zencastr": 4
+    },
+    "total_postings_untruncated": 78,
+    "truncation": "2 postings kept per board; every board returned HTTP 200",
+    "board_token_case_sensitivity": "tokens are case-sensitive: 'Ashby' -> 200, 'ashbyhq' -> 404. Greenhouse and Lever tokens are lowercase; Ashby's are not normalised.",
+    "compensation_coverage": {
+      "with_tier_summary": "74 of 78 (94%)",
+      "with_structured_annual_salary": "73 of 78 (93%)",
+      "comparison": "A-009 measured salary coverage at 0% on Greenhouse and 0% on Lever across 1,021 postings",
+      "intervals_seen": "overwhelmingly '1 YEAR'; one '1 HOUR' component observed, so an annual-only filter is required exactly as for Jobicy's salaryPeriod",
+      "currencies_seen": [
+        "USD",
+        "EUR",
+        "CAD",
+        "GBP",
+        "AUD",
+        "SGD",
+        "JPY",
+        "KRW",
+        "PHP",
+        "NZD"
+      ]
+    }
+  },
+  "boards": {
+    "Ashby": {
+      "apiVersion": "1",
+      "jobs": [
+        {
+          "id": "7458d4e9-da2e-47bd-98cb-adfda43d42b2",
+          "title": "Engineering Manager - EU",
+          "department": "Engineering",
+          "team": "EMEA Engineering",
+          "employmentType": "FullTime",
+          "location": "Remote - European Union",
+          "shouldDisplayCompensationOnJobPostings": true,
+          "secondaryLocations": [
+            {
+              "location": "Spain",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "Spain",
+                  "addressCountry": "Spain",
+                  "addressLocality": "Spain"
+                }
+              }
+            },
+            {
+              "location": "Italy",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Italy",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Germany",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Germany",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Switzerland",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Switzerland",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Denmark",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Denmark",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Norway",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Norway",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Croatia",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Croatia",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Ireland",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "Ireland",
+                  "addressCountry": "Ireland",
+                  "addressLocality": "Ireland"
+                }
+              }
+            },
+            {
+              "location": "Stockholm",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "Stockholm",
+                  "addressCountry": "Sweden",
+                  "addressLocality": "Stockholm"
+                }
+              }
+            },
+            {
+              "location": "Romania",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Romania",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Austria",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Austria"
+                }
+              }
+            },
+            {
+              "location": "Barcelona",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "Catalonia",
+                  "addressCountry": "Spain",
+                  "addressLocality": "Barcelona"
+                }
+              }
+            },
+            {
+              "location": "Netherlands",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Netherlands",
+                  "addressLocality": "Amsterdam"
+                }
+              }
+            },
+            {
+              "location": "Portugal",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Portugal"
+                }
+              }
+            },
+            {
+              "location": "France",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "France",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Berlin",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Germany",
+                  "addressLocality": "Berlin"
+                }
+              }
+            },
+            {
+              "location": "Sweden",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Sweden",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Hungary",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "Hungary",
+                  "addressCountry": "Hungary",
+                  "addressLocality": "Budapest"
+                }
+              }
+            },
+            {
+              "location": "Estonia",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Estonia",
+                  "addressLocality": ""
+                }
+              }
+            }
+          ],
+          "publishedAt": "2024-03-04T14:29:08.532+00:00",
+          "isListed": true,
+          "isRemote": true,
+          "workplaceType": "Remote",
+          "address": {
+            "postalAddress": {
+              "postalCode": "",
+              "addressRegion": "",
+              "addressCountry": "European Union",
+              "addressLocality": ""
+            }
+          },
+          "jobUrl": "https://jobs.ashbyhq.com/Ashby/7458d4e9-da2e-47bd-98cb-adfda43d42b2",
+          "applyUrl": "https://jobs.ashbyhq.com/Ashby/7458d4e9-da2e-47bd-98cb-adfda43d42b2/application",
+          "descriptionHtml": "<p style=\"min-height:1.5em\">Hi 👋 I’m <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://uk.linkedin.com/in/colinhoweuk\"><u>Colin</u></a>, Director of Engineering, Europe. How do you feel about software engineers writing product specs, making product decisions, and not breaking down projects into individual tickets? If that sounds exciting (even if a bit scary), read on because I’m looking for an engineering manager to help us build a different type of engineering team and culture at Ashby.</p><p style=\"min-height:1.5em\">To start, why do we need to be different? Time and again, I have witnessed engineers knowing what needs to be done yet being unable to get things done because of “the process” or because “more data is needed.” Some of the most effective projects have been <em>skunkworks </em>projects, where engineers have taken total ownership of a problem and driven it to completion. I want to normalize that at Ashby.</p><p style=\"min-height:1.5em\">When we think about how these processes came about, we realize they carry a <em>pessimistic</em> mindset. They box people into smaller roles to minimize the chance of not meeting a certain standard. At Ashby. we’re building an environment that is <em>optimistic </em>about what engineers can own and achieve and embraces the innovative engineers (and frankly, often stays out of their way).</p><p style=\"min-height:1.5em\">To accomplish this, our engineering leaders need to think deeply about individual performance, process, and culture - not running sprint planning or driving product and technical decisions. You’ll focus on building your team, their skills to thrive with the ownership they’re given, and an environment that empowers them to do their best work consistently, with little distraction. For junior EMs we try to stay within 6 direct reports. This enables them to spend time with our teams observing, correcting, praising, and, yes, coding. We like our managers to be hands-on while also making sure they’re not on the critical path.</p><p style=\"min-height:1.5em\">We’ve already gathered an<a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.ashbyhq.com/team\"> <u>experienced, talented, and collaborative team</u></a> of 25+ engineers. You’ll help me manage the growing team of engineers in Europe.</p><p style=\"min-height:1.5em\">In addition to working with engineers you’ll also get to work on projects yourselves. Some examples of work our engineering leaders have done:</p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">Provide feedback on product and technical specs to help engineers identify where to cut scope or improve quality. You don’t make the final decisions, but you’ll influence and coach ICs to reach the right ones.</p></li><li><p style=\"min-height:1.5em\">Grow engineers to the point where they can take large, loosely defined projects, and deliver them with little intervention. They still ask for help when needed - the difference is that they’re driving.</p></li><li><p style=\"min-height:1.5em\">Jump into our systems and code to debug a customer issue, ship a small bug fix, or improve our developer experience. Engineering leaders at Ashby are great engineers and enjoy keeping their skills up-to-date (while staying off the critical path).</p></li><li><p style=\"min-height:1.5em\">Improve how we generate and simulate data in demo accounts. It’s a project off the critical path, but it helps you keep up-to-date on our codebase while immensely impacting the business, from Engineering to QA to Sales.</p><p style=\"min-height:1.5em\"></p></li></ul><h1>Why be a manager?</h1><p style=\"min-height:1.5em\">I had two experiences early in my career that set me on my path. I had a great manager who asked tonnes of questions about the decisions I was making and coached me without me realizing it. And I had a <em>terrible</em> manager - being told to work harder after a week of 3am finishes was not what I needed as a young engineer. The stark difference between these two experiences motivated me to become a manager: I wanted every engineer I worked with to have the support I had in the best case.</p><p style=\"min-height:1.5em\">Since then, as I’ve learned more, I’ve realized that I love the kind of problems I get to solve as a manager. Deeply complex problems with long-term impact both on the company and on people’s lives. One of my proudest achievements is creating a fully transparent pay system, and on the day it was revealed, everybody was happy with it. Nobody stormed out. By spending time thinking deeply about everybody’s pay and ensuring the mechanics of promotion were clear, I put the team in a place where they could see a peer was paid more than them, and it not be a problem.</p><p style=\"min-height:1.5em\">Despite all this, I love being technical. I sometimes indulge myself and spend a morning writing some code to improve tests or provide better abstractions. If I couldn’t be a manager, I’d be super happy to be an IC.</p><p style=\"min-height:1.5em\">I’m looking for someone who is passionate. Passionate about both management and being technical. Someone who spots a pattern amongst their team, figures out a better way for us to operate, and then builds the automation that powers it. I introduced a new process that enables engineers to merge 30% of PRs without a human review beforehand. I also built the automation that approves these PRs. I <em>also</em> built that automation with abstractions that make it easy for the engineers to improve the automation themselves.</p><p style=\"min-height:1.5em\">It can be hard to find seasoned engineering leaders who haven’t succumbed to the status quo in some way or another. We're committed to giving all our people a total and utter lack of terrible managers, and that means we're willing to take a chance on someone early in their leadership journey who's courageous, principled, and has the drive to build themselves into a great leader who can say “Yah I know everyone is doing that, but we won't because...”</p><p style=\"min-height:1.5em\"></p><h1>What We’re Building</h1><p style=\"min-height:1.5em\">As engineers, we are used to tooling that makes us <strong>better</strong> at what we do. When we started Ashby, we saw the opposite with Talent Acquisition (TA) software. Recruiting teams were leveling up how they did their work, but instead of software meeting this new standard, it held them back.</p><p style=\"min-height:1.5em\">Scheduling a final round is an excellent example. Recruiting teams wanted to schedule candidates faster, track interviewer preparation and quality, and do it with half the headcount. A recruiter needed to manually collect availability from the candidate, identify qualified interviewers, perform “Calendar Tetris” to find who is available to interview the candidate, schedule on the earliest date possible, and make any last-minute adjustments as availability changed. They must do this while considering the interview load on each individual and whether interviewers need to be trained and shadowing others. 🥵 TA software didn’t help.</p><p style=\"min-height:1.5em\">As hiring managers, we know TA is a critical function, and as engineers, we know software can do better. So, we built and continue to build Ashby to give TA teams the <em>highest</em> standard of tooling. Software that’s intelligent and powerful. Software that provides insights into where they’re failing and automates or simplifies many of the tasks they’re underwater with. We want other functions and departments to be jealous of what TA teams can do with Ashby, and today they often are!</p><p style=\"min-height:1.5em\">As we’ve set the standard for excellence in TA software, HR teams have pulled us into solving their problems in areas like onboarding and performance management.</p><p style=\"min-height:1.5em\"></p><h1>Why You Should or Shouldn’t Apply</h1><p style=\"min-height:1.5em\">Engineering leadership comes in many flavors, not all of which fit our model. I thought I’d outline some things I’m looking for to help you decide if this fits what you’re looking for:</p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><em>You love being technical</em> and can hold in-depth conversations with direct reports from infra to backend to frontend.</p></li><li><p style=\"min-height:1.5em\"><em>You enjoy management problems</em>. We want people who get <em>excited </em>about driving people to be their best, giving difficult feedback, and building systems that make this easier</p></li><li><p style=\"min-height:1.5em\"><em>You hold your team to a high standard</em> and don’t shy away from getting into the details and giving feedback, even to the best folks on your team.</p></li><li><p style=\"min-height:1.5em\"><em>You are an excellent and empathetic communicator.</em> Facilitating change at both an individual and organization level requires understanding how to navigate the beliefs, opinions, and past experiences of engineers and figuring out how to both convince them of a new way of doing things while also leaving yourself open to feedback. </p></li><li><p style=\"min-height:1.5em\"><em>You know what exceptional engineers look like.</em> You’ve thought deeply about what makes them tick, how to recruit them, and how to grow folks into them. I want to see depth here, the industry often regurgitates a vanilla description, but the reality is more nuanced.</p></li><li><p style=\"min-height:1.5em\"><em>You’re good at thinking about product, business</em>, and maybe even design, but you’re not interested in calling the shots and are more interested in building a team that can make the best decisions without you.</p></li><li><p style=\"min-height:1.5em\"><em>You thrive in high-trust, high-autonomy environments</em>. We're a young startup where leaders wear multiple hats, and you'll build your own (high-speed) on-ramp through developing strong feedback loops.</p><p style=\"min-height:1.5em\"></p></li></ul><p style=\"min-height:1.5em\"><strong>Put another way, you shouldn’t apply if:</strong></p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">You don’t enjoy coding or don’t find time to stay up-to-date on technology.</p></li><li><p style=\"min-height:1.5em\">You’ve gotten into management because it was the only growth path available</p></li><li><p style=\"min-height:1.5em\">You want to make all the product decisions instead of empowering your team to make those calls.</p></li><li><p style=\"min-height:1.5em\">You're happy with a team of engineers that are predominantly early-career, mid-career, or don't thrive with ownership or autonomy. With enough guardrails, the team can get things done.</p></li><li><p style=\"min-height:1.5em\">A staff or principal engineer to you is someone who spends most of their time project managing or doing architecture reviews.</p></li><li><p style=\"min-height:1.5em\">You’re not optimistic or convinced that we can build a large engineering team that functions differently than the status quo. You think, at some size, common processes need to be implemented to ensure consistent product delivery (e.g., sprint planning, product managers writing in-depth specifications). You might not say it out loud, but you think, at some size, compromises have to be made for the sake of hiring numbers.</p></li></ul><p style=\"min-height:1.5em\"></p><h1>Engineering Culture</h1><p style=\"min-height:1.5em\">Our engineering culture is motivated by <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.linkedin.com/in/abhikpramanik/\"><u>Abhik</u></a> and <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.linkedin.com/in/benjaminencz/\"><u>Benji</u></a>’s (our co-founders) belief that a small talented team, given the right environment, can build high-quality software fast (and work regular hours!). We do it through:</p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">Minimal process with ownership over decisions normally made by product and design</p></li><li><p style=\"min-height:1.5em\">Natural collaboration and deliberate communication</p></li><li><p style=\"min-height:1.5em\">Investing in tools and abstractions that give us leverage</p></li><li><p style=\"min-height:1.5em\">Putting effort into building a diverse team</p></li></ul><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h2><strong>Minimal Process &amp; Lots of Ownership</strong></h2><p style=\"min-height:1.5em\">The best engineers we’ve worked with delivered reliably magical outcomes. They took customer problems and relentlessly drove them to solutions that were not only successful but often brilliant and creative. While they did this with minimal oversight, stakeholders were never in the dark as to what was going on, and no setback was a surprise.</p><p style=\"min-height:1.5em\">Traditional product-development processes aren’t meant for the best engineers. Their purpose is to create consistent outcomes regardless of the engineer’s skill. But, consistency comes at the expense of an engineer’s time and freedom—both ingredients necessary to generate those magical outcomes. As a result, process stifles the best engineers and doesn’t give others the opportunity to practice the behaviors that made the best engineers the “best.”</p><p style=\"min-height:1.5em\">At Ashby, we want to build an environment that encourages every engineer to be their best. So, at Ashby, every Engineer runs their project. Product Managers (and Designers) build strategy, do customer research, and hand off problem briefs to Engineers. Engineers take on the rest: they research the problem, write product specs, build wireframes, and implement their solution end-to-end. We rely on engineers, not process, to push information outward to the relevant folks (e.g., Product Managers) and pull folks in to help (e.g., Designers, Infra). It’s a new level of ownership for many engineers, but we’d rather an engineer fail a bit and coach up their skills than use process as a crutch. Not everyone succeeds in our culture, but those who do <em>thrive</em>.</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h2><strong>Collaboration is Natural &amp; Communication is Deliberate</strong></h2><p style=\"min-height:1.5em\">Our engineering team consists of lifelong learners who are talented but also humble and kind (meet them <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.ashbyhq.com/team\"><u>here</u></a>!). These attributes create an environment where collaboration happens naturally. We combine this with research, prototyping, and written proposals to see around corners and get feedback from the team across time zones. Focus time is something that we hold sacred, and, with thoughtful and deliberate communication, engineers are in &lt;2h meetings per week (I wrote about it <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.ashbyhq.com/blog/company/thoughtful-communication\"><u>here</u></a>).</p><p style=\"min-height:1.5em\">To drive it home, here's a recent calendar of an engineer who has been with us for over 4 years. ~34 hours of focus time, 2.5h of interviews, and 3.5 hours of meetings:</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><div style=\"text-align:left\"><img style=\"max-width:100%\" src=\"https://app.ashbyhq.com/api/images/user-content/4ea5f68e-c33e-4ac9-831a-e732bee4a303/d4679311-9dba-4031-bf5e-19ce78597ab1/calendar.png\" /></div><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><p style=\"min-height:1.5em\">We also meet in person at least twice a year, once as a department and once as a company. You also have a small budget to meet up with folks in your city/region.</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h2><strong>Increase Leverage, not Team Size</strong></h2><p style=\"min-height:1.5em\">We built Ashby with the quality, breadth, and depth that many customers would expect from much larger teams over larger time scales. We’ve done this through investment in:</p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Great developer tooling.</strong> Our CI/CD takes ~10m, and we deploy at least 15x a day. A debugger that works out of the box. Everyone on the team has contributed to our developer experience 💪🏾.</p></li><li><p style=\"min-height:1.5em\"><strong>Building blocks to create powerful and customizable products fast.</strong> At the core of Ashby is a set of common components (analytics modeling and query language, policy engine, workflow engine, design system) that we constantly improve. Each improvement to a common component cascades throughout our app (short video below).</p></li><li><p style=\"min-height:1.5em\"><strong>AI-powered tooling. </strong>We think of AI as a way to automate the mundane parts of building and maintaining high-quality software. We use a combination of third-party and internally built tools that, for instance, auto-triage customer issues, suggest fixes, prototype ideas, generate production-ready code, and conduct code reviews. Engineers have an unlimited token budget (but are not measured on it). We write in detail about our philosophy, current use of AI, and future plans for AI in Engineering <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ashbyhq.com/blog/engineering/ai-ashby-engineering-and-the-future\"><u>here</u></a>.</p></li></ul><p style=\"min-height:1.5em\">Here’s an impromptu quote from Arjun in our company Slack of what it’s like to build a feature at Ashby:</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><div style=\"text-align:left\"><img style=\"max-width:100%\" src=\"https://app.ashbyhq.com/api/images/user-content/4ea5f68e-c33e-4ac9-831a-e732bee4a303/8d94727a-46d8-42a2-9627-ddcd7f822f95/arjun.png\" /></div><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><p style=\"min-height:1.5em\">And a demo of one of these building blocks:</p><div><div style=\"left:0;width:100%;height:0;position:relative;padding-bottom:62.5%\"><iframe src=\"https://embedded-media.ashbyhq.com/embed/4ea5f68e-c33e-4ac9-831a-e732bee4a303/9a5f032d-c731-411e-98cf-261517156f01\" style=\"top:0;left:0;width:100%;height:100%;position:absolute;border:0\" allowfullscreen scrolling=\"no\" allow=\"encrypted-media *; picture-in-picture *;\" sandbox=\"allow-scripts allow-same-origin allow-presentation\"></iframe></div></div><h2><strong>Put Effort into Diversity</strong></h2><p style=\"min-height:1.5em\">Diverse teams drive innovation and better outcomes. Having seen my mother and partner build their careers as minority women in non-diverse fields, I want to make sure Ashby creates opportunities for the next generation of engineers from underrepresented groups.</p><p style=\"min-height:1.5em\">Today, 25% of engineers and 50% of our engineering leaders at Ashby are from underrepresented groups. We are taking conscious steps to improve, like sourcing diverse candidates, providing generous paid family leave, no leetcode interviews, and more.</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h2><strong>Work-Life Balance: It’s A Marathon, Not a Sprint</strong></h2><p style=\"min-height:1.5em\">The intensity of work at Ashby should feel like a marathon, not a sprint (nor speed-walking). We work with urgency and ambition to build excellent software, but we don’t need to prove out a new software category or product-market fit. That requires ingenuity and thoughtfulness, and that doesn’t happen with unrealistic deadlines or sleepless nights.</p><p style=\"min-height:1.5em\">Our remote, low-meeting, high-ownership culture gives you <em>a lot</em> of flexibility in how you structure your days and weeks. In practice, that means you keep your own hours, but there will be moments of intensity, like launching your feature at our annual user conference. We offer unlimited PTO, and you actually get to use it. Some of our most exceptional engineers take almost 30 days of vacation per year.</p><p style=\"min-height:1.5em\">This way of working allows many of us on the team to be active parents, including Benji and Abhik. Abhik blocks off 1.5 hours every morning to spend with his daughter and drop her off at school. <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.linkedin.com/in/mujdaalamzai/\"><u>Mujda</u></a> (Product Engineer) puts it best in an <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://nextplayso.substack.com/p/should-you-join-ashby\"><u>article</u></a> about us: “I can say that Ashby is a great place to be a mom… No one bats an eye if I have to take my kid to a doctor’s appointment or have to work weird hours because childcare fell through.”</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1>Interview Process</h1><p style=\"min-height:1.5em\">At Ashby, our team and interview process want to help you show your best self. We’ll dive into past projects and simulate working together. Our interview process is six interviews in the following order: </p><ol style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><em>Intro Call (30m)</em> - Discuss your application questions, align on the responsibilities of the role, and answer questions about Ashby.</p></li><li><p style=\"min-height:1.5em\"><em>Past Experience Deep Dive (1h)</em> - Discuss your past experience as an engineering leader.</p></li><li><p style=\"min-height:1.5em\"><em>Technical Screen (1h)</em> - Add a feature back to Ashby. You'll spend most of your time understanding a specific part of our codebase and write less than 15 lines of code.</p></li><li><p style=\"min-height:1.5em\"><em>Coffee Chat with VP of Engineering (1h)</em> - Spend time with our VP of Engineering and get to know each other.</p></li><li><p style=\"min-height:1.5em\"><em>Meet the Team (2h)</em> - At this point, the engineering leadership team is excited about you and you'll meet our CEO, Engineers, Product Managers, and some other folks on the team.</p></li></ol><p style=\"min-height:1.5em\">I will be your main point of contact and prepare you for interviews. If we don’t give an offer, we’ll provide feedback!</p><p style=\"min-height:1.5em\"></p><h1><strong>Technology Stack</strong></h1><p style=\"min-height:1.5em\">I’m sharing our tech stack with the caveat that we don’t require previous experience in it (but a love of typed languages is helpful 😀): TypeScript (frontend &amp; backend), React, GraphQL API, Node.js, Postgres, Redis.</p><p style=\"min-height:1.5em\">When they joined Ashby, many of our engineers switched from other languages like Swift and Kotlin (<a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://linkedin.com/in/benasher44/\"><u>Ben</u></a>), platforms like iOS (<a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.linkedin.com/in/tom-quist-0925a199/\"><u>Tom</u></a>) and Windows (<a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.linkedin.com/in/adam-lusch/\">Adam</a>). We care more about fundamentals (e.g., debugging, abstractions) and how fast you learn. For folks on the team who switched, it's nice seeing changes hot reload versus waiting for XCode to compile 😅.</p><div style=\"min-height:1.2em;margin-top:0;margin-bottom:0\"> </div><h1><strong>Benefits</strong></h1><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">Competitive salary and equity.</p></li><li><p style=\"min-height:1.5em\">10-year exercise window for stock options. You shouldn’t feel pressure to purchase stock options if you leave Ashby —do it when you feel financially comfortable.</p></li><li><p style=\"min-height:1.5em\">Unlimited PTO, and we will encourage you to take it.</p></li><li><p style=\"min-height:1.5em\">A minimum of 12 weeks of fully paid parental leave, covered by Ashby. For folks outside the US, it may be longer to be in line with regional requirements.</p></li><li><p style=\"min-height:1.5em\">Generous equipment, software, and office furniture budget. Get what you need to be happy and productive!</p></li><li><p style=\"min-height:1.5em\">$100/month education budget with more expensive items (like conferences) covered with manager approval.</p></li><li><p style=\"min-height:1.5em\">$250/month tool budget plus access to Claude, Cursor, and Codex with generous token budgets.</p></li><li><p style=\"min-height:1.5em\">If you’re in the US, we offer top-tier health insurance for you and your dependents, with 100% of premiums covered by Ashby. In other countries, we provide high-quality supplemental health insurance for you and your dependents, also fully covered by us.</p></li></ul><p style=\"min-height:1.5em\">Ashby’s success hinges on hiring great people and creating an environment where we can be happy, feel challenged, and do our best work. We’re being deliberate about building that environment from the ground up. I hope that excites you enough to apply.</p><p style=\"min-height:1.5em\"><em>Ashby provides equal employment opportunities (EEO) to all employees and applicants for employment without regard to race, color, religion, sex, national origin, age, disability, genetics, sexual orientation, gender identity, or gender expression. We are committed to a diverse and inclusive workforce and welcome people from all backgrounds, experiences, perspectives, and abilities.</em></p><p style=\"min-height:1.5em\"><em>Ashby is committed to a fair and transparent hiring process. We confirm that this advertisement is for an active, existing vacancy within our organization. Please be advised that we may use artificial intelligence-driven tools to assist our recruitment team in screening, assessing, and selecting candidates for this position.</em></p>",
+          "descriptionPlain": "Hi 👋 I’m Colin https://uk.linkedin.com/in/colinhoweuk, Director of Engineering, Europe. How do you feel about software engineers writing product specs, making product decisions, and not breaking down projects into individual tickets? If that sounds exciting (even if a bit scary), read on because I’m looking for an engineering manager to help us build a different type of engineering team and culture at Ashby.\n\nTo start, why do we need to be different? Time and again, I have witnessed engineers knowing what needs to be done yet being unable to get things done because of “the process” or because “more data is needed.” Some of the most effective projects have been skunkworks projects, where engineers have taken total ownership of a problem and driven it to completion. I want to normalize that at Ashby.\n\nWhen we think about how these processes came about, we realize they carry a pessimistic mindset. They box people into smaller roles to minimize the chance of not meeting a certain standard. At Ashby. we’re building an environment that is optimistic about what engineers can own and achieve and embraces the innovative engineers (and frankly, often stays out of their way).\n\nTo accomplish this, our engineering leaders need to think deeply about individual performance, process, and culture - not running sprint planning or driving product and technical decisions. You’ll focus on building your team, their skills to thrive with the ownership they’re given, and an environment that empowers them to do their best work consistently, with little distraction. For junior EMs we try to stay within 6 direct reports. This enables them to spend time with our teams observing, correcting, praising, and, yes, coding. We like our managers to be hands-on while also making sure they’re not on the critical path.\n\nWe’ve already gathered an experienced, talented, and collaborative team https://www.ashbyhq.com/team of 25+ engineers. You’ll help me manage the growing team of engineers in Europe.\n\nIn addition to working with engineers you’ll also get to work on projects yourselves. Some examples of work our engineering leaders have done:\n\n - Provide feedback on product and technical specs to help engineers identify where to cut scope or improve quality. You don’t make the final decisions, but you’ll influence and coach ICs to reach the right ones.\n\n - Grow engineers to the point where they can take large, loosely defined projects, and deliver them with little intervention. They still ask for help when needed - the difference is that they’re driving.\n\n - Jump into our systems and code to debug a customer issue, ship a small bug fix, or improve our developer experience. Engineering leaders at Ashby are great engineers and enjoy keeping their skills up-to-date (while staying off the critical path).\n\n - Improve how we generate and simulate data in demo accounts. It’s a project off the critical path, but it helps you keep up-to-date on our codebase while immensely impacting the business, from Engineering to QA to Sales.\n   \n   \n\n\nWHY BE A MANAGER?\n\nI had two experiences early in my career that set me on my path. I had a great manager who asked tonnes of questions about the decisions I was making and coached me without me realizing it. And I had a terrible manager - being told to work harder after a week of 3am finishes was not what I needed as a young engineer. The stark difference between these two experiences motivated me to become a manager: I wanted every engineer I worked with to have the support I had in the best case.\n\nSince then, as I’ve learned more, I’ve realized that I love the kind of problems I get to solve as a manager. Deeply complex problems with long-term impact both on the company and on people’s lives. One of my proudest achievements is creating a fully transparent pay system, and on the day it was revealed, everybody was happy with it. Nobody stormed out. By spending time thinking deeply about everybody’s pay and ensuring the mechanics of promotion were clear, I put the team in a place where they could see a peer was paid more than them, and it not be a problem.\n\nDespite all this, I love being technical. I sometimes indulge myself and spend a morning writing some code to improve tests or provide better abstractions. If I couldn’t be a manager, I’d be super happy to be an IC.\n\nI’m looking for someone who is passionate. Passionate about both management and being technical. Someone who spots a pattern amongst their team, figures out a better way for us to operate, and then builds the automation that powers it. I introduced a new process that enables engineers to merge 30% of PRs without a human review beforehand. I also built the automation that approves these PRs. I also built that automation with abstractions that make it easy for the engineers to improve the automation themselves.\n\nIt can be hard to find seasoned engineering leaders who haven’t succumbed to the status quo in some way or another. We're committed to giving all our people a total and utter lack of terrible managers, and that means we're willing to take a chance on someone early in their leadership journey who's courageous, principled, and has the drive to build themselves into a great leader who can say “Yah I know everyone is doing that, but we won't because...”\n\n\n\n\nWHAT WE’RE BUILDING\n\nAs engineers, we are used to tooling that makes us better at what we do. When we started Ashby, we saw the opposite with Talent Acquisition (TA) software. Recruiting teams were leveling up how they did their work, but instead of software meeting this new standard, it held them back.\n\nScheduling a final round is an excellent example. Recruiting teams wanted to schedule candidates faster, track interviewer preparation and quality, and do it with half the headcount. A recruiter needed to manually collect availability from the candidate, identify qualified interviewers, perform “Calendar Tetris” to find who is available to interview the candidate, schedule on the earliest date possible, and make any last-minute adjustments as availability changed. They must do this while considering the interview load on each individual and whether interviewers need to be trained and shadowing others. 🥵 TA software didn’t help.\n\nAs hiring managers, we know TA is a critical function, and as engineers, we know software can do better. So, we built and continue to build Ashby to give TA teams the highest standard of tooling. Software that’s intelligent and powerful. Software that provides insights into where they’re failing and automates or simplifies many of the tasks they’re underwater with. We want other functions and departments to be jealous of what TA teams can do with Ashby, and today they often are!\n\nAs we’ve set the standard for excellence in TA software, HR teams have pulled us into solving their problems in areas like onboarding and performance management.\n\n\n\n\nWHY YOU SHOULD OR SHOULDN’T APPLY\n\nEngineering leadership comes in many flavors, not all of which fit our model. I thought I’d outline some things I’m looking for to help you decide if this fits what you’re looking for:\n\n - You love being technical and can hold in-depth conversations with direct reports from infra to backend to frontend.\n\n - You enjoy management problems. We want people who get excited about driving people to be their best, giving difficult feedback, and building systems that make this easier\n\n - You hold your team to a high standard and don’t shy away from getting into the details and giving feedback, even to the best folks on your team.\n\n - You are an excellent and empathetic communicator. Facilitating change at both an individual and organization level requires understanding how to navigate the beliefs, opinions, and past experiences of engineers and figuring out how to both convince them of a new way of doing things while also leaving yourself open to feedback. \n\n - You know what exceptional engineers look like. You’ve thought deeply about what makes them tick, how to recruit them, and how to grow folks into them. I want to see depth here, the industry often regurgitates a vanilla description, but the reality is more nuanced.\n\n - You’re good at thinking about product, business, and maybe even design, but you’re not interested in calling the shots and are more interested in building a team that can make the best decisions without you.\n\n - You thrive in high-trust, high-autonomy environments. We're a young startup where leaders wear multiple hats, and you'll build your own (high-speed) on-ramp through developing strong feedback loops.\n   \n   \n\nPut another way, you shouldn’t apply if:\n\n - You don’t enjoy coding or don’t find time to stay up-to-date on technology.\n\n - You’ve gotten into management because it was the only growth path available\n\n - You want to make all the product decisions instead of empowering your team to make those calls.\n\n - You're happy with a team of engineers that are predominantly early-career, mid-career, or don't thrive with ownership or autonomy. With enough guardrails, the team can get things done.\n\n - A staff or principal engineer to you is someone who spends most of their time project managing or doing architecture reviews.\n\n - You’re not optimistic or convinced that we can build a large engineering team that functions differently than the status quo. You think, at some size, common processes need to be implemented to ensure consistent product delivery (e.g., sprint planning, product managers writing in-depth specifications). You might not say it out loud, but you think, at some size, compromises have to be made for the sake of hiring numbers.\n\n\n\n\nENGINEERING CULTURE\n\nOur engineering culture is motivated by Abhik https://www.linkedin.com/in/abhikpramanik/ and Benji https://www.linkedin.com/in/benjaminencz/’s (our co-founders) belief that a small talented team, given the right environment, can build high-quality software fast (and work regular hours!). We do it through:\n\n - Minimal process with ownership over decisions normally made by product and design\n\n - Natural collaboration and deliberate communication\n\n - Investing in tools and abstractions that give us leverage\n\n - Putting effort into building a diverse team\n\n \n \n\n\nMINIMAL PROCESS & LOTS OF OWNERSHIP\n\nThe best engineers we’ve worked with delivered reliably magical outcomes. They took customer problems and relentlessly drove them to solutions that were not only successful but often brilliant and creative. While they did this with minimal oversight, stakeholders were never in the dark as to what was going on, and no setback was a surprise.\n\nTraditional product-development processes aren’t meant for the best engineers. Their purpose is to create consistent outcomes regardless of the engineer’s skill. But, consistency comes at the expense of an engineer’s time and freedom—both ingredients necessary to generate those magical outcomes. As a result, process stifles the best engineers and doesn’t give others the opportunity to practice the behaviors that made the best engineers the “best.”\n\nAt Ashby, we want to build an environment that encourages every engineer to be their best. So, at Ashby, every Engineer runs their project. Product Managers (and Designers) build strategy, do customer research, and hand off problem briefs to Engineers. Engineers take on the rest: they research the problem, write product specs, build wireframes, and implement their solution end-to-end. We rely on engineers, not process, to push information outward to the relevant folks (e.g., Product Managers) and pull folks in to help (e.g., Designers, Infra). It’s a new level of ownership for many engineers, but we’d rather an engineer fail a bit and coach up their skills than use process as a crutch. Not everyone succeeds in our culture, but those who do thrive.\n\n \n\n\nCOLLABORATION IS NATURAL & COMMUNICATION IS DELIBERATE\n\nOur engineering team consists of lifelong learners who are talented but also humble and kind (meet them here https://www.ashbyhq.com/team!). These attributes create an environment where collaboration happens naturally. We combine this with research, prototyping, and written proposals to see around corners and get feedback from the team across time zones. Focus time is something that we hold sacred, and, with thoughtful and deliberate communication, engineers are in <2h meetings per week (I wrote about it here https://www.ashbyhq.com/blog/company/thoughtful-communication).\n\nTo drive it home, here's a recent calendar of an engineer who has been with us for over 4 years. ~34 hours of focus time, 2.5h of interviews, and 3.5 hours of meetings:\n\n \n[https://app.ashbyhq.com/api/images/user-content/4ea5f68e-c33e-4ac9-831a-e732bee4a303/d4679311-9dba-4031-bf5e-19ce78597ab1/calendar.png]\n \n\nWe also meet in person at least twice a year, once as a department and once as a company. You also have a small budget to meet up with folks in your city/region.\n\n \n\n\nINCREASE LEVERAGE, NOT TEAM SIZE\n\nWe built Ashby with the quality, breadth, and depth that many customers would expect from much larger teams over larger time scales. We’ve done this through investment in:\n\n - Great developer tooling. Our CI/CD takes ~10m, and we deploy at least 15x a day. A debugger that works out of the box. Everyone on the team has contributed to our developer experience 💪🏾.\n\n - Building blocks to create powerful and customizable products fast. At the core of Ashby is a set of common components (analytics modeling and query language, policy engine, workflow engine, design system) that we constantly improve. Each improvement to a common component cascades throughout our app (short video below).\n\n - AI-powered tooling. We think of AI as a way to automate the mundane parts of building and maintaining high-quality software. We use a combination of third-party and internally built tools that, for instance, auto-triage customer issues, suggest fixes, prototype ideas, generate production-ready code, and conduct code reviews. Engineers have an unlimited token budget (but are not measured on it). We write in detail about our philosophy, current use of AI, and future plans for AI in Engineering here https://www.ashbyhq.com/blog/engineering/ai-ashby-engineering-and-the-future.\n\nHere’s an impromptu quote from Arjun in our company Slack of what it’s like to build a feature at Ashby:\n\n \n[https://app.ashbyhq.com/api/images/user-content/4ea5f68e-c33e-4ac9-831a-e732bee4a303/8d94727a-46d8-42a2-9627-ddcd7f822f95/arjun.png]\n \n\nAnd a demo of one of these building blocks:\n\n\n\n\nPUT EFFORT INTO DIVERSITY\n\nDiverse teams drive innovation and better outcomes. Having seen my mother and partner build their careers as minority women in non-diverse fields, I want to make sure Ashby creates opportunities for the next generation of engineers from underrepresented groups.\n\nToday, 25% of engineers and 50% of our engineering leaders at Ashby are from underrepresented groups. We are taking conscious steps to improve, like sourcing diverse candidates, providing generous paid family leave, no leetcode interviews, and more.\n\n \n\n\nWORK-LIFE BALANCE: IT’S A MARATHON, NOT A SPRINT\n\nThe intensity of work at Ashby should feel like a marathon, not a sprint (nor speed-walking). We work with urgency and ambition to build excellent software, but we don’t need to prove out a new software category or product-market fit. That requires ingenuity and thoughtfulness, and that doesn’t happen with unrealistic deadlines or sleepless nights.\n\nOur remote, low-meeting, high-ownership culture gives you a lot of flexibility in how you structure your days and weeks. In practice, that means you keep your own hours, but there will be moments of intensity, like launching your feature at our annual user conference. We offer unlimited PTO, and you actually get to use it. Some of our most exceptional engineers take almost 30 days of vacation per year.\n\nThis way of working allows many of us on the team to be active parents, including Benji and Abhik. Abhik blocks off 1.5 hours every morning to spend with his daughter and drop her off at school. Mujda https://www.linkedin.com/in/mujdaalamzai/ (Product Engineer) puts it best in an article https://nextplayso.substack.com/p/should-you-join-ashby about us: “I can say that Ashby is a great place to be a mom… No one bats an eye if I have to take my kid to a doctor’s appointment or have to work weird hours because childcare fell through.”\n\n \n\n\nINTERVIEW PROCESS\n\nAt Ashby, our team and interview process want to help you show your best self. We’ll dive into past projects and simulate working together. Our interview process is six interviews in the following order: \n\n 1. Intro Call (30m) - Discuss your application questions, align on the responsibilities of the role, and answer questions about Ashby.\n\n 2. Past Experience Deep Dive (1h) - Discuss your past experience as an engineering leader.\n\n 3. Technical Screen (1h) - Add a feature back to Ashby. You'll spend most of your time understanding a specific part of our codebase and write less than 15 lines of code.\n\n 4. Coffee Chat with VP of Engineering (1h) - Spend time with our VP of Engineering and get to know each other.\n\n 5. Meet the Team (2h) - At this point, the engineering leadership team is excited about you and you'll meet our CEO, Engineers, Product Managers, and some other folks on the team.\n\nI will be your main point of contact and prepare you for interviews. If we don’t give an offer, we’ll provide feedback!\n\n\n\n\nTECHNOLOGY STACK\n\nI’m sharing our tech stack with the caveat that we don’t require previous experience in it (but a love of typed languages is helpful 😀): TypeScript (frontend & backend), React, GraphQL API, Node.js, Postgres, Redis.\n\nWhen they joined Ashby, many of our engineers switched from other languages like Swift and Kotlin (Ben https://linkedin.com/in/benasher44/), platforms like iOS (Tom https://www.linkedin.com/in/tom-quist-0925a199/) and Windows (Adam https://www.linkedin.com/in/adam-lusch/). We care more about fundamentals (e.g., debugging, abstractions) and how fast you learn. For folks on the team who switched, it's nice seeing changes hot reload versus waiting for XCode to compile 😅.\n\n \n\n\nBENEFITS\n\n - Competitive salary and equity.\n\n - 10-year exercise window for stock options. You shouldn’t feel pressure to purchase stock options if you leave Ashby —do it when you feel financially comfortable.\n\n - Unlimited PTO, and we will encourage you to take it.\n\n - A minimum of 12 weeks of fully paid parental leave, covered by Ashby. For folks outside the US, it may be longer to be in line with regional requirements.\n\n - Generous equipment, software, and office furniture budget. Get what you need to be happy and productive!\n\n - $100/month education budget with more expensive items (like conferences) covered with manager approval.\n\n - $250/month tool budget plus access to Claude, Cursor, and Codex with generous token budgets.\n\n - If you’re in the US, we offer top-tier health insurance for you and your dependents, with 100% of premiums covered by Ashby. In other countries, we provide high-quality supplemental health insurance for you and your dependents, also fully covered by us.\n\nAshby’s success hinges on hiring great people and creating an environment where we can be happy, feel challenged, and do our best work. We’re being deliberate about building that environment from the ground up. I hope that excites you enough to apply.\n\nAshby provides equal employment opportunities (EEO) to all employees and applicants for employment without regard to race, color, religion, sex, national origin, age, disability, genetics, sexual orientation, gender identity, or gender expression. We are committed to a diverse and inclusive workforce and welcome people from all backgrounds, experiences, perspectives, and abilities.\n\nAshby is committed to a fair and transparent hiring process. We confirm that this advertisement is for an active, existing vacancy within our organization. Please be advised that we may use artificial intelligence-driven tools to assist our recruitment team in screening, assessing, and selecting candidates for this position.",
+          "compensation": {
+            "compensationTierSummary": "€110K – €185K • Offers Equity • Offers Bonus",
+            "scrapeableCompensationSalarySummary": "€110K - €185K",
+            "compensationTiers": [
+              {
+                "id": "f1284fac-20e9-4ed0-9a10-776d526a636c",
+                "tierSummary": "€110K – €185K • Offers Equity • Offers Bonus",
+                "title": "EU",
+                "additionalInformation": null,
+                "components": [
+                  {
+                    "id": "da741ab6-ff38-4fc2-b7b7-c1ccd7260347",
+                    "summary": "Offers Equity",
+                    "compensationType": "EquityPercentage",
+                    "interval": "NONE",
+                    "currencyCode": null,
+                    "minValue": null,
+                    "maxValue": null
+                  },
+                  {
+                    "id": "201b8495-aa7c-417d-923b-94fced49b246",
+                    "summary": "€110K – €185K",
+                    "compensationType": "Salary",
+                    "interval": "1 YEAR",
+                    "currencyCode": "EUR",
+                    "minValue": 110000,
+                    "maxValue": 185000
+                  },
+                  {
+                    "id": "04679796-e0e4-4d9b-a5c0-0cad3ff8ae95",
+                    "summary": "Offers Bonus",
+                    "compensationType": "Bonus",
+                    "interval": "1 YEAR",
+                    "currencyCode": "EUR",
+                    "minValue": null,
+                    "maxValue": null
+                  }
+                ]
+              }
+            ],
+            "summaryComponents": [
+              {
+                "compensationType": "EquityPercentage",
+                "interval": "NONE",
+                "currencyCode": null,
+                "minValue": null,
+                "maxValue": null
+              },
+              {
+                "compensationType": "Salary",
+                "interval": "1 YEAR",
+                "currencyCode": "EUR",
+                "minValue": 110000,
+                "maxValue": 185000
+              },
+              {
+                "compensationType": "Bonus",
+                "interval": "1 YEAR",
+                "currencyCode": "EUR",
+                "minValue": null,
+                "maxValue": null
+              }
+            ]
+          }
+        },
+        {
+          "id": "86a60834-ba64-484d-9658-afa1bc97a957",
+          "title": "Mid Market Account Executive - EMEA (French Speaking)",
+          "department": "Sales",
+          "team": "Sales",
+          "employmentType": "FullTime",
+          "location": "France",
+          "shouldDisplayCompensationOnJobPostings": true,
+          "secondaryLocations": [
+            {
+              "location": "United Kingdom",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "United Kingdom",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Belgium",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Belgium",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Germany",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Germany",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Switzerland",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Switzerland",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Ireland",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Ireland",
+                  "addressLocality": ""
+                }
+              }
+            },
+            {
+              "location": "Austria",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Austria"
+                }
+              }
+            },
+            {
+              "location": "Spain",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Spain"
+                }
+              }
+            },
+            {
+              "location": "Stuttgart",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "Baden-Wurttemberg",
+                  "addressCountry": "Germany",
+                  "addressLocality": "Stuttgart"
+                }
+              }
+            },
+            {
+              "location": "Berlin",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Germany",
+                  "addressLocality": "Berlin"
+                }
+              }
+            }
+          ],
+          "publishedAt": "2026-07-17T17:45:27.827+00:00",
+          "isListed": true,
+          "isRemote": true,
+          "workplaceType": "Remote",
+          "address": {
+            "postalAddress": {
+              "addressRegion": "",
+              "addressCountry": "France",
+              "addressLocality": ""
+            }
+          },
+          "jobUrl": "https://jobs.ashbyhq.com/Ashby/86a60834-ba64-484d-9658-afa1bc97a957",
+          "applyUrl": "https://jobs.ashbyhq.com/Ashby/86a60834-ba64-484d-9658-afa1bc97a957/application",
+          "descriptionHtml": "<h2><strong>About Ashby</strong></h2><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">We’re building the next generation of enterprise software, starting with products that help talent leaders, recruiters, and managers unlock hiring excellence</p></li><li><p style=\"min-height:1.5em\">Series D raised in 2025, and growing ARR &gt;100% YoY</p></li><li><p style=\"min-height:1.5em\">Have thousands of amazing customers including OpenAI, Deliveroo, Lemonade &amp; Alan</p></li><li><p style=\"min-height:1.5em\">Multiple products to win both land-and-expand and material new business deals</p></li><li><p style=\"min-height:1.5em\">Rapidly moving up-market with no signs of slowing down</p></li><li><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.ashbyhq.com/blog/recruiting/ai-assisted-application-review-in-practice\"><u>Implemented assistive AI</u></a> throughout the platform</p></li><li><p style=\"min-height:1.5em\">Known for our pace of innovation and advanced analytics</p></li></ul><p style=\"min-height:1.5em\"></p><h2><strong>About this Role</strong></h2><p style=\"min-height:1.5em\">We are seeking a French-fluent Mid-Market Account Executive to help us win Mid-Market accounts (100-1k employees) by managing the full sales cycle from pipeline generation through to closed-won.</p><p style=\"min-height:1.5em\">In this role, you'll focus on new logo acquisition. Our emphasis is on your raw ability to excel in the areas listed below and your appetite for continuous growth &amp; improvement.</p><p style=\"min-height:1.5em\"></p><h3><strong>You could be a great fit if:</strong></h3><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">📣 You demonstrate mastery of clear communication. You ask questions with precision and can explain complex concepts in simple terms.</p></li><li><p style=\"min-height:1.5em\">💰 You have strong track record in Mid Market SaaS sales, having closed many $50k+ deals consistently. You have won competitive rip-and-replace opportunities of core/platform technologies.</p></li><li><p style=\"min-height:1.5em\">🎯 You are proactive in identifying and pursuing new business opportunities, and are comfortable sourcing &gt;50% of your own pipeline. You're both resourceful and innovative in finding new business opportunities.</p></li><li><p style=\"min-height:1.5em\">🤓 You love becoming a product and industry expert. You're adept at delivering a quick demo to showcase how your solution meets a unique need.</p></li><li><p style=\"min-height:1.5em\">⚔️ You're adept at competitive or evangelical selling in new or established markets.</p></li><li><p style=\"min-height:1.5em\">🎧 You're naturally curious about business problems and take pride in positioning specific &amp; creative solutions that solve those problems.</p></li><li><p style=\"min-height:1.5em\">🏔️ You skillfully guide prospects through the evaluation &amp; buying process—engaging the right stakeholders to create consensus for a strategic technology decision.</p></li><li><p style=\"min-height:1.5em\">⚡️ Your peers describe you as action-oriented and persistent. You're always on the leaderboard for outbound effort and pipeline created.</p></li><li><p style=\"min-height:1.5em\">⏱️ You leverage tools to maximize the impact of your prospecting and selling time. You believe in research and personalization to spark a conversation.</p></li><li><p style=\"min-height:1.5em\">⚙️ You are at home managing a pipeline of a dozen or more active opportunities concurrently. You take pride in internal operations, including real-time CRM updates.</p></li><li><p style=\"min-height:1.5em\">✈️ You are willing to travel at least 25% of the time for customer engagements and events.</p></li></ul><h3><strong>Requirements:</strong></h3><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">🤝 You have 2+ years of full-cycle closing experience and have closed many &gt;$50,000 ACV opportunities</p></li><li><p style=\"min-height:1.5em\">📢 You have experience selling complex platform technologies in a sales-led GTM motion</p></li><li><p style=\"min-height:1.5em\">📈 You are a new business hunter and are confident in your abilities to self-source &gt;50% of your own pipeline</p></li><li><p style=\"min-height:1.5em\">🌍 You have sold to multiple regions within EMEA and have strong written and verbal fluency in both English and French</p></li></ul><h3><strong>Bonus Points:</strong></h3><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">🤝 You have sold to Talent or HR personas</p></li><li><p style=\"min-height:1.5em\">☎️ Prior B/SDR experience</p></li></ul><p style=\"min-height:1.5em\"></p><h3><strong>You shouldn't apply if:</strong></h3><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">💼 You're more of a relationship builder who focuses on selling into the install base and aren't excited about a new business focused role.</p></li><li><p style=\"min-height:1.5em\">🎯 You expect Marketing or BDRs to source all of your pipeline for you. This is a hunting role.</p></li><li><p style=\"min-height:1.5em\">💻 You believe that \"tech stuff\" is the SE's job. Our AEs all develop product acumen while SEs are a partner in our team selling motion.</p></li><li><p style=\"min-height:1.5em\">📊 You prefer to run established playbooks in well defined environments. This role requires creativity and a growth mindset.</p></li><li><p style=\"min-height:1.5em\">🐺 You're a lone wolf. You prefer to go it alone in your pursuit of new business. We believe in a team-selling sales model.</p></li></ul><p style=\"min-height:1.5em\"></p><h2><strong>Our Philosophy</strong></h2><p style=\"min-height:1.5em\">Here are a few key points (relevant to the go-to-market side) that should give you an idea of what it is like to work with us:</p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">We spend a lot of time building best-in-class products since we believe a highly differentiated product is easier to sell.</p></li><li><p style=\"min-height:1.5em\">We aim to offer deep product expertise whenever we interact with prospects and customers. AEs are no exception to this.</p></li><li><p style=\"min-height:1.5em\">We strongly believe that small teams with very talented people (and the right work environment) deliver much better performance than teams with large headcount. We hire and compensate accordingly.</p></li><li><p style=\"min-height:1.5em\">We value a strong sense of ownership, principled thinking over experience, and thoughtful communication.</p></li></ul><p style=\"min-height:1.5em\"></p><p style=\"min-height:1.5em\"><strong>Interview Process</strong></p><p style=\"min-height:1.5em\">Our interview process is designed so you can showcase your achievements and points of learning and apply those in a practical exercise. We'll provide you with Mid Market Account Executive info so you can develop a well informed perspective on our customer / sales motion. You’ll have opportunities to ask questions of our team throughout.</p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\"><strong>Intro Call</strong> (30 min) - You'll meet with a Recruiter to discuss your fit for the role and address questions about our market and solution.</p></li><li><p style=\"min-height:1.5em\"><strong>Written Exercise - </strong>You'll complete a short take home assignment to showcase your outbound muscle.</p></li><li><p style=\"min-height:1.5em\"><strong>Experience Deep Dive </strong>(60 min) - You'll walk the Hiring Manager [<a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.linkedin.com/in/stephanie-maclaurin/\"><u>Stephanie Maclaurin</u></a>] through your career journey in some detail to highlight your experience, achievements, and points of learning to understand how you've developed into the professional you are today.</p></li><li><p style=\"min-height:1.5em\"><strong>Challenge Interview</strong> (90 min) - This will be made up of two parts:</p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">Discovery and Demo Role Play (60 min)</p></li><li><p style=\"min-height:1.5em\">Deal Strategy Discussion (30 min)</p></li></ul></li></ul><p style=\"min-height:1.5em\"></p><h2><strong>Benefits</strong></h2><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">Sell a product that our<a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.ashbyhq.com/customers\"> <u>customers are truly excited about</u></a>.</p></li><li><p style=\"min-height:1.5em\">Fairly set, achievable quotas. Typically, greater than 65% of AEs are at or above quota.</p></li><li><p style=\"min-height:1.5em\">Unlimited PTO with four weeks recommended per year</p></li><li><p style=\"min-height:1.5em\">Generous equipment, software, and office furniture budget. Get what you need to be happy and productive!</p></li><li><p style=\"min-height:1.5em\"><em>10-year exercise window for stock options</em>. You shouldn’t feel pressure to purchase stock options if you leave Ashby —do it when you feel financially comfortable.</p></li><li><p style=\"min-height:1.5em\">￡/€100/month education budget with more expensive items (like conferences) covered with manager approval.</p></li><li><p style=\"min-height:1.5em\">Extended health benefits for you and your dependents (subject to availability with our Employer of Record)</p><p style=\"min-height:1.5em\"></p></li></ul><p style=\"min-height:1.5em\"><em>We're in the talent acquisition software business. We run the end-to-end hiring process through our own platform, and ensure a level playing field for all candidates. Reaching out to hiring managers or recruiters directly won't improve your odds of success. Please focus your energy on the quality of your application.</em></p><p style=\"min-height:1.5em\"><em>Ashby provides equal employment opportunities (EEO) to all employees and applicants for employment without regard to race, color, religion, sex, national origin, age, disability, genetics, sexual orientation, gender identity, or gender expression. We are committed to a diverse and inclusive workforce and welcome people from all backgrounds, experiences, perspectives, and abilities.</em></p><p style=\"min-height:1.5em\"><em>Ashby is committed to a fair and transparent hiring process. We confirm that this advertisement is for an active, existing vacancy within our organization. Please be advised that we may use artificial intelligence-driven tools to assist our recruitment team in screening, assessing, and selecting candidates for this position.</em></p>",
+          "descriptionPlain": "ABOUT ASHBY\n\n - We’re building the next generation of enterprise software, starting with products that help talent leaders, recruiters, and managers unlock hiring excellence\n\n - Series D raised in 2025, and growing ARR >100% YoY\n\n - Have thousands of amazing customers including OpenAI, Deliveroo, Lemonade & Alan\n\n - Multiple products to win both land-and-expand and material new business deals\n\n - Rapidly moving up-market with no signs of slowing down\n\n - Implemented assistive AI https://www.ashbyhq.com/blog/recruiting/ai-assisted-application-review-in-practice throughout the platform\n\n - Known for our pace of innovation and advanced analytics\n\n\n\n\nABOUT THIS ROLE\n\nWe are seeking a French-fluent Mid-Market Account Executive to help us win Mid-Market accounts (100-1k employees) by managing the full sales cycle from pipeline generation through to closed-won.\n\nIn this role, you'll focus on new logo acquisition. Our emphasis is on your raw ability to excel in the areas listed below and your appetite for continuous growth & improvement.\n\n\n\n\nYOU COULD BE A GREAT FIT IF:\n\n - 📣 You demonstrate mastery of clear communication. You ask questions with precision and can explain complex concepts in simple terms.\n\n - 💰 You have strong track record in Mid Market SaaS sales, having closed many $50k+ deals consistently. You have won competitive rip-and-replace opportunities of core/platform technologies.\n\n - 🎯 You are proactive in identifying and pursuing new business opportunities, and are comfortable sourcing >50% of your own pipeline. You're both resourceful and innovative in finding new business opportunities.\n\n - 🤓 You love becoming a product and industry expert. You're adept at delivering a quick demo to showcase how your solution meets a unique need.\n\n - ⚔️ You're adept at competitive or evangelical selling in new or established markets.\n\n - 🎧 You're naturally curious about business problems and take pride in positioning specific & creative solutions that solve those problems.\n\n - 🏔️ You skillfully guide prospects through the evaluation & buying process—engaging the right stakeholders to create consensus for a strategic technology decision.\n\n - ⚡️ Your peers describe you as action-oriented and persistent. You're always on the leaderboard for outbound effort and pipeline created.\n\n - ⏱️ You leverage tools to maximize the impact of your prospecting and selling time. You believe in research and personalization to spark a conversation.\n\n - ⚙️ You are at home managing a pipeline of a dozen or more active opportunities concurrently. You take pride in internal operations, including real-time CRM updates.\n\n - ✈️ You are willing to travel at least 25% of the time for customer engagements and events.\n\n\nREQUIREMENTS:\n\n - 🤝 You have 2+ years of full-cycle closing experience and have closed many >$50,000 ACV opportunities\n\n - 📢 You have experience selling complex platform technologies in a sales-led GTM motion\n\n - 📈 You are a new business hunter and are confident in your abilities to self-source >50% of your own pipeline\n\n - 🌍 You have sold to multiple regions within EMEA and have strong written and verbal fluency in both English and French\n\n\nBONUS POINTS:\n\n - 🤝 You have sold to Talent or HR personas\n\n - ☎️ Prior B/SDR experience\n\n\n\n\nYOU SHOULDN'T APPLY IF:\n\n - 💼 You're more of a relationship builder who focuses on selling into the install base and aren't excited about a new business focused role.\n\n - 🎯 You expect Marketing or BDRs to source all of your pipeline for you. This is a hunting role.\n\n - 💻 You believe that \"tech stuff\" is the SE's job. Our AEs all develop product acumen while SEs are a partner in our team selling motion.\n\n - 📊 You prefer to run established playbooks in well defined environments. This role requires creativity and a growth mindset.\n\n - 🐺 You're a lone wolf. You prefer to go it alone in your pursuit of new business. We believe in a team-selling sales model.\n\n\n\n\nOUR PHILOSOPHY\n\nHere are a few key points (relevant to the go-to-market side) that should give you an idea of what it is like to work with us:\n\n - We spend a lot of time building best-in-class products since we believe a highly differentiated product is easier to sell.\n\n - We aim to offer deep product expertise whenever we interact with prospects and customers. AEs are no exception to this.\n\n - We strongly believe that small teams with very talented people (and the right work environment) deliver much better performance than teams with large headcount. We hire and compensate accordingly.\n\n - We value a strong sense of ownership, principled thinking over experience, and thoughtful communication.\n\n\n\nInterview Process\n\nOur interview process is designed so you can showcase your achievements and points of learning and apply those in a practical exercise. We'll provide you with Mid Market Account Executive info so you can develop a well informed perspective on our customer / sales motion. You’ll have opportunities to ask questions of our team throughout.\n\n - Intro Call (30 min) - You'll meet with a Recruiter to discuss your fit for the role and address questions about our market and solution.\n\n - Written Exercise - You'll complete a short take home assignment to showcase your outbound muscle.\n\n - Experience Deep Dive (60 min) - You'll walk the Hiring Manager [Stephanie Maclaurin https://www.linkedin.com/in/stephanie-maclaurin/] through your career journey in some detail to highlight your experience, achievements, and points of learning to understand how you've developed into the professional you are today.\n\n - Challenge Interview (90 min) - This will be made up of two parts:\n   \n   - Discovery and Demo Role Play (60 min)\n   \n   - Deal Strategy Discussion (30 min)\n\n\n\n\nBENEFITS\n\n - Sell a product that our customers are truly excited about https://www.ashbyhq.com/customers.\n\n - Fairly set, achievable quotas. Typically, greater than 65% of AEs are at or above quota.\n\n - Unlimited PTO with four weeks recommended per year\n\n - Generous equipment, software, and office furniture budget. Get what you need to be happy and productive!\n\n - 10-year exercise window for stock options. You shouldn’t feel pressure to purchase stock options if you leave Ashby —do it when you feel financially comfortable.\n\n - ￡/€100/month education budget with more expensive items (like conferences) covered with manager approval.\n\n - Extended health benefits for you and your dependents (subject to availability with our Employer of Record)\n   \n   \n\nWe're in the talent acquisition software business. We run the end-to-end hiring process through our own platform, and ensure a level playing field for all candidates. Reaching out to hiring managers or recruiters directly won't improve your odds of success. Please focus your energy on the quality of your application.\n\nAshby provides equal employment opportunities (EEO) to all employees and applicants for employment without regard to race, color, religion, sex, national origin, age, disability, genetics, sexual orientation, gender identity, or gender expression. We are committed to a diverse and inclusive workforce and welcome people from all backgrounds, experiences, perspectives, and abilities.\n\nAshby is committed to a fair and transparent hiring process. We confirm that this advertisement is for an active, existing vacancy within our organization. Please be advised that we may use artificial intelligence-driven tools to assist our recruitment team in screening, assessing, and selecting candidates for this position.",
+          "compensation": {
+            "compensationTierSummary": "€110K – €195.5K • Offers Equity • Offers Commission • Multiple Ranges",
+            "scrapeableCompensationSalarySummary": "€110K - €195.5K",
+            "compensationTiers": [
+              {
+                "id": "578bf152-5d8a-48d4-8fc5-658664165b71",
+                "tierSummary": "OTE €144.5K – €195.5K • Offers Equity • Offers Commission",
+                "title": "EMEA Tier 1 - Remote",
+                "additionalInformation": null,
+                "components": [
+                  {
+                    "id": "5b09c7b6-efde-4f66-85f6-ecb6cfe29980",
+                    "summary": "OTE €144.5K – €195.5K",
+                    "compensationType": "Salary",
+                    "interval": "1 YEAR",
+                    "currencyCode": "EUR",
+                    "minValue": 144500,
+                    "maxValue": 195500
+                  },
+                  {
+                    "id": "3376fe86-7d18-47ef-acf7-0da9f67d78bc",
+                    "summary": "Offers Equity",
+                    "compensationType": "EquityPercentage",
+                    "interval": "NONE",
+                    "currencyCode": null,
+                    "minValue": null,
+                    "maxValue": null
+                  },
+                  {
+                    "id": "659f2f29-2e52-4d0c-8b4c-51727268a659",
+                    "summary": "Offers Commission",
+                    "compensationType": "Commission",
+                    "interval": "1 YEAR",
+                    "currencyCode": "EUR",
+                    "minValue": null,
+                    "maxValue": null
+                  }
+                ]
+              },
+              {
+                "id": "dd41799a-43df-449c-ac68-fd6044ced3d3",
+                "tierSummary": "OTE €127.5K – €172.5K • Offers Equity • Offers Commission",
+                "title": "EMEA Tier 2 - Remote",
+                "additionalInformation": null,
+                "components": [
+                  {
+                    "id": "47ae4a45-026a-45b9-b857-96fbc74a28b6",
+                    "summary": "OTE €127.5K – €172.5K",
+                    "compensationType": "Salary",
+                    "interval": "1 YEAR",
+                    "currencyCode": "EUR",
+                    "minValue": 127500,
+                    "maxValue": 172500
+                  },
+                  {
+                    "id": "77245e6e-9a5c-4511-8667-13b4e072944e",
+                    "summary": "Offers Equity",
+                    "compensationType": "EquityPercentage",
+                    "interval": "NONE",
+                    "currencyCode": null,
+                    "minValue": null,
+                    "maxValue": null
+                  },
+                  {
+                    "id": "a7d5af1a-2692-4e9d-96f4-4e5267dab1a0",
+                    "summary": "Offers Commission",
+                    "compensationType": "Commission",
+                    "interval": "1 YEAR",
+                    "currencyCode": "EUR",
+                    "minValue": null,
+                    "maxValue": null
+                  }
+                ]
+              },
+              {
+                "id": "238f8e26-e75c-4ad6-910f-90127a2a9619",
+                "tierSummary": "OTE €110K – €149.5K • Offers Equity • Offers Commission",
+                "title": "EMEA Tier 3 - Remote",
+                "additionalInformation": null,
+                "components": [
+                  {
+                    "id": "692a5c75-70ee-4bfb-81da-d20a5eb9a63f",
+                    "summary": "Offers Equity",
+                    "compensationType": "EquityPercentage",
+                    "interval": "NONE",
+                    "currencyCode": null,
+                    "minValue": null,
+                    "maxValue": null
+                  },
+                  {
+                    "id": "85eeb725-0cd4-463e-af57-6505a6fbc78c",
+                    "summary": "OTE €110K – €149.5K",
+                    "compensationType": "Salary",
+                    "interval": "1 YEAR",
+                    "currencyCode": "EUR",
+                    "minValue": 110000,
+                    "maxValue": 149500
+                  },
+                  {
+                    "id": "b8121303-1856-416c-882b-2ae3e5b41b95",
+                    "summary": "Offers Commission",
+                    "compensationType": "Commission",
+                    "interval": "1 YEAR",
+                    "currencyCode": "EUR",
+                    "minValue": null,
+                    "maxValue": null
+                  }
+                ]
+              },
+              {
+                "id": "9ea38d26-3c52-4b8e-b8bf-6537c71dd8d6",
+                "tierSummary": "OTE £144.5K – £195.5K • Offers Equity • Offers Commission",
+                "title": "UK Tier 1 - Remote",
+                "additionalInformation": null,
+                "components": [
+                  {
+                    "id": "c2900ca4-73d0-4d4e-b247-687d70ef0273",
+                    "summary": "OTE £144.5K – £195.5K",
+                    "compensationType": "Salary",
+                    "interval": "1 YEAR",
+                    "currencyCode": "GBP",
+                    "minValue": 144500,
+                    "maxValue": 195500
+                  },
+                  {
+                    "id": "e19ba716-cd5d-4b92-8343-7a70141546cc",
+                    "summary": "Offers Commission",
+                    "compensationType": "Commission",
+                    "interval": "1 YEAR",
+                    "currencyCode": "GBP",
+                    "minValue": null,
+                    "maxValue": null
+                  },
+                  {
+                    "id": "9a8abd06-5486-4818-9804-54ac60bbb87a",
+                    "summary": "Offers Equity",
+                    "compensationType": "EquityPercentage",
+                    "interval": "NONE",
+                    "currencyCode": null,
+                    "minValue": null,
+                    "maxValue": null
+                  }
+                ]
+              },
+              {
+                "id": "d1411b81-f2c3-487e-baf9-e70f37d91ac1",
+                "tierSummary": "OTE £127.5K – £172.5K • Offers Equity • Offers Commission",
+                "title": "UK Tier 2 - Remote",
+                "additionalInformation": null,
+                "components": [
+                  {
+                    "id": "617c392f-dfba-4f15-becd-4caf1584eda3",
+                    "summary": "Offers Equity",
+                    "compensationType": "EquityPercentage",
+                    "interval": "NONE",
+                    "currencyCode": null,
+                    "minValue": null,
+                    "maxValue": null
+                  },
+                  {
+                    "id": "6c767299-d44d-48fb-856e-bc89e7e9bc22",
+                    "summary": "OTE £127.5K – £172.5K",
+                    "compensationType": "Salary",
+                    "interval": "1 YEAR",
+                    "currencyCode": "GBP",
+                    "minValue": 127500,
+                    "maxValue": 172500
+                  },
+                  {
+                    "id": "f101a32a-537d-408b-b7bf-f945cfb2f906",
+                    "summary": "Offers Commission",
+                    "compensationType": "Commission",
+                    "interval": "1 YEAR",
+                    "currencyCode": "GBP",
+                    "minValue": null,
+                    "maxValue": null
+                  }
+                ]
+              }
+            ],
+            "summaryComponents": [
+              {
+                "minValue": 110000,
+                "maxValue": 195500,
+                "currencyCode": "EUR",
+                "interval": "1 YEAR",
+                "compensationType": "Salary"
+              },
+              {
+                "compensationType": "EquityPercentage",
+                "minValue": null,
+                "maxValue": null,
+                "interval": "1 YEAR"
+              },
+              {
+                "compensationType": "Commission",
+                "minValue": null,
+                "maxValue": null,
+                "interval": "1 YEAR"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "Nango": {
+      "apiVersion": "1",
+      "jobs": [
+        {
+          "id": "8f6da27a-07e1-4071-8310-0a4f432e34ea",
+          "title": "Staff Backend Engineer",
+          "department": "Nango",
+          "team": "Nango",
+          "employmentType": "FullTime",
+          "location": "USA",
+          "shouldDisplayCompensationOnJobPostings": true,
+          "secondaryLocations": [
+            {
+              "location": "Chile",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Chile"
+                }
+              }
+            },
+            {
+              "location": "UK",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "United Kingdom"
+                }
+              }
+            },
+            {
+              "location": "Uruguay",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Uruguay"
+                }
+              }
+            },
+            {
+              "location": "Switzerland",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Switzerland"
+                }
+              }
+            },
+            {
+              "location": "Brazil",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Brazil"
+                }
+              }
+            },
+            {
+              "location": "Canada",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Canada"
+                }
+              }
+            },
+            {
+              "location": "Mexico",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Mexico"
+                }
+              }
+            },
+            {
+              "location": "Argentina",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Argentina"
+                }
+              }
+            },
+            {
+              "location": "Europe",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "European Union"
+                }
+              }
+            }
+          ],
+          "publishedAt": "2026-06-04T09:21:59.855+00:00",
+          "isListed": true,
+          "isRemote": true,
+          "workplaceType": "Remote",
+          "address": {
+            "postalAddress": {
+              "addressRegion": "",
+              "addressCountry": "USA"
+            }
+          },
+          "jobUrl": "https://jobs.ashbyhq.com/Nango/8f6da27a-07e1-4071-8310-0a4f432e34ea",
+          "applyUrl": "https://jobs.ashbyhq.com/Nango/8f6da27a-07e1-4071-8310-0a4f432e34ea/application",
+          "descriptionHtml": "<p style=\"min-height:1.5em\"><em>(Remote — North America, LATAM or Europe)</em></p><p style=\"min-height:1.5em\"></p><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://nango.dev\">Nango</a> (YC W23) is a developer infrastructure company and the leading provider of API access for agents and apps. It enables AI applications to connect to the real world through integrations.</p><p style=\"min-height:1.5em\">More than 400 paying customers rely on Nango today, including Replit, Ramp, Mercor, Vapi, Instantly, and Exa. We are a YC-backed, multi-million ARR company with a team of 14 from AWS, Snyk, GitHub, Okta, Netlify, Uber, Samsara, and more.</p><p style=\"min-height:1.5em\">We are hiring Senior &amp; Staff Backend Engineers to join the core engineering team building Nango’s platform and developer infrastructure. This is a critical role at the heart of the company: as a product-led business selling to developers, our engineers directly drive the product roadmap, specifications, and execution. You will own core systems end-to-end, from ideation and design to implementation and close collaboration with developer customers, shaping both the platform and how Nango evolves.</p><p style=\"min-height:1.5em\"></p><h2><strong>What You’ll Do</strong></h2><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">Design and scale backend systems, APIs, and services for our open-source platform.</p></li><li><p style=\"min-height:1.5em\">Build world-class developer interfaces: APIs, SDKs, UIs, and a runtime that delights developers.</p></li><li><p style=\"min-height:1.5em\">Collaborate directly with customers to solve integration challenges.</p></li><li><p style=\"min-height:1.5em\">Optimize performance, scalability, and reliability across backend services.</p></li><li><p style=\"min-height:1.5em\">Shape the roadmap and company strategy with high ownership of key decisions.</p></li><li><p style=\"min-height:1.5em\">Engage with the open-source community, owning and maintaining our repo.</p></li></ul><p style=\"min-height:1.5em\"></p><h2><strong>Who you are</strong></h2><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">5+ years (senior-level) or 10+ years (staff-level) of backend engineering experience, with proven ability to scale high-traffic systems.</p></li><li><p style=\"min-height:1.5em\">Deep experience with developer infrastructure, APIs, databases, and performance-critical systems.</p></li><li><p style=\"min-height:1.5em\">Passion for developer tools, best practices, and building outstanding DX.</p></li><li><p style=\"min-height:1.5em\">Comfortable with Node.js and modern backend stacks.</p></li><li><p style=\"min-height:1.5em\">Strong communicator, proactive, and reliable in a remote-first environment.</p></li><li><p style=\"min-height:1.5em\">Product mindset and developer empathy: you optimize for DX.</p></li><li><p style=\"min-height:1.5em\">Pragmatic, positive, and low ego: you step up in incidents and unblock teammates.</p></li><li><p style=\"min-height:1.5em\">Startup-ready: autonomous, ownership-driven, and able to navigate ambiguity.</p></li><li><p style=\"min-height:1.5em\">Based in North America, LATAM or Europe.</p></li></ul><p style=\"min-height:1.5em\"></p><p style=\"min-height:1.5em\">If you’re a seasoned backend engineer who loves developer infrastructure, thrives on ownership, and wants to shape the future of integrations — we’d love to hear from you.</p>",
+          "descriptionPlain": "(Remote — North America, LATAM or Europe)\n\n\n\nNango https://nango.dev (YC W23) is a developer infrastructure company and the leading provider of API access for agents and apps. It enables AI applications to connect to the real world through integrations.\n\nMore than 400 paying customers rely on Nango today, including Replit, Ramp, Mercor, Vapi, Instantly, and Exa. We are a YC-backed, multi-million ARR company with a team of 14 from AWS, Snyk, GitHub, Okta, Netlify, Uber, Samsara, and more.\n\nWe are hiring Senior & Staff Backend Engineers to join the core engineering team building Nango’s platform and developer infrastructure. This is a critical role at the heart of the company: as a product-led business selling to developers, our engineers directly drive the product roadmap, specifications, and execution. You will own core systems end-to-end, from ideation and design to implementation and close collaboration with developer customers, shaping both the platform and how Nango evolves.\n\n\n\n\nWHAT YOU’LL DO\n\n - Design and scale backend systems, APIs, and services for our open-source platform.\n\n - Build world-class developer interfaces: APIs, SDKs, UIs, and a runtime that delights developers.\n\n - Collaborate directly with customers to solve integration challenges.\n\n - Optimize performance, scalability, and reliability across backend services.\n\n - Shape the roadmap and company strategy with high ownership of key decisions.\n\n - Engage with the open-source community, owning and maintaining our repo.\n\n\n\n\nWHO YOU ARE\n\n - 5+ years (senior-level) or 10+ years (staff-level) of backend engineering experience, with proven ability to scale high-traffic systems.\n\n - Deep experience with developer infrastructure, APIs, databases, and performance-critical systems.\n\n - Passion for developer tools, best practices, and building outstanding DX.\n\n - Comfortable with Node.js and modern backend stacks.\n\n - Strong communicator, proactive, and reliable in a remote-first environment.\n\n - Product mindset and developer empathy: you optimize for DX.\n\n - Pragmatic, positive, and low ego: you step up in incidents and unblock teammates.\n\n - Startup-ready: autonomous, ownership-driven, and able to navigate ambiguity.\n\n - Based in North America, LATAM or Europe.\n\n\n\nIf you’re a seasoned backend engineer who loves developer infrastructure, thrives on ownership, and wants to shape the future of integrations — we’d love to hear from you.",
+          "compensation": {
+            "compensationTierSummary": "$140K – $220K • Offers Equity",
+            "scrapeableCompensationSalarySummary": "$140K - $220K",
+            "compensationTiers": [
+              {
+                "id": "394c31d1-f108-4ead-95eb-a13aa2ef9cfc",
+                "tierSummary": "$140K – $220K • Offers Equity",
+                "title": "Staff",
+                "additionalInformation": null,
+                "components": [
+                  {
+                    "id": "8415522c-e7d9-4f1c-8afb-cee10da3896e",
+                    "summary": "$140K – $220K",
+                    "compensationType": "Salary",
+                    "interval": "1 YEAR",
+                    "currencyCode": "USD",
+                    "minValue": 140000,
+                    "maxValue": 220000
+                  },
+                  {
+                    "id": "470d2ad9-526c-4a01-bc66-c6c7945640d1",
+                    "summary": "Offers Equity",
+                    "compensationType": "EquityPercentage",
+                    "interval": "NONE",
+                    "currencyCode": null,
+                    "minValue": null,
+                    "maxValue": null
+                  }
+                ]
+              }
+            ],
+            "summaryComponents": [
+              {
+                "compensationType": "Salary",
+                "interval": "1 YEAR",
+                "currencyCode": "USD",
+                "minValue": 140000,
+                "maxValue": 220000
+              },
+              {
+                "compensationType": "EquityPercentage",
+                "interval": "NONE",
+                "currencyCode": null,
+                "minValue": null,
+                "maxValue": null
+              }
+            ]
+          }
+        },
+        {
+          "id": "748e3ffc-10bf-4189-8585-21d21ede74bb",
+          "title": "Technical Content Engineer",
+          "department": "Nango",
+          "team": "Nango",
+          "employmentType": "FullTime",
+          "location": "USA",
+          "shouldDisplayCompensationOnJobPostings": true,
+          "secondaryLocations": [
+            {
+              "location": "Chile",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Chile"
+                }
+              }
+            },
+            {
+              "location": "UK",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "United Kingdom"
+                }
+              }
+            },
+            {
+              "location": "Uruguay",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Uruguay"
+                }
+              }
+            },
+            {
+              "location": "Switzerland",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Switzerland"
+                }
+              }
+            },
+            {
+              "location": "Brazil",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Brazil"
+                }
+              }
+            },
+            {
+              "location": "Canada",
+              "address": {
+                "postalAddress": {
+                  "addressRegion": "",
+                  "addressCountry": "Canada"
+                }
+              }
+            },
+            {
+              "location": "Mexico",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Mexico"
+                }
+              }
+            },
+            {
+              "location": "Argentina",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "Argentina"
+                }
+              }
+            },
+            {
+              "location": "Europe",
+              "address": {
+                "postalAddress": {
+                  "addressCountry": "European Union"
+                }
+              }
+            }
+          ],
+          "publishedAt": "2026-08-12T15:21:14.869+00:00",
+          "isListed": true,
+          "isRemote": true,
+          "workplaceType": "Remote",
+          "address": {
+            "postalAddress": {
+              "addressRegion": "",
+              "addressCountry": "USA"
+            }
+          },
+          "jobUrl": "https://jobs.ashbyhq.com/Nango/748e3ffc-10bf-4189-8585-21d21ede74bb",
+          "applyUrl": "https://jobs.ashbyhq.com/Nango/748e3ffc-10bf-4189-8585-21d21ede74bb/application",
+          "descriptionHtml": "<p style=\"min-height:1.5em\"><em>(Remote — North America, LATAM or Europe)</em></p><p style=\"min-height:1.5em\"><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"http://nango.dev/\">Nango</a> (YC W23) lets developers build product integrations with AI. It enables applications to connect to the real world through integrations.</p><p style=\"min-height:1.5em\">More than 500 paying customers rely on Nango today, including Replit &amp; Ramp. We are a YC-backed, mid-seven-figure ARR company with a team of 14 from AWS, GitHub, Okta, Snyk, Netlify, Uber, Samsara, Workato, and other top-tier dev tools.</p><p style=\"min-height:1.5em\">We are hiring a freelance Technical Content Engineer to scale our content for engineers building product integrations. This role is paid hourly ($30 to $150).</p><p style=\"min-height:1.5em\"></p><h3><strong>What You’ll Do</strong></h3><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">Write deeply technical content that educates developers on APIs, integrations, agents, and AI infrastructure.</p></li><li><p style=\"min-height:1.5em\">Build prototypes and write code to understand firsthand what you write about.</p></li><li><p style=\"min-height:1.5em\">Stay at the forefront of AI infrastructure and develop strong perspectives on where the industry is going.</p></li><li><p style=\"min-height:1.5em\">Shape Nango’s vision and technical narrative alongside the founders and engineering team.</p></li><li><p style=\"min-height:1.5em\">Make technical content a major driver of Nango’s awareness, adoption, and word of mouth.</p></li></ul><p style=\"min-height:1.5em\"></p><h3><strong>Who You Are</strong></h3><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">You’re a software engineer with a strong computer science foundation.</p></li><li><p style=\"min-height:1.5em\">You have experience with developer tools, APIs, infrastructure, or adjacent technologies.</p></li><li><p style=\"min-height:1.5em\">You can explain complex technical ideas clearly and precisely. Professional writing experience is a plus, not a requirement.</p></li><li><p style=\"min-height:1.5em\">You have the curiosity and technical depth to understand how things actually work.</p></li><li><p style=\"min-height:1.5em\">You closely follow AI, agents, and the emerging infrastructure around them.</p></li><li><p style=\"min-height:1.5em\">You have strong independent judgment: you can research a topic, find the interesting angle, and form your own point of view.</p></li><li><p style=\"min-height:1.5em\"></p></li></ul>",
+          "descriptionPlain": "(Remote — North America, LATAM or Europe)\n\nNango http://nango.dev/ (YC W23) lets developers build product integrations with AI. It enables applications to connect to the real world through integrations.\n\nMore than 500 paying customers rely on Nango today, including Replit & Ramp. We are a YC-backed, mid-seven-figure ARR company with a team of 14 from AWS, GitHub, Okta, Snyk, Netlify, Uber, Samsara, Workato, and other top-tier dev tools.\n\nWe are hiring a freelance Technical Content Engineer to scale our content for engineers building product integrations. This role is paid hourly ($30 to $150).\n\n\n\n\nWHAT YOU’LL DO\n\n - Write deeply technical content that educates developers on APIs, integrations, agents, and AI infrastructure.\n\n - Build prototypes and write code to understand firsthand what you write about.\n\n - Stay at the forefront of AI infrastructure and develop strong perspectives on where the industry is going.\n\n - Shape Nango’s vision and technical narrative alongside the founders and engineering team.\n\n - Make technical content a major driver of Nango’s awareness, adoption, and word of mouth.\n\n\n\n\nWHO YOU ARE\n\n - You’re a software engineer with a strong computer science foundation.\n\n - You have experience with developer tools, APIs, infrastructure, or adjacent technologies.\n\n - You can explain complex technical ideas clearly and precisely. Professional writing experience is a plus, not a requirement.\n\n - You have the curiosity and technical depth to understand how things actually work.\n\n - You closely follow AI, agents, and the emerging infrastructure around them.\n\n - You have strong independent judgment: you can research a topic, find the interesting angle, and form your own point of view.\n\n - ",
+          "compensation": {
+            "compensationTierSummary": "$30 – $150 per hour",
+            "scrapeableCompensationSalarySummary": null,
+            "compensationTiers": [
+              {
+                "id": "19aa92b8-9ce6-4cd8-a56b-5d34bfee4470",
+                "tierSummary": "$30 – $150 per hour",
+                "title": null,
+                "additionalInformation": null,
+                "components": [
+                  {
+                    "id": "0c9b9b28-8d57-4336-840f-5bd12859d8ad",
+                    "summary": "$30 – $150 per hour",
+                    "compensationType": "Salary",
+                    "interval": "1 HOUR",
+                    "currencyCode": "USD",
+                    "minValue": 30,
+                    "maxValue": 150
+                  }
+                ]
+              }
+            ],
+            "summaryComponents": [
+              {
+                "compensationType": "Salary",
+                "interval": "1 HOUR",
+                "currencyCode": "USD",
+                "minValue": 30,
+                "maxValue": 150
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "zencastr": {
+      "apiVersion": "1",
+      "jobs": [
+        {
+          "id": "e5897c7a-4622-495b-a892-81763a2ef112",
+          "title": "Senior Backend Engineer (Remote)",
+          "department": "Engineering",
+          "team": "Engineering",
+          "employmentType": "FullTime",
+          "location": "San Francisco Office",
+          "shouldDisplayCompensationOnJobPostings": false,
+          "secondaryLocations": [],
+          "publishedAt": "2025-08-06T15:51:13.262+00:00",
+          "isListed": true,
+          "isRemote": true,
+          "workplaceType": "Remote",
+          "address": {
+            "postalAddress": {
+              "addressRegion": "California",
+              "addressCountry": "United States",
+              "addressLocality": "San Francisco"
+            }
+          },
+          "jobUrl": "https://jobs.ashbyhq.com/zencastr/e5897c7a-4622-495b-a892-81763a2ef112",
+          "applyUrl": "https://jobs.ashbyhq.com/zencastr/e5897c7a-4622-495b-a892-81763a2ef112/application",
+          "descriptionHtml": "<p style=\"min-height:1.5em\">Empower the voices of the world @ Zencastr. If you want to push the world of podcasting into the future, come join a team who loves to live on the edge! We are a fully distributed team of smart people who are passionate about changing the world one voice at a time.<br /></p><p style=\"min-height:1.5em\"></p><p style=\"min-height:1.5em\"><strong>You should join us if you:</strong></p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">Have significant experience with Node.js and good knowledge of JS fundamentals</p></li><li><p style=\"min-height:1.5em\">Have a good understanding of computer science fundamentals. You might not have gone to school for it, but you know the difference between heap and stack, different time complexities, and which patterns to use and when.</p></li><li><p style=\"min-height:1.5em\">You are ambitious. You might want to build your own company one day or have tried to tackle the toughest tech problems just for fun.</p></li><li><p style=\"min-height:1.5em\">You enjoy writing Javascript or Typescript</p></li><li><p style=\"min-height:1.5em\">You have an eye for performance. Whether thinking about the latest client side bundling techniques, or the proper way to shard a mongo database, you want things to be fast.</p></li><li><p style=\"min-height:1.5em\">You are a team player</p></li><li><p style=\"min-height:1.5em\">You have good communication skills</p></li></ul><p style=\"min-height:1.5em\"><br /><strong>What sets you apart:</strong></p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">You have a passion for high performance applications</p></li><li><p style=\"min-height:1.5em\">You have significant open source contributions</p></li><li><p style=\"min-height:1.5em\">You want to work in a fast growing startup. Which comes with the blood, sweat and tears of working to disrupt an established industry</p></li><li><p style=\"min-height:1.5em\">You have empathy for the end user. A spec is a conversation starter, as an advocate for the end user you always are thinking about how to best serve their needs</p></li><li><p style=\"min-height:1.5em\">You have an eye for code quality and you strive to uphold best practices in engineering, security, and design</p></li></ul><p style=\"min-height:1.5em\"><br /><strong>Why you should choose us:</strong></p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">You’ll be working with world class engineers, Phd’s, and designers in a fully distributed team</p></li><li><p style=\"min-height:1.5em\">Work in an agile and fast changing environment</p></li><li><p style=\"min-height:1.5em\">Equity commensurate to your contribution in a profitable company</p></li><li><p style=\"min-height:1.5em\">Health insurance</p></li><li><p style=\"min-height:1.5em\">Unique challenges and the support and talent to solve them</p></li><li><p style=\"min-height:1.5em\">4 weeks PTO</p></li><li><p style=\"min-height:1.5em\">Freedom to work where you please</p></li></ul><p style=\"min-height:1.5em\"><br /><strong>What we’re looking for:</strong></p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">5+ years of Typescript, Node.js development</p></li><li><p style=\"min-height:1.5em\">Strong document / key-value store knowledge (Redis, MongoDB)</p></li><li><p style=\"min-height:1.5em\">Strong SQL knowledge</p></li><li><p style=\"min-height:1.5em\">Demonstrable knowledge of building scaleable consumer based apps</p></li><li><p style=\"min-height:1.5em\">Strong experience with unit, integration, and load testing</p></li><li><p style=\"min-height:1.5em\">Experience building APIs</p></li><li><p style=\"min-height:1.5em\">Experience with cloud APIs (Google Cloud, Digital Ocean)</p></li></ul><p style=\"min-height:1.5em\"><br /></p><p style=\"min-height:1.5em\"><strong>Bonus points if you have:</strong></p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">Experiencing working in high traffic, low latency applications</p></li><li><p style=\"min-height:1.5em\">Good dev ops experience</p></li><li><p style=\"min-height:1.5em\">Digital Signal Processing experience</p></li><li><p style=\"min-height:1.5em\">Strong SQL knowledge</p></li><li><p style=\"min-height:1.5em\">AI experience</p></li></ul><p style=\"min-height:1.5em\"></p><p style=\"min-height:1.5em\"><strong>How to apply:</strong></p><p style=\"min-height:1.5em\">Apply at <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://jobs.ashbyhq.com/zencastr/e5897c7a-4622-495b-a892-81763a2ef112\">https://jobs.ashbyhq.com/zencastr/e5897c7a-4622-495b-a892-81763a2ef112</a></p><p style=\"min-height:1.5em\">We are flexible! For the right candidate we ask: What do you need to do your best work?</p>",
+          "descriptionPlain": "Empower the voices of the world @ Zencastr. If you want to push the world of podcasting into the future, come join a team who loves to live on the edge! We are a fully distributed team of smart people who are passionate about changing the world one voice at a time.\n\n\n\n\nYou should join us if you:\n\n - Have significant experience with Node.js and good knowledge of JS fundamentals\n\n - Have a good understanding of computer science fundamentals. You might not have gone to school for it, but you know the difference between heap and stack, different time complexities, and which patterns to use and when.\n\n - You are ambitious. You might want to build your own company one day or have tried to tackle the toughest tech problems just for fun.\n\n - You enjoy writing Javascript or Typescript\n\n - You have an eye for performance. Whether thinking about the latest client side bundling techniques, or the proper way to shard a mongo database, you want things to be fast.\n\n - You are a team player\n\n - You have good communication skills\n\n\nWhat sets you apart:\n\n - You have a passion for high performance applications\n\n - You have significant open source contributions\n\n - You want to work in a fast growing startup. Which comes with the blood, sweat and tears of working to disrupt an established industry\n\n - You have empathy for the end user. A spec is a conversation starter, as an advocate for the end user you always are thinking about how to best serve their needs\n\n - You have an eye for code quality and you strive to uphold best practices in engineering, security, and design\n\n\nWhy you should choose us:\n\n - You’ll be working with world class engineers, Phd’s, and designers in a fully distributed team\n\n - Work in an agile and fast changing environment\n\n - Equity commensurate to your contribution in a profitable company\n\n - Health insurance\n\n - Unique challenges and the support and talent to solve them\n\n - 4 weeks PTO\n\n - Freedom to work where you please\n\n\nWhat we’re looking for:\n\n - 5+ years of Typescript, Node.js development\n\n - Strong document / key-value store knowledge (Redis, MongoDB)\n\n - Strong SQL knowledge\n\n - Demonstrable knowledge of building scaleable consumer based apps\n\n - Strong experience with unit, integration, and load testing\n\n - Experience building APIs\n\n - Experience with cloud APIs (Google Cloud, Digital Ocean)\n\n\n\n\nBonus points if you have:\n\n - Experiencing working in high traffic, low latency applications\n\n - Good dev ops experience\n\n - Digital Signal Processing experience\n\n - Strong SQL knowledge\n\n - AI experience\n\n\n\nHow to apply:\n\nApply at https://jobs.ashbyhq.com/zencastr/e5897c7a-4622-495b-a892-81763a2ef112\n\nWe are flexible! For the right candidate we ask: What do you need to do your best work?",
+          "compensation": {
+            "compensationTierSummary": null,
+            "scrapeableCompensationSalarySummary": null,
+            "compensationTiers": [],
+            "summaryComponents": []
+          }
+        },
+        {
+          "id": "c6a9c3b0-f260-4820-bb97-e78142eabd1e",
+          "title": "Senior Machine Learning Engineer (Remote)",
+          "department": "Engineering",
+          "team": "Engineering",
+          "employmentType": "FullTime",
+          "location": "New York Office",
+          "shouldDisplayCompensationOnJobPostings": false,
+          "secondaryLocations": [],
+          "publishedAt": "2025-08-07T19:55:54.239+00:00",
+          "isListed": true,
+          "isRemote": true,
+          "workplaceType": "Remote",
+          "address": {
+            "postalAddress": {
+              "addressRegion": "New York",
+              "addressCountry": "United States",
+              "addressLocality": "New York"
+            }
+          },
+          "jobUrl": "https://jobs.ashbyhq.com/zencastr/c6a9c3b0-f260-4820-bb97-e78142eabd1e",
+          "applyUrl": "https://jobs.ashbyhq.com/zencastr/c6a9c3b0-f260-4820-bb97-e78142eabd1e/application",
+          "descriptionHtml": "<p style=\"min-height:1.5em\"><strong>The Role</strong></p><p style=\"min-height:1.5em\">We build end-to-end AI systems, core microservices, and infrastructures by leveraging cutting-edge technologies to impact millions with personalized user experiences everyday.</p><p style=\"min-height:1.5em\"></p><p style=\"min-height:1.5em\">We are looking for an outstanding machine learning engineer to join our team! The role will provide an opportunity to work on large scale machine learning to improve the podcast creation experience at Zencastr.</p><p style=\"min-height:1.5em\"></p><p style=\"min-height:1.5em\">You’ll join a team of hardworking engineers that are passionate about understanding what drives users’ long-term happiness with Zencastr, and how our recommendations and content affects that. As an integral part of the squad, you will collaborate with research scientists, data scientists and other engineers in prototyping and productizing brand-new ML at the intersection of speech processing and long-term user satisfaction.</p><p style=\"min-height:1.5em\"><strong>What You'll Do..</strong></p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">Design, research and develop state-of-the-art machine learning applications and algorithms to improve the lives of podcasters and podcast listeners around the world</p></li><li><p style=\"min-height:1.5em\">Collaborate with engineering partners and colleagues in large multi-functional efforts to build new product features that advise and enrich Zencastr’s various ML services.</p></li><li><p style=\"min-height:1.5em\">Drive forward audio and text capabilities within the ML team</p></li><li><p style=\"min-height:1.5em\">Work with some of the brightest minds in signal processing</p></li></ul><p style=\"min-height:1.5em\"><strong>If This Describes You..</strong></p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">A postgraduate degree in Machine Learning, Mathematics, Computer Science, or a related quantitative field</p></li><li><p style=\"min-height:1.5em\">5 + years experience in Python</p></li><li><p style=\"min-height:1.5em\">3+ years experience in machine learning research, with a focus on speech</p></li><li><p style=\"min-height:1.5em\">3+ years experience training or deploying neural networks</p></li><li><p style=\"min-height:1.5em\">Significant experience with machine learning libraries like PyTorch, Tensorflow, Scikit-Learn</p></li><li><p style=\"min-height:1.5em\">Experience with building and operating production-ready ML systems</p></li><li><p style=\"min-height:1.5em\">Ability to lead design and implementation of major software components, systems, and features</p></li><li><p style=\"min-height:1.5em\">You enjoy quickly building model prototypes</p></li><li><p style=\"min-height:1.5em\">Experience with cloud technologies (Google Cloud, AWS, Modal)</p></li><li><p style=\"min-height:1.5em\">You are a self-starter who drives your own projects and builds positive relationships with partners and colleagues to solve big multi-functional efforts from start to finish. You are able to succeed with minimal mentorship and process.</p></li></ul><p style=\"min-height:1.5em\"><strong>Bonus points if you have:</strong></p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">Publications in peer-reviewed journals from a related field</p></li><li><p style=\"min-height:1.5em\">Experience with modern speech processing frameworks</p></li><li><p style=\"min-height:1.5em\">Good dev ops experience</p></li><li><p style=\"min-height:1.5em\">Advanced DSP experience</p></li><li><p style=\"min-height:1.5em\">MongoDB or SQL experience</p></li><li><p style=\"min-height:1.5em\">Experience with unit, integration, and load testing</p></li><li><p style=\"min-height:1.5em\">Experience building APIs</p></li><li><p style=\"min-height:1.5em\">Experience with Docker containers, Implementing Docker Containers, Container Clustering</p></li><li><p style=\"min-height:1.5em\">Experience with container orchestration technology such as Kubernetes a big plus</p></li></ul><p style=\"min-height:1.5em\"><strong>How to apply:</strong></p><p style=\"min-height:1.5em\">Apply at <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://jobs.ashbyhq.com/zencastr/c6a9c3b0-f260-4820-bb97-e78142eabd1e\">https://jobs.ashbyhq.com/zencastr/c6a9c3b0-f260-4820-bb97-e78142eabd1e</a></p><p style=\"min-height:1.5em\">We are flexible! For the right candidate we ask: What do you need to do your best work?</p>",
+          "descriptionPlain": "The Role\n\nWe build end-to-end AI systems, core microservices, and infrastructures by leveraging cutting-edge technologies to impact millions with personalized user experiences everyday.\n\n\n\nWe are looking for an outstanding machine learning engineer to join our team! The role will provide an opportunity to work on large scale machine learning to improve the podcast creation experience at Zencastr.\n\n\n\nYou’ll join a team of hardworking engineers that are passionate about understanding what drives users’ long-term happiness with Zencastr, and how our recommendations and content affects that. As an integral part of the squad, you will collaborate with research scientists, data scientists and other engineers in prototyping and productizing brand-new ML at the intersection of speech processing and long-term user satisfaction.\n\nWhat You'll Do..\n\n - Design, research and develop state-of-the-art machine learning applications and algorithms to improve the lives of podcasters and podcast listeners around the world\n\n - Collaborate with engineering partners and colleagues in large multi-functional efforts to build new product features that advise and enrich Zencastr’s various ML services.\n\n - Drive forward audio and text capabilities within the ML team\n\n - Work with some of the brightest minds in signal processing\n\nIf This Describes You..\n\n - A postgraduate degree in Machine Learning, Mathematics, Computer Science, or a related quantitative field\n\n - 5 + years experience in Python\n\n - 3+ years experience in machine learning research, with a focus on speech\n\n - 3+ years experience training or deploying neural networks\n\n - Significant experience with machine learning libraries like PyTorch, Tensorflow, Scikit-Learn\n\n - Experience with building and operating production-ready ML systems\n\n - Ability to lead design and implementation of major software components, systems, and features\n\n - You enjoy quickly building model prototypes\n\n - Experience with cloud technologies (Google Cloud, AWS, Modal)\n\n - You are a self-starter who drives your own projects and builds positive relationships with partners and colleagues to solve big multi-functional efforts from start to finish. You are able to succeed with minimal mentorship and process.\n\nBonus points if you have:\n\n - Publications in peer-reviewed journals from a related field\n\n - Experience with modern speech processing frameworks\n\n - Good dev ops experience\n\n - Advanced DSP experience\n\n - MongoDB or SQL experience\n\n - Experience with unit, integration, and load testing\n\n - Experience building APIs\n\n - Experience with Docker containers, Implementing Docker Containers, Container Clustering\n\n - Experience with container orchestration technology such as Kubernetes a big plus\n\nHow to apply:\n\nApply at https://jobs.ashbyhq.com/zencastr/c6a9c3b0-f260-4820-bb97-e78142eabd1e\n\nWe are flexible! For the right candidate we ask: What do you need to do your best work?",
+          "compensation": {
+            "compensationTierSummary": null,
+            "scrapeableCompensationSalarySummary": null,
+            "compensationTiers": [],
+            "summaryComponents": []
+          }
+        }
+      ]
+    }
+  }
+}
