@@ -127,7 +127,10 @@ leaves those PRs permanently unmergeable.
 - **Topics:** currently none. `dotnet`, `aspnetcore`, `csharp`, `postgresql`, `pgvector`,
   `embeddings`, `semantic-search`, `job-search`, `ollama`, `react`, `typescript`. Free
   discoverability for a repository whose purpose is to be found.
-- **Homepage:** the Railway URL, once EM-17 deploys.
+- **Homepage:** `https://employme-4uql.onrender.com` — the deployed frontend, not the API
+  (`employme-api.onrender.com`). Railway was the target when EM-17 was written; the trial
+  expired and the deploy landed on Render + Neon instead (`docs/ASSUMPTIONS.md` A-011,
+  which arrives with PR #16).
 - **Security → Secret scanning + push protection:** on (free on public repositories). This
   repository is public and `.env` is gitignored rather than absent; push protection is the net
   for the day that fails.
