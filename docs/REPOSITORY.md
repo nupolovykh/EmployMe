@@ -60,9 +60,9 @@ Two labels exist because of this project's own process: `type/compliance` (terms
 tiering, attribution — the surface that killed revision 1) and `status/needs-evidence` (a PR
 making a claim with no URL, date or live response, per §01.1).
 
-**This is a proposal, and it contradicts `docs/CONVENTIONS.md`'s "no custom label scheme".**
-The header of `.github/labels.yml` explains the disagreement. Resolve it in one direction or
-the other; do not leave both documents asserting different things.
+**The taxonomy applies to pull requests only.** GitHub Issues keep the stock set — that is
+what `docs/CONVENTIONS.md`'s "no custom label scheme" is about, and that line is scoped to
+Issues on the Phase I branch so the two documents say one thing rather than two.
 
 ---
 
