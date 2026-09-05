@@ -1,0 +1,65 @@
+# Label taxonomy for nupolovykh/EmployMe — the source of truth.
+#
+# Labels are versioned here rather than clicked into the GitHub UI, for the same
+# reason sources are rows and not an enum (PLAN.md §01.6): the configuration is
+# reviewable, diffable and recoverable.
+#
+# Applied by .github/workflows/labels.yml on every push to this file.
+#
+# Two axes only:
+#   area/*   — what part of the system a PR or issue touches
+#   type/*   — what kind of work it is
+#   status/* — why something is not moving (rare, applied by hand)
+#
+# Phases are NOT labels. A phase is a milestone, so GitHub renders it as a
+# progress bar and so an item can belong to exactly one phase by construction.
+#
+# Scope: pull requests. GitHub Issues keep the stock set (bug, documentation,
+# ...) — they are rare here and exist only to mirror a Linear ticket, so a
+# taxonomy buys nothing there. docs/CONVENTIONS.md's "no custom label scheme"
+# says the same thing and is scoped to Issues for exactly this reason.
+
+- name: area/api
+  color: "1D76DB"
+  description: ASP.NET Core Web API, src/Api
+- name: area/web
+  color: "5319E7"
+  description: React + TypeScript frontend, src/Web
+- name: area/ingest
+  color: "0E8A16"
+  description: Source adapters, IJobSource, scheduled ingest
+- name: area/data
+  color: "006B75"
+  description: Postgres schema, EF Core migrations, pgvector, embeddings
+- name: area/infra
+  color: "B60205"
+  description: Dev Container, CI, Render + Neon, Sentry, firewall allowlist
+- name: area/docs
+  color: "C5DEF5"
+  description: README, PLAN, SOURCES, ASSUMPTIONS, repository conventions
+
+- name: type/feature
+  color: "A2EEEF"
+  description: New capability
+- name: type/bug
+  color: "D73A4A"
+  description: Something behaves incorrectly
+- name: type/chore
+  color: "FEF2C0"
+  description: Dependencies, tooling, cleanup — no behaviour change
+- name: type/spike
+  color: "FBCA04"
+  description: Time-boxed investigation producing committed evidence under spikes/
+- name: type/compliance
+  color: "E99695"
+  description: Terms of use, tiering, attribution, rate limits — the legal surface
+- name: type/assumption
+  color: "D4C5F9"
+  description: Adds, verifies, or falsifies an entry in docs/ASSUMPTIONS.md
+
+- name: status/blocked
+  color: "000000"
+  description: Waiting on something outside this repository
+- name: status/needs-evidence
+  color: "F9D0C4"
+  description: Fails the PLAN.md §01 evidence rule — a claim here has no URL, date or live response
