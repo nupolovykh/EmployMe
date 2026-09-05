@@ -33,7 +33,7 @@
   description: Postgres schema, EF Core migrations, pgvector, embeddings
 - name: area/infra
   color: "B60205"
-  description: Dev Container, CI, Railway, Sentry, firewall allowlist
+  description: Dev Container, CI, Render + Neon, Sentry, firewall allowlist
 - name: area/docs
   color: "C5DEF5"
   description: README, PLAN, SOURCES, ASSUMPTIONS, repository conventions
