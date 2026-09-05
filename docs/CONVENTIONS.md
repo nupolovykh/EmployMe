@@ -152,9 +152,11 @@ superseded.
 Used rarely — Linear is the actual backlog (`docs/PLAN.md`: "Linear holds the work items"). The two
 GitHub issues in this repo's history exist only to mirror a specific Linear ticket into GitHub's
 UI, titled `EM-<n>: <description>` matching the Linear ticket's own title, with GitHub's stock
-labels (`bug`, `documentation`, `help wanted`, etc.) applied by nature of the work — no custom
-label scheme. Don't create a GitHub issue as a substitute for a Linear ticket; only mirror one over
-if there's a specific reason (e.g. surfacing it for portfolio visibility).
+labels (`bug`, `documentation`, `help wanted`, etc.) applied by nature of the work — **no custom
+label scheme on issues.** Pull requests are the other way round: they carry the `area/*` / `type/*`
+taxonomy in `.github/labels.yml`, because they are what actually gets filtered. Don't create a
+GitHub issue as a substitute for a Linear ticket; only mirror one over if there's a specific reason
+(e.g. surfacing it for portfolio visibility).
 
 **Gaps found after a phase has merged.** If the miss belongs to a phase that has already landed on
 `main` — no branch left to fix forward on — open a GitHub issue for it (`EM-<n>: <description>`,
