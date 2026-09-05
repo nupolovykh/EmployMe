@@ -14,14 +14,10 @@
 # Phases are NOT labels. A phase is a milestone, so GitHub renders it as a
 # progress bar and so an item can belong to exactly one phase by construction.
 #
-# NOTE — this contradicts docs/CONVENTIONS.md, which records "GitHub's stock
-# labels ... no custom label scheme". That line describes GitHub Issues, which
-# are rare here; the labels that actually get applied go on pull requests, and
-# the stock set is not carrying them (PR #16 has documentation + enhancement +
-# deploy + backend + frontend at once, which describes its size, not anything
-# filterable). If the stock scheme is kept deliberately, delete this file and
-# .github/workflows/labels.yml; if this scheme is kept, amend that line in
-# docs/CONVENTIONS.md. Do not leave both statements standing.
+# Scope: pull requests. GitHub Issues keep the stock set (bug, documentation,
+# ...) — they are rare here and exist only to mirror a Linear ticket, so a
+# taxonomy buys nothing there. docs/CONVENTIONS.md's "no custom label scheme"
+# says the same thing and is scoped to Issues for exactly this reason.
 
 - name: area/api
   color: "1D76DB"
