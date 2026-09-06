@@ -1,9 +1,15 @@
 namespace Api.Models;
 
 /// <summary>
-/// Every fetch stored verbatim before mapping, so a mapping bug is replayable
-/// without re-hitting a rate-limited source. Append-only: one row per fetch,
-/// not deduplicated by ExternalId.
+/// The most recent fetch of each posting, stored verbatim before mapping, so a
+/// mapping bug is replayable without re-hitting a rate-limited source.
+/// <para>
+/// One row per posting, not per fetch — a re-run overwrites rather than
+/// appends. Appending made the table grow with ingest frequency instead of with
+/// the size of the catalogue, which a scheduled hourly run turns into a full
+/// database in days (EM-58). Replaying a mapping bug needs a posting's current
+/// shape, not its history, so nothing that matters is lost.
+/// </para>
 /// </summary>
 public class RawPosting
 {
