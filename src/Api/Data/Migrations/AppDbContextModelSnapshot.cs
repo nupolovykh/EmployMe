@@ -111,7 +111,8 @@ namespace Api.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SourceId", "ExternalId");
+                    b.HasIndex("SourceId", "ExternalId")
+                        .IsUnique();
 
                     b.ToTable("RawPostings");
                 });
@@ -266,6 +267,9 @@ namespace Api.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int?>("SalaryMin")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Seniority")
                         .HasColumnType("integer");
 
                     b.Property<int>("SourceId")

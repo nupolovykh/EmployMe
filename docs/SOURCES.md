@@ -94,9 +94,36 @@ the Postings API's intended use, with no attribution requirement stated. See
 
 | | |
 |---|---|
+| Endpoint | `GET https://api.ashbyhq.com/posting-api/job-board/{name}?includeCompensation=true` |
+| Auth | none — no key, no header |
 | Adapter type | `ashby` |
 | Assumption | A-008 |
-| Level | `assumed` — scheduled as a Phase I follow-on (EM-19) |
+| Level | `spike` (2026-08-30, EM-57) — `spikes/ashby/` |
+| Poll interval | no documented rate limit; 1 h, matching the other Tier A rows, until one is observed |
+| Attribution required | none stated |
+| Canonical URL required | none stated; `jobUrl` is the canonical posting either way |
+| Terms URL | <https://developers.ashbyhq.com/docs/public-job-posting-api> (reviewed 2026-08-30) |
+| Terms verdict | **not cleared — no permission stated either way.** See below. |
+
+**Why this row is not cleared.** The customer Terms of Service never mention the posting API. The
+developer documentation's only statement of purpose is *"This API allows you to get data for all
+currently published Job Postings **for your organization**. **If you host your own careers page**,
+you can use this data to populate it."* Nothing forbids third-party use, sets a rate limit or
+requires attribution — but that sentence addresses the Ashby customer publishing their own jobs,
+not a third party aggregating other companies' boards. Greenhouse was cleared on wording about
+what *callers* may build; this is narrower. Absence of permission is not permission.
+
+**What the spike settled.** Compensation. A-009 measured salary at 0% on Greenhouse and 0% on
+Lever across 1,021 postings; Ashby carries it on **74 of 78 (94%)**, with **73 (93%)** structured
+as annual salary with min, max and currency. Also of note: `descriptionPlain` arrives as real
+plain text, and board tokens are **case-sensitive** (`Ashby` → `200`, `ashbyhq` → `404`), unlike
+Greenhouse's and Lever's.
+
+**Open, and not the source's fault.** No company on Ashby has yet been found that passes the
+target-company registry's geography filter — Ashby's own board is region-locked to EU/US/UK/Canada,
+zencastr's roles are US-office-anchored, and Nango lists "Europe" without resolving Georgia while
+every engineering role there is Staff level. A cleared source with no reachable target company
+does not earn an adapter.
 
 ### Workable · Recruitee · Personio
 
@@ -106,6 +133,12 @@ register when a company in the target registry actually uses one.
 ---
 
 ## Tier B — Public remote-job APIs
+
+**Adapter types, 2026-08-26 (EM-53):** the three rows below previously read
+`json_api`. That was a placeholder — the three payload shapes have nothing in
+common (`jobs[]` vs `data[]`, `id` vs `slug` as the external id, different field
+names throughout), so each source now names its own adapter class. `json_api`
+no longer appears in this file.
 
 Searchable, but each one imposes conditions. **Every condition below is a display condition, not
 a nicety** — see EM-54.
@@ -117,7 +150,7 @@ a nicety** — see EM-54.
 | Endpoints | `GET https://himalayas.app/jobs/api`, `GET https://himalayas.app/jobs/api/search` |
 | Auth | None |
 | OpenAPI | `https://himalayas.app/docs/openapi.json` (3.1) — generate the client, don't hand-roll DTOs |
-| Adapter type | `json_api` |
+| Adapter type | `himalayas` (row seeded, **no adapter class** — see the display condition below) |
 | Assumption | A-003 |
 | Level | `spike` (2026-08-26) — `spikes/himalayas/`. **⚠️ Legal: FALSIFIED, not cleared** |
 
@@ -139,7 +172,7 @@ source before that happens.
 | Auth | None |
 | Params | `count` (1–100), `geo`, `industry`, `tag` |
 | Discovery | `?get=locations`, `?get=industries` return valid filter values |
-| Adapter type | `json_api` |
+| Adapter type | `jobicy` |
 | Assumption | A-004 |
 | Level | `spike` (2026-08-26) — `spikes/jobicy/`. **Legal: cleared** |
 
@@ -162,7 +195,7 @@ redirect to the original Jobicy job URL — the `url` field already provides thi
 |---|---|
 | Endpoint | `GET https://www.arbeitnow.com/api/job-board-api` |
 | Auth | None |
-| Adapter type | `json_api` |
+| Adapter type | `arbeitnow` |
 | Assumption | A-005 |
 | Level | `spike` (2026-08-26) — `spikes/arbeitnow/`. **Legal: cleared** |
 
@@ -179,6 +212,14 @@ terms of service present on Arbeitnow.com" — treated as the operative statemen
 `spikes/arbeitnow/NOTES.md`.
 
 Descriptions are largely German. This drives the multilingual embedding model choice in Phase III.
+
+**Observed in the first live ingest (2026-08-26, EM-53): descriptions can contain
+malformed HTML.** Arbeitnow redacts email addresses out of description bodies, and
+the redaction can consume the opening `<` of a neighbouring tag, leaving an
+orphan fragment like `class="MsoNormal">` as literal text with no tag to strip.
+1 posting in 1021 across all four sources was affected. Any consumer of
+`vacancies.description` should treat it as best-effort plain text, not as
+guaranteed-clean prose.
 
 ### Remotive
 
