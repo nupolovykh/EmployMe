@@ -156,12 +156,34 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 
 ### A-008 — Ashby exposes a public per-company board API
 
-- **Level:** `assumed` — Phase I follow-on (EM-19)
+- **Level:** `spike` (2026-08-30, EM-57). `spikes/ashby/response.json` + `NOTES.md` committed.
+  `GET /posting-api/job-board/{name}?includeCompensation=true`, no auth of any kind, three boards
+  sampled — `Ashby` → `200`/67, `Nango` → `200`/7, `zencastr` → `200`/4, 78 postings.
 - **Blast radius:** low. A third Tier A adapter, not an MVP dependency, but the designated
   fallback if A-001 or A-002 fails.
+- **Legal status: NOT cleared — no permission stated either way.** Ashby's customer Terms of
+  Service do not mention the posting API at all. Its developer documentation gives the only
+  statement of purpose: *"This API allows you to get data for all currently published Job Postings
+  **for your organization**. **If you host your own careers page**, you can use this data to
+  populate it."* Nothing prohibits third-party use, sets a rate limit or demands attribution — but
+  that sentence addresses the Ashby *customer* publishing their own jobs, not a third party
+  aggregating other companies' boards. Greenhouse (A-001) was cleared on wording about what
+  *callers* may build; this is narrower. Absence of permission is not permission, and A-003 is the
+  precedent for not treating technical success as qualification. **EM-19 stays blocked** under §01
+  rule 2 until this resolves.
+- **What the spike did settle — the reason it was run:** compensation. A-009 measured salary
+  coverage at 0% on Greenhouse and 0% on Lever across 1,021 postings. Ashby carries it on **74 of
+  78 postings (94%)**, with **73 (93%)** structured as an annual salary with min, max and currency
+  across ten currencies. If compensation is ever to be weighted in the Phase III fit-score without
+  scoring sources instead of roles, this is the Tier A source that supplies it.
+- **Unresolved, and not the source's fault:** no company found on Ashby so far passes the
+  target-company registry's geography filter (EM-50). Ashby's own board is region-locked to
+  EU/US/UK/Canada, zencastr's roles are US-office-anchored, and Nango's "Europe" is undecided for
+  Georgia while every engineering role there is Staff level. A cleared source with no reachable
+  target company does not earn an adapter.
 - **Fallback:** Workable, Recruitee or Personio, whichever the target-company registry actually
   needs.
-- **Expiry:** on scheduling.
+- **Expiry:** on EM-19 scheduling, or 28 Feb 2027, whichever is sooner.
 
 ---
 
@@ -169,14 +191,33 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 
 ### A-009 — Six upstream shapes normalize into one vacancy model without losing what matters
 
-- **Level:** `assumed`
+- **Level:** `spike` (2026-08-26) — **partially falsified.** EM-52/53's first live ingest pulled
+  1,021 postings from four sources; field coverage of the normalized model measured across them:
+
+  | Source | Rows | company | location | workFormat | salary | publishedAt |
+  |---|---:|---:|---:|---:|---:|---:|
+  | Greenhouse | 227 | 100% | 100% | **0%** | **0%** | 100% |
+  | Lever | 44 | 100% | 100% | 100% | **0%** | 100% |
+  | Jobicy | 100 | 100% | 100% | 100% | 77% | 100% |
+  | Arbeitnow | 649 | 100% | 96% | **5%** | **0%** | 100% |
+
+  Title, company, URL, location and publication date survive normalization everywhere. The two
+  fields Phase III would most want do not: **salary exists on Jobicy alone** (77% of its rows,
+  and only where `salaryPeriod` is yearly — an hourly figure in the same column would make it
+  meaningless), and **work format is absent from Greenhouse entirely** and near-absent from
+  Arbeitnow, whose `remote: false` means "not flagged", not "known to be onsite". Lever carries
+  no employer name in its payload at all; the target-company registry supplies it.
 - **Blast radius:** high. It is the core of EM-52 and the part of this project most worth
   discussing in an interview.
-- **The risk:** a lowest-common-denominator mapping that reduces every source to title, company
-  and URL, discarding exactly the structured signal Phase III's fit-score needs.
+- **The risk:** confirmed in the shape above, not in the shape feared. The mapping does not
+  collapse to title/company/URL — but a fit-score that weights salary or remote-ness would be
+  scoring Jobicy and Lever against everyone else, not scoring roles. Phase III must either derive
+  these from the description via LLM extraction (EM-31) or exclude them from the score.
 - **Fallback:** `raw_postings` stores every fetch before mapping, so a mapping decision can be
-  revisited and replayed without re-hitting a rate-limited source.
-- **Expiry:** resolved by EM-52, not by a date.
+  revisited and replayed without re-hitting a rate-limited source. Exercised in this run: 1,021
+  raw rows written against 1,020 distinct vacancies (one Arbeitnow slug arrived twice in a single
+  page set).
+- **Expiry:** re-measure when a fifth source lands (EM-19). Resolved for the MVP's four.
 
 ### A-010 — A self-hosted multilingual embedding model is good enough for the fit-score
 
@@ -189,3 +230,84 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 - **Verification:** EM-32 — 50 hand-labeled vacancies and a measured precision figure. Until that
   number exists, no claim about matching quality goes in the README.
 - **Expiry:** on Phase III start.
+
+### A-011 — Render Free + Neon Free host the API, the frontend and Postgres with pgvector at zero cost
+
+- **Level:** `live` (2026-08-28, EM-17). Both services deployed and exercised end to end:
+  `employme-api.onrender.com/health` → `200`, `/api/vacancies` serving real rows from Neon,
+  `employme-4uql.onrender.com` serving the built frontend with the API's origin compiled in.
+- **Why it exists at all:** this register had ten entries and every one of them was about a job
+  source or the semantic layer. Nothing recorded what the project *runs on*, so "we can host this
+  for nothing" sat unexamined until the Railway trial expired and it failed by surprise. The gap
+  was in the register's coverage, not in any one claim.
+- **What was verified live, not read off a pricing page:**
+  - Neon runs Postgres 18.6. `employme_owner` is **not** a superuser and `CREATE EXTENSION vector`
+    still succeeds — pgvector 0.8.6. Every migration applies, `Embeddings.Vector` lands as a real
+    `vector` column. Strict TLS works; `Trust Server Certificate` is not needed.
+  - Render's free instance runs a Dockerfile build, which its own docs never state outright.
+  - The compliance guards hold in a deployed environment, which is the one thing local runs
+    cannot show: ingest answers `401` without a token and with a wrong one, and a source that is
+    disabled or not cleared for public display is skipped with the reason named in the report.
+  - CORS names the frontend's origin only — a foreign `Origin` gets no allow header back.
+- **Blast radius:** medium. Losing it costs the deployment, not the data: Neon holds the database
+  and Render builds from the repository, so both sides are re-creatable from what is committed.
+- **The two costs accepted with open eyes:**
+  - The API sleeps after 15 minutes idle and takes about a minute to wake. Tolerable while ingest
+    is manual; it stops being tolerable at EM-18, when a scheduler needs a host that stays up.
+  - Neon's free plan is 0.5 GB and suspends compute after 5 minutes, which cannot be disabled.
+    The unbounded-growth defect this originally recorded is fixed (EM-58): `RawPostings` now keeps
+    one row per posting rather than one per fetch, verified by three consecutive full runs leaving
+    the count unchanged at 1,730 (`created=0, updated=999` on the third).
+    **The steady-state figure first written here was wrong.** It assumed the table would settle at
+    the size of the catalogue, ~1,000 rows. It does not: upstream boards rotate, so the table is
+    bounded by *distinct postings ever seen*, which keeps growing — 995 rows on 28 Aug, 1,730 by
+    31 Aug, because Jobicy serves only its newest 100 and Arbeitnow's 650 turn over. Growth is now
+    proportional to how much the job market moves rather than to how often we poll it, which is
+    what makes hourly scheduling safe; it is not zero. At 15 MB for 1,730 rows the 0.5 GB plan
+    holds on the order of 50,000 distinct postings, and a Phase II decision about pruning postings
+    that have disappeared upstream will eventually be needed.
+- **Fallback:** Railway Hobby at $5/mo, which removes the sleep and raises storage to 5 GB. The
+  Dockerfiles carry no host-specific assumption — the entrypoint reads `PORT` at start — so
+  moving is a re-point, not a rewrite.
+- **Expiry:** on EM-18 start, when "does not sleep" becomes a functional requirement rather than
+  a convenience.
+
+### A-012 — A session-scoped advisory lock gives ingest mutual exclusion per source
+
+- **Level:** `live` (2026-09-01, EM-52). Three concurrent pairs of forced ingests against Jobicy,
+  each pair producing exactly one `ok` (100 postings) and one `skipped` — and the lock releases,
+  since a single run straight afterwards succeeds. The weaker design it replaced was falsified the
+  same way: a compare-and-set on `LastSuccessAt` let **both** runs fetch 100 postings, because the
+  second reads the value the first just wrote and its own CAS matches.
+- **Where it lapses:** `Program.cs` enables `EnableRetryOnFailure`. A PostgreSQL advisory lock
+  belongs to the session of one connection, so if a transient error kills the pinned connection
+  mid-run, EF retries on a **new** one and the lock dies with the old — while the code carries on
+  believing it holds exclusivity. The honest claim is "mutual exclusion except across a transient
+  reconnect", not an unconditional one.
+- **Blast radius:** narrow, and bounded by what it protects. On a lapse two runs can hit one source
+  inside its `min_poll_interval`; on Jobicy, capped at one poll per hour, that is the ban the
+  interval exists to prevent. Nothing in the database is corrupted either way — the upsert is
+  idempotent on `(SourceId, ExternalId)`.
+- **Fallback:** move the claim out of the session and into state — an `ingest_started_at` column
+  with a stale-claim timeout. It survives reconnects because it is a row rather than a session, and
+  it needs no held connection, which also resolves A-013. One piece of work answers both.
+- **Expiry:** **EM-18.** A scheduler firing while a manual run is in flight makes concurrent runs
+  routine rather than accidental, which is the point at which "except across a reconnect" stops
+  being an acceptable qualifier.
+
+### A-013 — Holding one Neon connection for the duration of an ingest run is affordable
+
+- **Level:** `assumed`. True by inspection at one API instance with ingest triggered by hand; not
+  measured under concurrent load, which is precisely the condition that would falsify it.
+- **What changed:** taking the A-012 lock pins a connection open for the whole run, including every
+  upstream HTTP fetch. Arbeitnow alone is up to `MaxPagesPerSource` (5) sequential round trips
+  against a 60-second-timeout client, so a connection can sit held-but-idle for minutes. Before the
+  lock, the connection returned to the pool between EF operations and was only borrowed for queries.
+- **Blast radius:** the API, not the ingest. Connection exhaustion surfaces as failed *user*
+  requests — the site erroring while a background job holds what it needs.
+- **Fallback:** the claim-column design in A-012's fallback, which holds no connection at all.
+- **Expiry:** **EM-18.** Scheduled ingest running alongside user traffic on the same Neon ceiling is
+  when this gets tested for real.
+- **How to measure it rather than argue about it:** Render exposes `active_connections` for the Neon
+  instance. A full four-source run while the site is being browsed gives the actual peak, and turns
+  this entry from `assumed` into `live` or into a falsification.

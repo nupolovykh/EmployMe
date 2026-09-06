@@ -117,10 +117,12 @@ leaves those PRs permanently unmergeable.
 
 ### Repository settings
 
-- **Automatically delete head branches:** on. Then delete the merged strays by hand:
-  `claude/devcontainer-setup`, `claude/phase-0-api-foundation`,
-  `devpolovykh/em-46-spike-lever-postings-api-tier-a`,
-  `devpolovykh/em-51-sources-schema-rebuild`.
+- **Automatically delete head branches:** deliberately **off**, and not a rule here. A merged
+  branch is the only thing that still resolves the SHAs in a closed PR's review comments and in
+  a deploy history — this repository has already had both, with Render serving commits that a
+  history rewrite had orphaned. Deleting branches on merge is cheap tidiness bought with the
+  ability to answer "what was actually deployed on that date". Branches are pruned by hand when
+  they stop being useful, which is a judgement rather than a setting.
 - **Wiki:** off.
 - **Allow merge commits:** on. **Squash / rebase merging:** off, so the strategy is not a
   per-merge decision.
