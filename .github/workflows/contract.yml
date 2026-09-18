@@ -1,0 +1,94 @@
+name: Source contract
+
+# PLAN.md §01 rule 7, "detection, not hope" (EM-55): every night each enabled
+# source's real adapter runs against its real endpoint, from the rows the
+# migrations seed, and must still yield postings it can map. An upstream that
+# closes, moves or changes shape fails this within 24 hours.
+#
+# Alerting is two-channel. A failure opens (or updates) a GitHub issue, which
+# needs no secret and cannot be silently unconfigured; if SLACK_WEBHOOK_URL is
+# set (EM-25), the same failure is posted there too. Recovery closes the issue.
+
+on:
+  schedule:
+    - cron: "43 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: source-contract
+  cancel-in-progress: false
+
+env:
+  ISSUE_TITLE: "EM-55: nightly source contract test failed"
+
+jobs:
+  contract:
+    name: contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Inside the Dev Container for the same reason the build is: the compose
+      # db service is what PostgresFixture reads the seeded rows from, and the
+      # firewall allowlist is what decides which source domains are reachable —
+      # a source that fails here because its domain is missing from
+      # init-firewall.sh fails the same way it would for a developer.
+      - name: Run the contract tests inside the Dev Container
+        id: tests
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            dotnet test tests/Api.Tests --filter "Category=Contract" \
+              --logger "trx;LogFileName=contract.trx" --results-directory TestResults
+
+      - name: Keep the results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: contract-test-results
+          path: TestResults
+          if-no-files-found: ignore
+
+      - name: Open or update the alert issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          body="The nightly source contract test failed: $RUN_URL
+
+          Belongs to Phase II. One of the enabled sources no longer answers the way its adapter expects — or a target-company board token has rotated. Check the run's test output, then either fix the adapter, update the row (\`docs/SOURCES.md\` and \`docs/ASSUMPTIONS.md\` alongside), or disable the source."
+
+          existing=$(gh issue list --state open --search "\"$ISSUE_TITLE\" in:title" --json number --jq '.[0].number')
+
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "Still failing: $RUN_URL"
+          else
+            gh issue create --title "$ISSUE_TITLE" --label bug --body "$body"
+          fi
+
+      - name: Close the alert issue on recovery
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          existing=$(gh issue list --state open --search "\"$ISSUE_TITLE\" in:title" --json number --jq '.[0].number')
+
+          if [ -n "$existing" ]; then
+            gh issue close "$existing" --comment "Passing again: $RUN_URL"
+          fi
+
+      - name: Notify Slack
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          curl --fail --silent --show-error -X POST "$SLACK_WEBHOOK_URL" \
+            -H 'Content-Type: application/json' \
+            -d "$(jq -n --arg text ":rotating_light: EmployMe nightly source contract test failed — $RUN_URL" '{text: $text}')"
