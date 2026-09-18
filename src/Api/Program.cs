@@ -3,6 +3,7 @@ using Api.Data;
 using Api.Ingest;
 using Api.Ingest.Adapters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Http.Resilience;
 using Pgvector.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,12 +43,23 @@ builder.Services.AddOptions<IngestOptions>()
     .Bind(builder.Configuration.GetSection(IngestOptions.SectionName))
     .PostConfigure<IHostEnvironment>((o, env) => o.PublicDeployment ??= !env.IsDevelopment());
 builder.Services.AddHttpClient(IngestHttp.ClientName, client =>
-{
-    client.Timeout = TimeSpan.FromSeconds(60);
-    // Arbeitnow's meta.terms asks callers not to abuse the free API; identifying
-    // the caller is the minimum courtesy that makes a block reversible.
-    client.DefaultRequestHeaders.UserAgent.ParseAdd("EmployMe/0.1 (+https://github.com/nupolovykh/EmployMe)");
-});
+    {
+        // Above the pipeline's total timeout below, so the resilience handler
+        // is what decides when a request has failed. HttpClient.Timeout wraps
+        // the whole handler chain, retries included; set lower, it would cut a
+        // retry short and surface as a plain TaskCanceledException that no
+        // strategy ever saw.
+        client.Timeout = IngestResilience.TotalTimeout + TimeSpan.FromSeconds(5);
+        // Arbeitnow's meta.terms asks callers not to abuse the free API; identifying
+        // the caller is the minimum courtesy that makes a block reversible.
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("EmployMe/0.1 (+https://github.com/nupolovykh/EmployMe)");
+    })
+    .AddStandardResilienceHandler(IngestResilience.Configure)
+    // One pipeline per upstream host, not one shared across the client. The
+    // circuit breaker is the reason: with a single pipeline, Jobicy answering
+    // 503 for a minute would open the circuit for Greenhouse and Lever too,
+    // and a scheduled run would skip three healthy sources over one sick one.
+    .SelectPipelineByAuthority();
 
 // Adapters are resolved by sources.adapter_type, so registering one here plus a
 // row in `sources` is the whole cost of adding a source.
