@@ -193,18 +193,56 @@ deployed instance rather than a local run:
 
 Goal: stops being a script, becomes a service — and gains the immune system Revision 1 lacked.
 
-- [ ] Nightly source contract test with alerting — EM-55
+**Status 2026-09-18: all eight items are In Review on `claude/phase-2-reliability`, not Done** —
+§01 rule 3, the branch has not landed on `main` and nothing below has a CI run behind it yet. The
+checkboxes stay open until the PR merges and each item's link exists. What is committed, and what
+each still needs from outside the repository, is noted inline.
+
+- [ ] Nightly source contract test with alerting — EM-55 (In Review: `tests/Api.Tests/Contract/`
+      runs every enabled source's real adapter against its real endpoint from the seeded rows;
+      `.github/workflows/contract.yml` runs it nightly and opens/updates/closes a GitHub issue
+      titled `EM-55: nightly source contract test failed`. Verified green from inside the Dev
+      Container on 2026-09-18, all four sources. Also discharges the live-endpoint obligation EM-46
+      assigned here. **Needs:** the first scheduled run on `main`.)
 - [ ] Scheduler: `BackgroundService`/Hangfire — scheduled ingest, honoring each source's `min_poll_interval` — EM-18
+      (In Review: `IngestScheduler` ticks every `Ingest:Scheduler:Interval` and runs the same
+      command as the manual endpoint with `force=false`, so the row's interval and the advisory
+      lock decide everything. Verified locally with a 10 s tick: due source fetched, next tick
+      skipped it. Render's free instance sleeps, so `.github/workflows/ingest.yml` POSTs the
+      manual endpoint hourly — A-014. **Needs:** repository secret `INGEST_TRIGGER_TOKEN`, same
+      value as Render's `Ingest__TriggerToken`.)
 - [ ] `HttpClient` + Polly: retries and rate-limit handling for external API resilience — EM-20
-- [ ] Serilog structured logging + health checks — EM-21
-- [ ] Sentry SDK integrated for error monitoring — EM-22
+      (In Review: `IngestResilience` — 3 exponential retries on transport errors/408/429/5xx,
+      `Retry-After` honoured and capped at 30 s, 30 s attempt in a 120 s total, circuit breaker
+      per upstream host. Retry counts covered by unit tests.)
+- [ ] Serilog structured logging + health checks — EM-21 (In Review: JSON lines outside
+      Development; `/health` stays liveness with no checks, `/health/ready` adds the database and
+      a source check that reports Degraded once a source has failed three runs in a row. Verified
+      locally: three broken runs → Degraded naming `jobicy`, one good run → Healthy.)
+- [ ] Sentry SDK integrated for error monitoring — EM-22 (In Review: middleware for unhandled
+      exceptions plus the Serilog sink for Error-level events, breadcrumbs from Information up,
+      `X-Ingest-Token` stripped in `BeforeSend`. Verified against a local envelope receiver.
+      **Needs:** `SENTRY_DSN` set on the Render service; without it the SDK is off, by design.)
 - [ ] Tests: xUnit (unit) + Testcontainers (integration, against a real Postgres) — EM-23
-- [ ] GitHub Actions: tests + lint + build on every PR — EM-24
-- [ ] Slack channel (or Claude Tag) wired to CI/deploy notifications — EM-25
+      (In Review: 43 tests in `tests/Api.Tests`, adapters against the committed spike responses,
+      IngestService and the endpoint guards against a per-test database created from the
+      migrations. Testcontainers when Docker exists, `EMPLOYME_TEST_POSTGRES` otherwise — the
+      Dev Container has no Docker socket, so compose sets it to the `db` service; A-015.)
+- [ ] GitHub Actions: tests + lint + build on every PR — EM-24 (In Review: `build.yml` now runs
+      `dotnet format --verify-no-changes`, the non-contract tests and `oxlint` alongside the
+      builds, inside the Dev Container. **Needs:** the branch pushed, to see it run.)
+- [ ] Slack channel (or Claude Tag) wired to CI/deploy notifications — EM-25 (In Review: a
+      failure step in `build.yml` (main only) and in `contract.yml`, both gated on the
+      `SLACK_WEBHOOK_URL` secret existing. Deploy notifications are not repository code:
+      Render → *Settings → Notifications* → Slack, on the API and frontend services. **Needs:** an
+      incoming-webhook URL as the repository secret, and that Render setting switched on.)
 
 **Exit criterion:** the service refreshes on schedule, survives an external API outage without data
 loss, detects an upstream endpoint closure within 24 hours, is covered by tests and CI, and errors
-surface in Sentry.
+surface in Sentry. **Not yet met:** every mechanism exists and is verified locally, but "on
+schedule" and "within 24 hours" are claims about the deployed instance and the nightly run, and
+neither has happened yet. Met when `ingest.yml` and `contract.yml` have each completed a scheduled
+run on `main` and a Sentry event from the Render instance exists.
 
 ---
 
