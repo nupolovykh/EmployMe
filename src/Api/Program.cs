@@ -12,13 +12,15 @@ using Serilog.Formatting.Compact;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Error monitoring (EM-22). The DSN comes from SENTRY_DSN, which the SDK
-// reads on its own, or from a Sentry:Dsn setting; with neither the SDK stays
-// disabled and nothing else changes, so a local run never needs an account.
+// Error monitoring (EM-22). The DSN comes from SENTRY_DSN or a Sentry:Dsn
+// setting. It is resolved here rather than left to the SDK: the SDK treats a
+// null DSN as a configuration error and refuses to start the host, while an
+// empty one means "disabled" — and a local run with no account must start.
 // Unhandled exceptions reach Sentry through this middleware; everything the
 // code logs at Error or above reaches it through the Serilog sink below.
 builder.WebHost.UseSentry(options =>
 {
+    options.Dsn = builder.Configuration["Sentry:Dsn"] ?? builder.Configuration["SENTRY_DSN"] ?? "";
     options.Environment = builder.Environment.EnvironmentName;
     options.Release = "employme@" + (typeof(Program).Assembly.GetName().Version?.ToString(3) ?? "0.0.0");
     // Errors only: performance tracing is not a Phase II question, and the
