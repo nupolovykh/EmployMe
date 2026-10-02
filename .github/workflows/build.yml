@@ -22,10 +22,28 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # runCmd is a plain script: without `set -e` only its last command decides
+      # the step, and a failed `dotnet build` earlier on passed as green (PR #21).
+      #
+      # NuGet and npm sit behind CDNs whose edge IPs rotate, while
+      # init-firewall.sh allowlists only the IPs it resolved at container start.
+      # A restore that lands on an unlisted edge fails with "Network is
+      # unreachable" — seen on main and on Dependabot PRs. The downloads are
+      # retried, refreshing the firewall's snapshot in between (CLAUDE.md).
       - name: Build inside the Dev Container
         uses: devcontainers/ci@v0.3
         with:
           runCmd: |
-            dotnet build EmployMe.sln
-            npm --prefix src/Web ci
+            set -e
+            retry() {
+              for attempt in 1 2 3; do
+                "$@" && return 0
+                echo "::warning::'$*' failed (attempt $attempt); refreshing the firewall allowlist"
+                sudo bash .devcontainer/init-firewall.sh > /dev/null || true
+              done
+              return 1
+            }
+            retry dotnet restore EmployMe.sln
+            dotnet build EmployMe.sln --no-restore
+            retry npm --prefix src/Web ci
             npm --prefix src/Web run build
