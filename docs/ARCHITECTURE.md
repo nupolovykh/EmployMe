@@ -39,7 +39,8 @@ flowchart LR
 ```
 
 There are exactly two ways into the API: one write path (`POST /api/ingest`) and one read path
-(`GET /api/vacancies`, `GET /api/vacancies/{id}`). Everything else is wiring.
+(`GET /api/vacancies`, `GET /api/vacancies/{id}`). Everything else is wiring. Ingest also runs on a
+timer inside the process — see [Who starts a run](#who-starts-a-run).
 
 ---
 
@@ -61,6 +62,7 @@ src/Api/
 │   ├── IngestReport        per-source outcome returned by the endpoint
 │   ├── IngestHttp          shared JsonElement helpers + the named HttpClient
 │   ├── IngestResilience    the Polly pipeline every upstream request goes through
+│   ├── IngestScheduler     BackgroundService that runs the ingest on a timer (+ its options)
 │   ├── HtmlText            HTML → plain text for descriptions
 │   ├── SeniorityMap        source level strings → Seniority, measured tables
 │   └── Adapters/           Greenhouse, Lever (Tier A) · Jobicy, Arbeitnow (Tier B)
@@ -74,6 +76,24 @@ src/Api/
 The controllers are thin on purpose. `VacanciesController` queries EF directly (there is no
 service layer for reads), and `IngestController` only authorizes and delegates to
 `IngestService.RunAsync`, which holds all of the ingest logic.
+
+---
+
+## Who starts a run
+
+Three callers, one command: each calls `IngestService.RunAsync` and adds no policy of its own.
+
+| Caller | When | `force` |
+|---|---|---|
+| `POST /api/ingest` | by hand, or from the workflow below | as given |
+| `IngestScheduler` (EM-18) | every `Ingest:Scheduler:Interval` (15 min), after a 30 s start-up delay | `false` |
+| `.github/workflows/ingest.yml` | hourly at `:17`, by POSTing to the deployed API with the ingest token | `false` |
+
+The tick interval is not a poll interval: on every tick each source's `MinPollInterval` decides
+again whether it is due, and a tick that finds nothing due touches no upstream. The workflow exists
+because Render's free instance sleeps after fifteen idle minutes and the in-process timer sleeps
+with it; the POST wakes the instance and runs the ingest (A-014). Without its secret the workflow
+warns and does nothing; a report in which every source failed fails the run.
 
 ---
 

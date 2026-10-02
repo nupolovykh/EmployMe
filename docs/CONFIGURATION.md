@@ -35,6 +35,9 @@ environment variables. Array items take an index: `Cors__AllowedOrigins__0`.
 | `Cors__AllowedOrigins__0…n` | `[]` | not needed — the Vite proxy makes it same-origin | `https://employme-4uql.onrender.com` | No cross-origin caller is allowed: the deployed frontend fails with a CORS error. Deliberate — see below |
 | `Ingest__PublicDeployment` | unset → `!IsDevelopment()` | `false` from `appsettings.Development.json` | leave unset → `true` | Resolves to the **strict** mode on any non-Development host |
 | `Ingest__TriggerToken` | none | not needed | secret, set on Render only | On a public deployment `POST /api/ingest` answers `503 Ingest disabled` |
+| `Ingest__Scheduler__Enabled` | `true` | — | — | The in-process scheduler runs (EM-18); `false` for test hosts |
+| `Ingest__Scheduler__Interval` | `00:15:00` | — | — | How often it asks whether a source is due. Not a poll interval: `MinPollInterval` per source still decides |
+| `Ingest__Scheduler__StartupDelay` | `00:00:30` | — | — | Lets the host start before the first tick |
 | `Ingest__MaxPagesPerSource` | `5` | — | — | Bounds paginated sources (Arbeitnow) per run |
 | `Sentry__Dsn`, or `SENTRY_DSN` | empty → Sentry off | unset; from the Dev Container events also need the DSN's ingest host in `init-firewall.sh` | the project's DSN | Sentry stays disabled and logs one warning at start; the host still starts (EM-22) |
 | `Serilog__MinimumLevel__Default`, `Serilog__MinimumLevel__Override__<namespace>` | `Information`; `Microsoft.AspNetCore`, EF Core commands and `Polly` at `Warning` | same, from `appsettings.Development.json` | — | Defaults apply. The output format is not a setting: console text in Development, compact JSON elsewhere (EM-21) |
@@ -90,6 +93,18 @@ the image is built:
 
 `exec` in the API entrypoint hands the shell's process over to .NET, so `SIGTERM` reaches it and
 shutdown is graceful.
+
+---
+
+## GitHub Actions secrets and variables
+
+Set under Settings → Secrets and variables → Actions; read only by workflows.
+
+| Name | Kind | Used by | If missing |
+|---|---|---|---|
+| `INGEST_TRIGGER_TOKEN` | secret | `ingest.yml`, the hourly wake-up ingest (EM-18). Same value as Render's `Ingest__TriggerToken` | The workflow warns and exits without calling the API |
+| `API_URL` | variable | `ingest.yml` | Defaults to `https://employme-api.onrender.com` |
+| `DEPS_PAT` | secret | the dependency workflows — see [`dependency-updates.md`](./dependency-updates.md) | Both fail with 401 |
 
 ---
 

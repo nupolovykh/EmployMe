@@ -134,6 +134,12 @@ builder.Services.AddSingleton<IJobSource, ArbeitnowJobSource>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IngestService>();
 
+// The scheduler only supplies ticks; what gets fetched on each one is decided
+// per source row, by min_poll_interval, inside IngestService.
+builder.Services.AddOptions<IngestSchedulerOptions>()
+    .Bind(builder.Configuration.GetSection(IngestSchedulerOptions.SectionName));
+builder.Services.AddHostedService<IngestScheduler>();
+
 // Two readiness questions, tagged so the endpoints below can ask them apart:
 // can the API reach its database, and is the ingest pipeline succeeding
 // against its sources. Liveness asks neither — see the /health mapping.
