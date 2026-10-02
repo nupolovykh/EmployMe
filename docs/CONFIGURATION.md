@@ -36,6 +36,7 @@ environment variables. Array items take an index: `Cors__AllowedOrigins__0`.
 | `Ingest__PublicDeployment` | unset → `!IsDevelopment()` | `false` from `appsettings.Development.json` | leave unset → `true` | Resolves to the **strict** mode on any non-Development host |
 | `Ingest__TriggerToken` | none | not needed | secret, set on Render only | On a public deployment `POST /api/ingest` answers `503 Ingest disabled` |
 | `Ingest__MaxPagesPerSource` | `5` | — | — | Bounds paginated sources (Arbeitnow) per run |
+| `Sentry__Dsn`, or `SENTRY_DSN` | empty → Sentry off | unset; from the Dev Container events also need the DSN's ingest host in `init-firewall.sh` | the project's DSN | Sentry stays disabled and logs one warning at start; the host still starts (EM-22) |
 | `Serilog__MinimumLevel__Default`, `Serilog__MinimumLevel__Override__<namespace>` | `Information`; `Microsoft.AspNetCore`, EF Core commands and `Polly` at `Warning` | same, from `appsettings.Development.json` | — | Defaults apply. The output format is not a setting: console text in Development, compact JSON elsewhere (EM-21) |
 | `ASPNETCORE_ENVIRONMENT` | `Production` | `Development` via `launchSettings.json` | unset → `Production` | Decides whether `appsettings.Development.json` loads and whether Swagger is served |
 
@@ -110,7 +111,8 @@ passed as `--build-arg VITE_API_URL=…`.
 - **nothing loads `.env`.** There is no `env_file:` in `docker-compose.yml` and no loader in
   `Program.cs`. Inside the Dev Container the connection string comes from the compose
   `environment:` block, not from `.env`;
-- **`SENTRY_DSN` and `Ollama__BaseUrl` are read by no code yet.** Sentry arrives with Phase II
-  (EM-22), Ollama with Phase III (EM-27).
+- **`SENTRY_DSN` is read from the process environment, not from `.env`.** Putting it in `.env`
+  does nothing; export it in the shell, or set it on Render. `Ollama__BaseUrl` is read by no code
+  yet — Ollama arrives with Phase III (EM-27).
 
 So copying `.env.example` to `.env` is harmless but currently changes nothing.
