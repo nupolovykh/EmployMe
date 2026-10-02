@@ -60,6 +60,7 @@ src/Api/
 │   ├── IngestOptions       PublicDeployment, TriggerToken, MaxPagesPerSource
 │   ├── IngestReport        per-source outcome returned by the endpoint
 │   ├── IngestHttp          shared JsonElement helpers + the named HttpClient
+│   ├── IngestResilience    the Polly pipeline every upstream request goes through
 │   ├── HtmlText            HTML → plain text for descriptions
 │   ├── SeniorityMap        source level strings → Seniority, measured tables
 │   └── Adapters/           Greenhouse, Lever (Tier A) · Jobicy, Arbeitnow (Tier B)
@@ -136,6 +137,22 @@ guessed. Two deliberate choices: Jobicy's `"Any"` maps to `Unknown`, because ope
 not mean junior; Arbeitnow mixes contract types and levels in two languages, so `Highest()` takes
 the highest *recognised* level and ignores the rest instead of collapsing to `Unknown`.
 
+### Resilience: the Polly pipeline
+
+Every upstream request goes through `AddStandardResilienceHandler(IngestResilience.Configure)` on
+the named `HttpClient` (EM-20). The settings live in `Ingest/IngestResilience.cs`:
+
+| Strategy | Setting | Why |
+|---|---|---|
+| Total timeout | 120 s per request, retries included | The slowest call observed is Greenhouse with `content=true` on a large board |
+| Attempt timeout | 30 s | |
+| Retry | 3 retries, exponential from 2 s with jitter, `Retry-After` honoured up to 30 s | Transport errors, timeouts, `408`, `429` and `5xx` are retried. `404` is not: on a Tier A board it means a dead token, which the adapter logs and skips |
+| Circuit breaker | opens at 80 % failures over ≥ 5 requests in 60 s, for 5 min | The default needs 100 requests in its window, which an ingest run never reaches |
+
+`SelectPipelineByAuthority()` gives each upstream host its own pipeline, so Jobicy answering `503`
+opens the circuit for Jobicy alone, not for Greenhouse and Lever. A `Retry-After` longer than 30 s is
+left to the next scheduled run: holding the request would hold the run's Neon connection (A-013).
+
 ---
 
 ## Reads: `VacanciesController`
@@ -197,7 +214,8 @@ the first differing byte, so response time leaks how much of a guess was right.
 | `JsonStringEnumConverter` | Enums travel as names. Numeric enums broke EM-59 in production: the API sent `"seniority": 0`, the frontend compared with `'Unknown'`, and every card showed a bare digit. Query binding already accepted names, which hid the bug |
 | `EnableRetryOnFailure` (5 retries, ≤10 s) | Neon's free compute suspends after 5 idle minutes; the first query after that hits a dropped pooled connection. The retry turns that into latency instead of a 500 for whoever woke the site |
 | `PublicDeployment ??= !IsDevelopment()` | Forgetting the setting yields the *strictest* mode. See [`CONFIGURATION.md`](./CONFIGURATION.md#ingestoptions) |
-| Named `HttpClient`: 60 s timeout, `User-Agent` with the repo URL | Arbeitnow's terms ask callers to be identifiable, so a block can be lifted rather than applied to anonymous traffic |
+| Named `HttpClient`: `User-Agent` with the repo URL | Arbeitnow's terms ask callers to be identifiable, so a block can be lifted rather than applied to anonymous traffic |
+| `HttpClient.Timeout` = the pipeline's 120 s + 5 s | Set above the resilience pipeline's total timeout, so the pipeline decides when a request has failed. Lower, it would cut a retry short as a bare `TaskCanceledException` |
 | CORS only for `Cors:AllowedOrigins`, never `AllowAnyOrigin` | The API has a mutating endpoint. An empty list allows no cross-origin caller at all — the deployed frontend breaks loudly instead of the API opening quietly |
 | `Database.Migrate()` at startup | The only way migrations reach Neon on Render without a separate deploy step |
 | Swagger only in Development | `/swagger` exists locally, not on Render |
