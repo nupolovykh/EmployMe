@@ -1,0 +1,112 @@
+name: Security audit
+
+# Deliberately NOT part of CI.
+#
+# An audit answers a question about the global advisory database, not about the
+# commit under test. A newly published advisory turns every open pull request red
+# at once — including the very bump that fixes it — and in a repository where
+# green CI is what merges updates, that stops the updates from landing exactly
+# when they matter most. Here it reports on a schedule and blocks nothing.
+#
+# It is also the one workflow that speaks about `main` itself: Dependabot's
+# security updates are switched off in this repository, so this report is the
+# only place the whole picture is written down. For NuGet it is also the only
+# place transitive advisories show up at all — without a lock file the
+# dependency graph lists direct packages only.
+#
+# The report is the run's summary and its warnings, not an issue, and a finding
+# never fails the run: this workflow runs against the default branch, so a
+# failure would pin a red check to whatever commit that branch points at —
+# permanently, since a check run cannot be deleted and the mark outlives the fix.
+#
+# Runs on a hosted runner, not in the Dev Container: there is no firewall here,
+# so the CDN allowlist problem build.yml retries around does not apply.
+
+on:
+  schedule:
+    - cron: "41 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  nuget:
+    name: dotnet list package --vulnerable
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore EmployMe.sln
+
+      # `dotnet list package` reports findings on stdout and still exits zero, so
+      # the output has to be read. Transitive packages are included because that
+      # is where most advisories live: nothing in the project file mentions them,
+      # and the fix is always a bump of whatever pulls them in.
+      - name: Audit
+        run: |
+          set -euo pipefail
+          report=$(dotnet list EmployMe.sln package --vulnerable --include-transitive)
+          printf '%s\n' "$report"
+          if grep -q 'has the following vulnerable packages' <<<"$report"; then
+            detail="The solution references packages with published advisories."
+            echo "::warning::${detail}"
+          else
+            detail="No vulnerable packages reported."
+          fi
+          {
+            echo "### Security audit — NuGet"
+            echo
+            echo "${detail}"
+            if [ "$detail" != "No vulnerable packages reported." ]; then
+              echo
+              echo '```'
+              printf '%s\n' "$report"
+              echo '```'
+            fi
+          } >>"$GITHUB_STEP_SUMMARY"
+
+  npm:
+    name: npm audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: src/Web/package-lock.json
+
+      - run: npm ci
+        working-directory: src/Web
+
+      - name: Audit
+        working-directory: src/Web
+        run: |
+          # The step's shell is `bash -e`; this script handles its own failures.
+          # `npm audit` exits non-zero exactly when it finds something, so it is
+          # run in an `if` rather than as a bare assignment that would end the
+          # script on the first finding, before anything could be reported.
+          set +e
+          set -uo pipefail
+          if report=$(npm audit --audit-level=high 2>&1); then
+            detail="Nothing at high or above."
+          else
+            line=$(grep -E '[0-9]+ (vulnerabilit|high|critical)' <<<"$report" | tail -1)
+            detail="Advisories at high or above: ${line:-see the run log}"
+            echo "::warning::${detail}"
+          fi
+          printf '%s\n' "$report"
+          {
+            echo "### Security audit — npm (src/Web)"
+            echo
+            echo "${detail}"
+          } >>"$GITHUB_STEP_SUMMARY"
