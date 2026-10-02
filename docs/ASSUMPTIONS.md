@@ -269,8 +269,11 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 - **Fallback:** Railway Hobby at $5/mo, which removes the sleep and raises storage to 5 GB. The
   Dockerfiles carry no host-specific assumption — the entrypoint reads `PORT` at start — so
   moving is a re-point, not a rewrite.
-- **Expiry:** on EM-18 start, when "does not sleep" becomes a functional requirement rather than
-  a convenience.
+- **Expiry:** ~~on EM-18 start, when "does not sleep" becomes a functional requirement rather than
+  a convenience.~~ **Reached 2026-09-18, EM-18.** The sleep was not fought; it was routed around —
+  a GitHub Actions cron calls the manual ingest endpoint hourly, which wakes the instance and runs
+  the ingest under the same interval rules (A-014). "Does not sleep" is therefore still not a
+  requirement, and Render Free stays. New expiry: when A-014 is falsified, or 28 Feb 2027.
 
 ### A-012 — A session-scoped advisory lock gives ingest mutual exclusion per source
 
@@ -291,9 +294,16 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 - **Fallback:** move the claim out of the session and into state — an `ingest_started_at` column
   with a stale-claim timeout. It survives reconnects because it is a row rather than a session, and
   it needs no held connection, which also resolves A-013. One piece of work answers both.
-- **Expiry:** **EM-18.** A scheduler firing while a manual run is in flight makes concurrent runs
+- **Expiry:** ~~**EM-18.** A scheduler firing while a manual run is in flight makes concurrent runs
   routine rather than accidental, which is the point at which "except across a reconnect" stops
-  being an acceptable qualifier.
+  being an acceptable qualifier.~~ **Reached 2026-09-18, EM-18, and the lock was kept.** The
+  scheduler runs `force=false`, so a scheduled tick that overlaps a manual run is refused by the
+  lock, and one that lands during a lapsed lock is still refused by `min_poll_interval` unless the
+  manual run was itself forced *and* has not yet stamped `LastSuccessAt` *and* the connection
+  reconnected mid-run. That is three conditions, the third rare, on a source polled once an hour.
+  The claim-column fallback remains the answer if it is ever observed; the integration tests
+  (EM-23) now pin the skipped/due/forced behaviour, so a change of design has a harness. New
+  expiry: the first observed double fetch in the Serilog stream, or 28 Feb 2027.
 
 ### A-013 — Holding one Neon connection for the duration of an ingest run is affordable
 
@@ -306,8 +316,53 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 - **Blast radius:** the API, not the ingest. Connection exhaustion surfaces as failed *user*
   requests — the site erroring while a background job holds what it needs.
 - **Fallback:** the claim-column design in A-012's fallback, which holds no connection at all.
-- **Expiry:** **EM-18.** Scheduled ingest running alongside user traffic on the same Neon ceiling is
-  when this gets tested for real.
+- **Expiry:** ~~**EM-18.** Scheduled ingest running alongside user traffic on the same Neon ceiling is
+  when this gets tested for real.~~ **Reached 2026-09-18, EM-18 — still `assumed`, and the window
+  got longer.** EM-20's retry pipeline can hold a fetch for up to 120 s per request (30 s attempts,
+  three retries, `Retry-After` capped at 30 s), all of it inside the held connection. Nothing was
+  measured; the measurement described below is still the way to close this. New expiry: the first
+  hourly `ingest.yml` run that coincides with browsing, or 31 Oct 2026.
 - **How to measure it rather than argue about it:** Render exposes `active_connections` for the Neon
   instance. A full four-source run while the site is being browsed gives the actual peak, and turns
   this entry from `assumed` into `live` or into a falsification.
+
+### A-014 — An hourly GitHub Actions cron keeps a sleeping Render instance on schedule
+
+- **Level:** `assumed` (2026-09-18, EM-18). The workflow (`.github/workflows/ingest.yml`) is
+  committed and reviewed, not run: it needs `INGEST_TRIGGER_TOKEN` as a repository secret and the
+  branch on `main` before the schedule fires.
+- **The claim:** a `POST /api/ingest` from a runner, with the trigger token and `--retry 5`, wakes
+  the free instance (about a minute, per A-011), runs a full four-source ingest inside curl's
+  600 s budget, and returns the report. Hourly matches the shortest `min_poll_interval` in the
+  registry, so every scheduled run either fetches a due source or reports it skipped; the
+  in-process `IngestScheduler` then also wakes with the instance and finds nothing due.
+- **What could falsify it:** GitHub's scheduled workflows are best-effort and are known to be
+  delayed or dropped under load — a run that slips past the hour is fine, a run that never fires
+  leaves the catalogue stale with no alert. Render's wake-up exceeding curl's retry window is the
+  other failure, and it would show as a red workflow run.
+- **Blast radius:** freshness only. Nothing is lost; the next manual or scheduled run catches up.
+- **Fallback:** Railway Hobby (A-011's fallback), where the process stays up and the in-process
+  scheduler alone is enough — the workflow then becomes redundant, not wrong.
+- **Expiry:** the first week of scheduled runs, judged by the run history: fewer than 20 of 24
+  daily runs completing is a falsification. Or 31 Oct 2026.
+
+### A-015 — Integration tests get a real Postgres in every environment they run in
+
+- **Level:** `spike` (2026-09-18, EM-23). 43 tests green against the compose `db` service from
+  inside the Dev Container, each test creating and dropping its own database from the migrations.
+- **The claim:** `PostgresFixture` finds a Postgres wherever the tests run — `EMPLOYME_TEST_POSTGRES`
+  where a server already exists (the Dev Container and CI, which both run compose and neither of
+  which has a Docker socket), Testcontainers with `pgvector/pgvector:pg18` elsewhere. The
+  Testcontainers path is **not verified**: no environment used so far has had Docker available to
+  the tests.
+- **Why this is written down:** the plan's own wording was "Testcontainers (integration, against a
+  real Postgres)", and the honest description of what landed is "a real Postgres, Testcontainers
+  where it can, compose where it must". A reader expecting Testcontainers in CI would find the
+  variable instead and should know that was a constraint, not an oversight.
+- **Blast radius:** the tests, and only outside the container. A developer without Docker and
+  without the variable gets one `InvalidOperationException` naming both options.
+- **Fallback:** a Docker-in-Docker feature in `devcontainer.json`, which would also let
+  Testcontainers run in CI — at the cost of a heavier container for a difference the tests cannot
+  observe.
+- **Expiry:** the first run on a machine with Docker and no variable set; or 28 Feb 2027.
+

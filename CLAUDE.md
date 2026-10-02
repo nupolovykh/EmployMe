@@ -90,4 +90,16 @@ dotnet ef database update --project src/Api   # dotnet-ef installed globally by 
 cd src/Web && npm install && npm run dev
 ```
 
-No test project exists yet — that's Phase II (xUnit + Testcontainers per `docs/PLAN.md`).
+```bash
+# Tests — tests/Api.Tests (xUnit). Integration tests need a Postgres: EMPLOYME_TEST_POSTGRES
+# (set by docker-compose.yml to the db service, since the container has no Docker socket) or
+# Testcontainers where Docker exists. Each test creates and drops its own database.
+dotnet test tests/Api.Tests --filter "Category!=Contract"   # what CI runs on every PR
+dotnet test tests/Api.Tests --filter "Category=Contract"    # live endpoints — nightly only;
+                                                            # hits Jobicy, capped at 1/hour
+```
+
+- **`dotnet run --project src/Api` always runs as Development**, whatever `ASPNETCORE_ENVIRONMENT`
+  says: `Properties/launchSettings.json` sets it. To exercise the public-deployment guards (ingest
+  token, Sentry, JSON logs) locally, pass `--no-launch-profile` or run the built `Api.dll`
+  directly. A "Production" run that still accepts ingest without a token is this, not a bug.

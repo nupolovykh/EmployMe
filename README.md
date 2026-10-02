@@ -68,6 +68,9 @@ This project is developed inside a [Dev Container](https://containers.dev/), so 
 4. Copy `.env.example` to `.env` and fill in the required values (`SENTRY_DSN`, connection strings). The MVP sources need no API keys.
 5. Run the backend: `dotnet run --project src/Api`
 6. Run the frontend: `npm install && npm run dev` (from `src/Web`)
+7. Run the tests: `dotnet test tests/Api.Tests --filter "Category!=Contract"` — the integration
+   tests use the container's Postgres and create a throwaway database per test. The `Contract`
+   category hits the live sources and is left to the nightly workflow.
 
 Production deployment, error monitoring, and project tracking are external services (Render, Neon, Sentry, Linear) — see [`docs/PLAN.md`](./docs/PLAN.md) for how they fit into the workflow.
 
