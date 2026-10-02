@@ -1,8 +1,7 @@
 # Repository settings and GitHub features
 
 Naming — branches, commits, PR titles, when a GitHub issue is appropriate — lives in
-[`docs/CONVENTIONS.md`](./CONVENTIONS.md) and is not repeated here. *(That file arrives with
-the Phase I branch, PR #16; until it merges, this link is dead on `main`.)*
+[`docs/CONVENTIONS.md`](./CONVENTIONS.md) and is not repeated here.
 
 This file covers the other half: the GitHub-side configuration of the repository — protection
 rules, which product features are used and which are deliberately not, and how phases are
@@ -28,6 +27,23 @@ Facts, so a later reader can tell what has since changed:
   six-line Dependabot config. That commit is the ancestor of this branch; the misleading name
   is retired with it.
 - CI is a single `dotnet build`, not a required check.
+
+## What has changed since (2026-09-29)
+
+- `main` is protected by a ruleset, and phase branches by a second one — see below. `build` is a
+  required check on both.
+- Phase 0 and Phase I are tagged (`phase-0`, `phase-1`) with releases, and every phase has a
+  milestone. Labels come from `.github/labels.yml`.
+- **History was rewritten on 2026-09-26.** Author and committer identity was unified to
+  `Nikita Polovykh <96892429+nupolovykh@users.noreply.github.com>`, commit messages were brought
+  in line with `docs/CONVENTIONS.md`, and every commit was signed. File contents and the shape of
+  the history did not change — each new commit has the same tree and parents as the one it
+  replaces. The pre-rewrite `main` is kept on `polovykh/backup-main-2026-09-25`, and every old
+  commit stays reachable from `refs/pull/<n>/head` as well, so SHAs quoted in closed PRs, in
+  Linear and in Render's deploy history still resolve.
+- The author branch namespace was renamed from `devpolovykh/` to `polovykh/` on 2026-09-29.
+- Render deploys both services from `main`. Until 2026-09-29 it deployed from the Phase I
+  branch.
 
 ---
 
@@ -85,6 +101,13 @@ approve your own pull request — a review requirement would block every merge. 
 is an automated reviewer on PRs (Copilot code review, or a Claude review action) plus the
 required `build` check.
 
+The same limit applies to Claude. A Claude session works through the maintainer's own token, so
+GitHub sees the maintainer, and no ruleset can make it wait for an approval it could not give
+itself. The rule that nothing merges into `main` or a phase branch without the maintainer's
+explicit go-ahead therefore lives in `CLAUDE.md`. Enforcing it on GitHub's side needs Claude to
+have an account of its own — a machine user or GitHub App with write access — and one required
+approval with the maintainer on the bypass list. That is planned, not done.
+
 **No `CONTRIBUTING.md`.** `docs/CONVENTIONS.md` and this file are the equivalent, and are
 honest about the repository being single-maintainer.
 
@@ -98,17 +121,20 @@ tickets, and the link to them is the branch name and PR title, not that field.
 
 Apply once in the GitHub UI.
 
-### Ruleset on `main` (Settings → Rules → Rulesets)
+### Rulesets (Settings → Rules → Rulesets)
+
+Two rulesets with the same rules: `main` targets the default branch, and `phases` targets
+`refs/heads/*/phase-*` — every phase branch, whatever namespace owns it.
 
 | Rule | Setting | Why |
 |---|---|---|
-| Target | `main` | |
 | Restrict deletions | on | |
 | Block force pushes | on | |
 | Require a pull request before merging | on, **0 required approvals** | A solo maintainer cannot approve their own PR; the value is that everything lands as a reviewable diff with CI attached |
+| Allowed merge methods | **merge, squash** | Which one a pull request uses follows from its kind — the table under "Merging" in `docs/CONVENTIONS.md` |
 | Require conversation resolution | on | Review threads, including automated ones, cannot be merged past silently |
-| Require status checks | on: `build`, plus "require branches to be up to date" | |
-| Require linear history | **off** | Merge commits are the chosen strategy, and the commits here are atomic enough that squashing would destroy real history |
+| Require status checks | on: `build`, plus "require branches to be up to date" | Also enforced when a branch is created, so a phase branch can only be cut from a commit whose `build` passed |
+| Require linear history | **off** | A phase lands on `main` as a merge commit, which carries its ticket commits in with it |
 | Bypass list | **empty** | A bypass for the only maintainer makes the ruleset decorative. For a genuine emergency, disable the ruleset — which is logged — and re-enable it |
 
 When Phase II adds test and lint jobs (EM-23, EM-24), add them to the required checks. The
@@ -122,17 +148,22 @@ leaves those PRs permanently unmergeable.
   a deploy history — this repository has already had both, with Render serving commits that a
   history rewrite had orphaned. Deleting branches on merge is cheap tidiness bought with the
   ability to answer "what was actually deployed on that date". Branches are pruned by hand when
-  they stop being useful, which is a judgement rather than a setting.
+  they stop being useful, which is a judgement rather than a setting. Commits that went through
+  a pull request also stay reachable from `refs/pull/<n>/head`, which GitHub never deletes. A
+  squash-merged ticket branch looks unmerged to git, so ticket branches are pruned by hand once
+  their phase has landed on `main`.
 - **Wiki:** off.
-- **Allow merge commits:** on. **Squash / rebase merging:** off, so the strategy is not a
-  per-merge decision.
-- **Topics:** currently none. `dotnet`, `aspnetcore`, `csharp`, `postgresql`, `pgvector`,
-  `embeddings`, `semantic-search`, `job-search`, `ollama`, `react`, `typescript`. Free
-  discoverability for a repository whose purpose is to be found.
+- **Allow merge commits:** on. **Allow squash merging:** on, with the commit title taken from the
+  commit or PR title and the body from the commit messages. **Rebase merging:** off. Which of the
+  two a pull request uses is fixed by what kind of pull request it is, so the strategy is still
+  not a per-merge decision.
+- **Topics:** `asp-net-core`, `csharp`, `dotnet`, `postgresql`, `pgvector`, `embeddings`,
+  `semantic-search`, `job-search`, `ollama`, `react`, `typescript`. Free discoverability for a
+  repository whose purpose is to be found.
 - **Homepage:** `https://employme-4uql.onrender.com` — the deployed frontend, not the API
   (`employme-api.onrender.com`). Railway was the target when EM-17 was written; the trial
-  expired and the deploy landed on Render + Neon instead (`docs/ASSUMPTIONS.md` A-011,
-  which arrives with PR #16).
+  expired and the deploy landed on Render + Neon instead (`docs/ASSUMPTIONS.md` A-011). Both
+  Render services deploy from `main`.
 - **Security → Secret scanning + push protection:** on (free on public repositories). This
   repository is public and `.env` is gitignored rather than absent; push protection is the net
   for the day that fails.
