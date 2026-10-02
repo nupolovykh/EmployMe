@@ -61,10 +61,32 @@ rows from the first `dotnet run`.
 
 ```bash
 dotnet build EmployMe.sln
+dotnet test tests/Api.Tests --filter "Category!=Contract"
 cd src/Web && npm run lint && npm run build     # oxlint; then tsc -b && vite build
 ```
 
 `npm run build` is the real type-check: `npm run dev` strips types without checking them.
+
+---
+
+## Tests
+
+`tests/Api.Tests` (xUnit, EM-23):
+
+| Folder | What | Needs |
+|---|---|---|
+| `Adapters/` | each adapter maps the committed `spikes/<source>/response.json` | nothing |
+| `Ingest/` | `HtmlText`, `SeniorityMap`, the Polly pipeline's retry rules | nothing |
+| `Integration/` | `IngestService` and the ingest endpoint against a real Postgres, through `WebApplicationFactory` | Postgres |
+
+```bash
+dotnet test tests/Api.Tests --filter "Category!=Contract"     # all of the above
+```
+
+Integration tests get Postgres from `EMPLOYME_TEST_POSTGRES`, which `docker-compose.yml` points at
+the `db` service — the container has no Docker socket, so Testcontainers cannot start its own.
+Where Docker exists and the variable is unset, Testcontainers starts `pgvector/pgvector:pg18`. Each
+test creates and drops its own database; `employme` is never touched.
 
 ---
 
