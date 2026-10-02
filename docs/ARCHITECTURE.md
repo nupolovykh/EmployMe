@@ -223,6 +223,7 @@ the first differing byte, so response time leaks how much of a guess was right.
 | `/health` — liveness, runs no checks | It is what Render polls. Neon suspending its compute after five idle minutes must not read as the API being dead: a restart would not fix it and would cost the wake-up |
 | `/health/ready` — readiness (EM-21) | Two checks: `database` (EF can reach Postgres) and `sources` (`Health/SourceHealthCheck`). A source with `ConsecutiveFailures ≥ 3` makes the check **Degraded**, never Unhealthy — a broken upstream is a fact about the world, not a reason to restart the API. The response names the failing sources with their counters |
 | Serilog (EM-21) | Levels from the `Serilog` config section; the sink by environment: a readable console line in Development, one compact JSON object per event elsewhere, so Render's log stream can be searched by property. `UseSerilogRequestLogging` writes one line per request |
+| Sentry (EM-22) | Unhandled exceptions through `UseSentry`; log events at Error and above as Sentry events, Information and above as breadcrumbs on the next one, through the Serilog sink. Errors only, no tracing. The DSN is resolved in `Program.cs` and defaults to empty, because the SDK refuses to start the host on a null DSN. `X-Ingest-Token` is stripped from every event |
 
 ---
 

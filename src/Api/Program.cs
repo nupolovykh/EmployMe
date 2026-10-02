@@ -7,9 +7,36 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Resilience;
 using Pgvector.EntityFrameworkCore;
 using Serilog;
+using Serilog.Events;
 using Serilog.Formatting.Compact;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Error monitoring (EM-22). The DSN comes from SENTRY_DSN or a Sentry:Dsn
+// setting. It is resolved here rather than left to the SDK: the SDK treats a
+// null DSN as a configuration error and refuses to start the host, while an
+// empty one means "disabled" — and a local run with no account must start.
+// Unhandled exceptions reach Sentry through this middleware; everything the
+// code logs at Error or above reaches it through the Serilog sink below.
+builder.WebHost.UseSentry(options =>
+{
+    options.Dsn = builder.Configuration["Sentry:Dsn"] ?? builder.Configuration["SENTRY_DSN"] ?? "";
+    options.Environment = builder.Environment.EnvironmentName;
+    options.Release = "employme@" + (typeof(Program).Assembly.GetName().Version?.ToString(3) ?? "0.0.0");
+    // Errors only: performance tracing is not a Phase II question, and the
+    // free plan's transaction quota is better left unspent.
+    options.TracesSampleRate = 0;
+    // Ingest reports are returned over HTTP and the token travels in a header;
+    // neither belongs in an event. The header is redacted rather than the
+    // whole request dropped, because the path and query are what make an
+    // ingest failure diagnosable.
+    options.SendDefaultPii = false;
+    options.SetBeforeSend((sentryEvent, _) =>
+    {
+        sentryEvent.Request.Headers.Remove("X-Ingest-Token");
+        return sentryEvent;
+    });
+});
 
 // Structured logging (EM-21). Levels come from the Serilog section of
 // appsettings; the sink is chosen here because it is a property of where the
@@ -32,6 +59,17 @@ builder.Host.UseSerilog((context, services, configuration) =>
     {
         configuration.WriteTo.Console(new RenderedCompactJsonFormatter());
     }
+
+    // The SDK is initialised by UseSentry above; this only routes log events
+    // into it. Information and up become breadcrumbs on the next error, so an
+    // ingest failure arrives with the source and the fetch counts leading up
+    // to it; Error and up become events of their own.
+    configuration.WriteTo.Sentry(sentry =>
+    {
+        sentry.InitializeSdk = false;
+        sentry.MinimumBreadcrumbLevel = LogEventLevel.Information;
+        sentry.MinimumEventLevel = LogEventLevel.Error;
+    });
 });
 
 // Enums travel as their names, not their numbers. The default numeric form is
