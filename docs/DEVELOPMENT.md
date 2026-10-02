@@ -61,11 +61,13 @@ rows from the first `dotnet run`.
 
 ```bash
 dotnet build EmployMe.sln
+dotnet format EmployMe.sln --verify-no-changes            # fix with: dotnet format EmployMe.sln
 dotnet test tests/Api.Tests --filter "Category!=Contract"
 cd src/Web && npm run lint && npm run build     # oxlint; then tsc -b && vite build
 ```
 
 `npm run build` is the real type-check: `npm run dev` strips types without checking them.
+These are the steps CI's `build` check runs (EM-24), in the same container.
 
 ---
 
