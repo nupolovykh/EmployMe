@@ -12,7 +12,8 @@ Read the one that governs what you are about to touch. These are binding, not ba
 
 | Document | Governs |
 |---|---|
-| [`docs/CONVENTIONS.md`](./docs/CONVENTIONS.md) | **Naming — branches, commits, PRs, issues. Follow it for anything you name.** |
+| [`docs/CONVENTIONS.md`](./docs/CONVENTIONS.md) | **Naming — branches, commits, PRs, issues — and which merge method each kind of PR uses. Follow it for anything you name or merge.** |
+| [`docs/REPOSITORY.md`](./docs/REPOSITORY.md) | GitHub-side configuration that cannot be committed: rulesets, merge settings, what is deliberately not used. |
 | [`docs/PLAN.md`](./docs/PLAN.md) | Phased roadmap, §01 process rules, per-phase exit criteria. Its checkboxes are the source of truth for what is actually done. |
 | [`docs/SOURCES.md`](./docs/SOURCES.md) | Source registry: tiers, endpoints, auth, rate limits, terms of use, verification level, disqualified sources. |
 | [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md) | Assumption register: every load-bearing claim with a verification level (`assumed` → `docs` → `spike` → `live`), blast radius, fallback, expiry. |
@@ -52,6 +53,10 @@ Neon the deployed Postgres, Sentry is the error monitor and Linear the backlog �
 - **Poll intervals come from `sources.min_poll_interval`, never a constant.** Jobicy caps polling
   at once per hour and ignoring it gets the project banned.
 - **Never assume a feature or service exists.** Check `docs/PLAN.md`'s checkboxes first.
+- **Never merge into `main` or a `*/phase-*` branch without the maintainer's explicit go-ahead for
+  that pull request.** Claude works through the maintainer's own GitHub token, so GitHub cannot
+  tell the two apart and no ruleset can make Claude wait for an approval. Open the PR, wait for
+  `build`, report, and stop. Approving a plan or saying "continue" is not a go-ahead to merge.
 
 ## Dev environment
 
