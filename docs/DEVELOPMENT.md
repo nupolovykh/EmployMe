@@ -78,15 +78,22 @@ cd src/Web && npm run lint && npm run build     # oxlint; then tsc -b && vite bu
 | `Adapters/` | each adapter maps the committed `spikes/<source>/response.json` | nothing |
 | `Ingest/` | `HtmlText`, `SeniorityMap`, the Polly pipeline's retry rules | nothing |
 | `Integration/` | `IngestService` and the ingest endpoint against a real Postgres, through `WebApplicationFactory` | Postgres |
+| `Contract/` | each enabled source's real adapter against its real endpoint, from the seeded rows (EM-55) | Postgres **and the network** |
 
 ```bash
-dotnet test tests/Api.Tests --filter "Category!=Contract"     # all of the above
+dotnet test tests/Api.Tests --filter "Category!=Contract"     # everything but Contract
+dotnet test tests/Api.Tests --filter "Category=Contract"      # live endpoints
 ```
 
 Integration tests get Postgres from `EMPLOYME_TEST_POSTGRES`, which `docker-compose.yml` points at
 the `db` service — the container has no Docker socket, so Testcontainers cannot start its own.
 Where Docker exists and the variable is unset, Testcontainers starts `pgvector/pgvector:pg18`. Each
 test creates and drops its own database; `employme` is never touched.
+
+**Run `Contract` by hand sparingly:** it calls every enabled source for real, and each call counts
+against that source's limits — Jobicy's is one poll an hour. `contract.yml` runs it nightly
+(03:43 UTC); a failure opens or updates the issue *EM-55: nightly source contract test failed*,
+posts to Slack when `SLACK_WEBHOOK_URL` is set, and the next green run closes the issue.
 
 ---
 
