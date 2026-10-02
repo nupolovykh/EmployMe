@@ -189,7 +189,8 @@ curl "http://localhost:5000/api/vacancies?keyword=backend&location=berlin"
 curl "http://localhost:5000/api/vacancies?seniority=Junior&pageSize=50&page=2"
 curl "http://localhost:5000/api/vacancies?publishedAfter=2026-09-01T00:00:00Z"
 curl "http://localhost:5000/api/vacancies/42"
-curl "http://localhost:5000/health"
+curl "http://localhost:5000/health"                                         # liveness
+curl "http://localhost:5000/health/ready"                                   # database + failing sources
 ```
 
 | Parameter | Notes |

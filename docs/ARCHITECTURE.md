@@ -64,6 +64,7 @@ src/Api/
 │   ├── HtmlText            HTML → plain text for descriptions
 │   ├── SeniorityMap        source level strings → Seniority, measured tables
 │   └── Adapters/           Greenhouse, Lever (Tier A) · Jobicy, Arbeitnow (Tier B)
+├── Health/                 /health/ready: SourceHealthCheck + the JSON response shape
 ├── Data/
 │   ├── AppDbContext        DbSets + OnModelCreating (indexes, jsonb, vector, 1:1)
 │   └── Migrations/         schema history, including data migrations — see DATA-MODEL.md
@@ -219,7 +220,9 @@ the first differing byte, so response time leaks how much of a guess was right.
 | CORS only for `Cors:AllowedOrigins`, never `AllowAnyOrigin` | The API has a mutating endpoint. An empty list allows no cross-origin caller at all — the deployed frontend breaks loudly instead of the API opening quietly |
 | `Database.Migrate()` at startup | The only way migrations reach Neon on Render without a separate deploy step |
 | Swagger only in Development | `/swagger` exists locally, not on Render |
-| `/health` | Liveness only — returns `{"status":"healthy"}` without touching the database |
+| `/health` — liveness, runs no checks | It is what Render polls. Neon suspending its compute after five idle minutes must not read as the API being dead: a restart would not fix it and would cost the wake-up |
+| `/health/ready` — readiness (EM-21) | Two checks: `database` (EF can reach Postgres) and `sources` (`Health/SourceHealthCheck`). A source with `ConsecutiveFailures ≥ 3` makes the check **Degraded**, never Unhealthy — a broken upstream is a fact about the world, not a reason to restart the API. The response names the failing sources with their counters |
+| Serilog (EM-21) | Levels from the `Serilog` config section; the sink by environment: a readable console line in Development, one compact JSON object per event elsewhere, so Render's log stream can be searched by property. `UseSerilogRequestLogging` writes one line per request |
 
 ---
 

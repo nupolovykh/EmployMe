@@ -36,6 +36,7 @@ environment variables. Array items take an index: `Cors__AllowedOrigins__0`.
 | `Ingest__PublicDeployment` | unset → `!IsDevelopment()` | `false` from `appsettings.Development.json` | leave unset → `true` | Resolves to the **strict** mode on any non-Development host |
 | `Ingest__TriggerToken` | none | not needed | secret, set on Render only | On a public deployment `POST /api/ingest` answers `503 Ingest disabled` |
 | `Ingest__MaxPagesPerSource` | `5` | — | — | Bounds paginated sources (Arbeitnow) per run |
+| `Serilog__MinimumLevel__Default`, `Serilog__MinimumLevel__Override__<namespace>` | `Information`; `Microsoft.AspNetCore`, EF Core commands and `Polly` at `Warning` | same, from `appsettings.Development.json` | — | Defaults apply. The output format is not a setting: console text in Development, compact JSON elsewhere (EM-21) |
 | `ASPNETCORE_ENVIRONMENT` | `Production` | `Development` via `launchSettings.json` | unset → `Production` | Decides whether `appsettings.Development.json` loads and whether Swagger is served |
 
 On Render the connection string must be Npgsql's key-value form

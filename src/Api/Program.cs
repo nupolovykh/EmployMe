@@ -1,12 +1,38 @@
 using System.Text.Json.Serialization;
 using Api.Data;
+using Api.Health;
 using Api.Ingest;
 using Api.Ingest.Adapters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Resilience;
 using Pgvector.EntityFrameworkCore;
+using Serilog;
+using Serilog.Formatting.Compact;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Structured logging (EM-21). Levels come from the Serilog section of
+// appsettings; the sink is chosen here because it is a property of where the
+// process runs, not of the configuration file. Development keeps the readable
+// console line; anywhere else emits one JSON object per event, so Render's
+// log stream can be searched by property — source slug, status code, elapsed
+// — rather than grepped for a phrase.
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext();
+
+    if (context.HostingEnvironment.IsDevelopment())
+    {
+        configuration.WriteTo.Console();
+    }
+    else
+    {
+        configuration.WriteTo.Console(new RenderedCompactJsonFormatter());
+    }
+});
 
 // Enums travel as their names, not their numbers. The default numeric form is
 // what broke EM-59 on the deployed site: the API answered `"seniority": 0` while
@@ -70,6 +96,13 @@ builder.Services.AddSingleton<IJobSource, ArbeitnowJobSource>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IngestService>();
 
+// Two readiness questions, tagged so the endpoints below can ask them apart:
+// can the API reach its database, and is the ingest pipeline succeeding
+// against its sources. Liveness asks neither — see the /health mapping.
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>("database", tags: ["ready"])
+    .AddCheck<SourceHealthCheck>("sources", tags: ["ready"]);
+
 // Frontend and API deploy as separate Railway services on separate domains — no
 // shared origin like the Vite dev-server proxy gives locally. The frontend's
 // origin is named explicitly: this API also exposes a mutating ingest endpoint,
@@ -100,10 +133,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseSerilogRequestLogging();
+
 app.UseCors();
 
-app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
-    .WithName("Health");
+// /health is liveness and runs no checks at all: it is what Render polls,
+// and Neon suspending its compute after five idle minutes must not read as
+// the API being dead — a restart would not fix it and would cost the wake-up.
+// /health/ready is the one that touches the database and the source counters.
+app.MapHealthChecks("/health", HealthResponse.Options(_ => false));
+app.MapHealthChecks("/health/ready", HealthResponse.Options(r => r.Tags.Contains("ready")));
 
 app.MapControllers();
 
