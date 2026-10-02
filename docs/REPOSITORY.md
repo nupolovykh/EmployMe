@@ -167,4 +167,10 @@ leaves those PRs permanently unmergeable.
 - **Security → Secret scanning + push protection:** on (free on public repositories). This
   repository is public and `.env` is gitignored rather than absent; push protection is the net
   for the day that fails.
-- **Security → Dependabot alerts:** on, to pair with `.github/dependabot.yml`.
+- **Security → Dependabot alerts:** on, to pair with `.github/dependabot.yml`. **Dependabot
+  security updates:** off — they always target `main` and would bypass `deps`;
+  `security-audit.yml` reports advisories instead.
+- **Actions → Workflow permissions:** read-only by default, and *Allow GitHub Actions to create
+  and approve pull requests* ticked, so the dependency promotion can open its pull request.
+- **Actions secret `DEPS_PAT`:** the token both dependency workflows act with. The full list of
+  what the pipeline needs is in `docs/dependency-updates.md`.
