@@ -105,7 +105,7 @@ Set under Settings → Secrets and variables → Actions; read only by workflows
 |---|---|---|---|
 | `INGEST_TRIGGER_TOKEN` | secret | `ingest.yml`, the hourly wake-up ingest (EM-18). Same value as Render's `Ingest__TriggerToken` | The workflow warns and exits without calling the API |
 | `API_URL` | variable | `ingest.yml` | Defaults to `https://employme-api.onrender.com` |
-| `SLACK_WEBHOOK_URL` | secret | `contract.yml` posts a failed nightly contract run there (EM-55) | The GitHub issue is the only alert |
+| `SLACK_WEBHOOK_URL` | secret | `contract.yml` posts a failed nightly contract run there (EM-55); `build.yml` posts a red `main` (EM-25) | No Slack messages: the contract test still opens its GitHub issue, and a red `main` shows only in Actions |
 | `DEPS_PAT` | secret | the dependency workflows — see [`dependency-updates.md`](./dependency-updates.md) | Both fail with 401 |
 
 ---
