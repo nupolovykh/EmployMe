@@ -14,6 +14,7 @@ Read the one that governs what you are about to touch. These are binding, not ba
 |---|---|
 | [`docs/CONVENTIONS.md`](./docs/CONVENTIONS.md) | **Naming — branches, commits, PRs, issues — and which merge method each kind of PR uses. Follow it for anything you name or merge.** |
 | [`docs/REPOSITORY.md`](./docs/REPOSITORY.md) | GitHub-side configuration that cannot be committed: rulesets, merge settings, what is deliberately not used. |
+| [`docs/dependency-updates.md`](./docs/dependency-updates.md) | How Dependabot updates reach `main` through the bot-only `deps` branch. Never commit to `deps` by hand. |
 | [`docs/PLAN.md`](./docs/PLAN.md) | Phased roadmap, §01 process rules, per-phase exit criteria. Its checkboxes are the source of truth for what is actually done. |
 | [`docs/SOURCES.md`](./docs/SOURCES.md) | Source registry: tiers, endpoints, auth, rate limits, terms of use, verification level, disqualified sources. |
 | [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md) | Assumption register: every load-bearing claim with a verification level (`assumed` → `docs` → `spike` → `live`), blast radius, fallback, expiry. |

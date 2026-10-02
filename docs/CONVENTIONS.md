@@ -54,6 +54,9 @@ this history only as mistakes that were renamed before they went anywhere. The n
 first, always, from the moment the branch is created — not added later "before pushing". A local
 throwaway is still `claude/<slug>` or `polovykh/em-<n>-<slug>`.
 
+The one exception is `deps`: it belongs to the dependency pipeline, not to a person, only bots
+write to it, and it is reset after every promotion — see `docs/dependency-updates.md`.
+
 ## Commits
 
 **The ticket leads the subject line.** `EM-<n>: <summary>`, or `EM-<n>, EM-<m>:` when a commit is
@@ -166,7 +169,8 @@ trailing commit form.
 
 **A ticket PR**, a ticket branch into its phase branch, is titled exactly like the commit it will
 become, because squashing turns the title into that commit's subject and GitHub appends ` (#N)`.
-Any other PR into `main` — `Chore:` work, the dependency promotion — is titled the same way:
+Any other PR into `main` that a person opens — `Chore:` work — is titled the same way. Pull
+requests the dependency pipeline opens keep the titles it gives them:
 
 ```
 EM-20: put every upstream fetch behind a Polly resilience pipeline
@@ -180,6 +184,8 @@ Fix: EM-22 - the host refused to start without a DSN
 | ticket, or a `Fix:` after the ticket landed | its phase branch | squash |
 | `main`, to bring the phase up to date | a phase branch | merge commit |
 | phase | `main` | merge commit |
+| Dependabot update | `deps` | squash, by the pipeline once CI is green |
+| dependency promotion, `deps` → `main` | `main` | squash |
 | anything else | `main` | squash |
 
 The method follows from the kind of pull request; it is never chosen at merge time. A phase lands
