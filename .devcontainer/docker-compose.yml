@@ -15,6 +15,11 @@ services:
     environment:
       ConnectionStrings__Default: Host=db;Port=5432;Database=employme;Username=postgres;Password=postgres
       Ollama__BaseUrl: http://ollama:11434
+      # Integration tests (tests/Api.Tests) create and drop a throwaway database
+      # per test on this server; they never touch `employme`. Set here because
+      # the container has no Docker socket, so Testcontainers cannot start its
+      # own Postgres — see PostgresFixture.
+      EMPLOYME_TEST_POSTGRES: Host=db;Port=5432;Database=postgres;Username=postgres;Password=postgres
     depends_on:
       db:
         condition: service_healthy

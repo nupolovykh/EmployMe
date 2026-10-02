@@ -191,3 +191,7 @@ app.MapHealthChecks("/health/ready", HealthResponse.Options(r => r.Tags.Contains
 app.MapControllers();
 
 app.Run();
+
+// Lets WebApplicationFactory<Program> in tests/Api.Tests host the real
+// pipeline; top-level statements otherwise generate an internal Program.
+public partial class Program;
