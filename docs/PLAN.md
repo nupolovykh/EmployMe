@@ -193,9 +193,10 @@ deployed instance rather than a local run:
 
 Goal: stops being a script, becomes a service — and gains the immune system Revision 1 lacked.
 
-**Status 2026-09-18: all eight items are In Review on `claude/phase-2-reliability`, not Done** —
-§01 rule 3, the branch has not landed on `main` and nothing below has a CI run behind it yet. The
-checkboxes stay open until the PR merges and each item's link exists. What is committed, and what
+**Status 2026-10-03: all eight items are In Review on `polovykh/phase-2-reliability`, not Done** —
+§01 rule 3, the branch has not landed on `main`. Each item reached the phase branch through its own
+pull request with a green `build` (#37–#44). The checkboxes stay open until the phase merges and
+each item's link exists. What is committed, and what
 each still needs from outside the repository, is noted inline.
 
 - [ ] Nightly source contract test with alerting — EM-55 (In Review: `tests/Api.Tests/Contract/`
@@ -230,7 +231,8 @@ each still needs from outside the repository, is noted inline.
       Dev Container has no Docker socket, so compose sets it to the `db` service; A-015.)
 - [ ] GitHub Actions: tests + lint + build on every PR — EM-24 (In Review: `build.yml` now runs
       `dotnet format --verify-no-changes`, the non-contract tests and `oxlint` alongside the
-      builds, inside the Dev Container. **Needs:** the branch pushed, to see it run.)
+      builds, inside the Dev Container. First run in CI on PR #43, 43/43 tests:
+      https://github.com/nupolovykh/EmployMe/actions/runs/36991599798.)
 - [ ] Slack channel (or Claude Tag) wired to CI/deploy notifications — EM-25 (In Review: a
       failure step in `build.yml` (main only) and in `contract.yml`, both gated on the
       `SLACK_WEBHOOK_URL` secret existing. Deploy notifications are not repository code:
