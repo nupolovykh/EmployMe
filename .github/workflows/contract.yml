@@ -41,8 +41,22 @@ jobs:
         id: tests
         uses: devcontainers/ci@v0.3
         with:
+          # Same download retry as build.yml: the firewall allowlists the CDN
+          # IPs it resolved at container start, and a restore that lands on
+          # another edge fails as a network error — which here would read as
+          # a source failing its contract.
           runCmd: |
-            dotnet test tests/Api.Tests --filter "Category=Contract" \
+            set -e
+            retry() {
+              for attempt in 1 2 3; do
+                "$@" && return 0
+                echo "::warning::'$*' failed (attempt $attempt); refreshing the firewall allowlist"
+                sudo bash .devcontainer/init-firewall.sh > /dev/null || true
+              done
+              return 1
+            }
+            retry dotnet restore EmployMe.sln
+            dotnet test tests/Api.Tests --no-restore --filter "Category=Contract" \
               --logger "trx;LogFileName=contract.trx" --results-directory TestResults
 
       - name: Keep the results
