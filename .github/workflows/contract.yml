@@ -98,11 +98,18 @@ jobs:
           fi
 
       - name: Notify Slack
-        if: failure() && env.SLACK_WEBHOOK_URL != ''
+        if: failure()
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          # The secret is checked here, not in `if:`: a step's own env is not
+          # visible to its `if:`, so `env.SLACK_WEBHOOK_URL != ''` there was
+          # always false and the step never ran.
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "::notice::SLACK_WEBHOOK_URL is not set; nothing posted"
+            exit 0
+          fi
           curl --fail --silent --show-error -X POST "$SLACK_WEBHOOK_URL" \
             -H 'Content-Type: application/json' \
             -d "$(jq -n --arg text ":rotating_light: EmployMe nightly source contract test failed — $RUN_URL" '{text: $text}')"
