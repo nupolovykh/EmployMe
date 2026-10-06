@@ -22,7 +22,13 @@ builder.WebHost.UseSentry(options =>
 {
     options.Dsn = builder.Configuration["Sentry:Dsn"] ?? builder.Configuration["SENTRY_DSN"] ?? "";
     options.Environment = builder.Environment.EnvironmentName;
-    options.Release = "employme@" + (typeof(Program).Assembly.GetName().Version?.ToString(3) ?? "0.0.0");
+    // The assembly version never moves, so on its own every deploy would be
+    // the same release. Render sets RENDER_GIT_COMMIT on each deploy; the
+    // assembly version stays as the fallback for local runs.
+    var commit = builder.Configuration["RENDER_GIT_COMMIT"];
+    options.Release = "employme@" + (string.IsNullOrEmpty(commit)
+        ? typeof(Program).Assembly.GetName().Version?.ToString(3) ?? "0.0.0"
+        : commit[..Math.Min(7, commit.Length)]);
     // Errors only: performance tracing is not a Phase II question, and the
     // free plan's transaction quota is better left unspent.
     options.TracesSampleRate = 0;
@@ -33,6 +39,16 @@ builder.WebHost.UseSentry(options =>
     options.SendDefaultPii = false;
     options.SetBeforeSend((sentryEvent, _) =>
     {
+        // EF Core logs every failed connection attempt and command at Error,
+        // retries included, so one request against a database that is down
+        // became a dozen events — and Neon resuming from suspend would raise
+        // some on every wake-up. They stay in the logs and as breadcrumbs; the
+        // exception that outlives the retry strategy is still reported.
+        if (sentryEvent.Logger is "Microsoft.EntityFrameworkCore.Database.Connection"
+            or "Microsoft.EntityFrameworkCore.Database.Command")
+        {
+            return null;
+        }
         sentryEvent.Request.Headers.Remove("X-Ingest-Token");
         return sentryEvent;
     });
@@ -147,7 +163,7 @@ builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>("database", tags: ["ready"])
     .AddCheck<SourceHealthCheck>("sources", tags: ["ready"]);
 
-// Frontend and API deploy as separate Railway services on separate domains — no
+// Frontend and API deploy as separate Render services on separate domains — no
 // shared origin like the Vite dev-server proxy gives locally. The frontend's
 // origin is named explicitly: this API also exposes a mutating ingest endpoint,
 // and AllowAnyOrigin would let any page on the web put requests to it. An unset

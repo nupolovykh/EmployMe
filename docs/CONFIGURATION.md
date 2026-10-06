@@ -40,6 +40,7 @@ environment variables. Array items take an index: `Cors__AllowedOrigins__0`.
 | `Ingest__Scheduler__StartupDelay` | `00:00:30` | — | — | Lets the host start before the first tick |
 | `Ingest__MaxPagesPerSource` | `5` | — | — | Bounds paginated sources (Arbeitnow) per run |
 | `Sentry__Dsn`, or `SENTRY_DSN` | empty → Sentry off | unset; from the Dev Container events also need the DSN's ingest host in `init-firewall.sh` | the project's DSN | Sentry stays disabled and logs one warning at start; the host still starts (EM-22) |
+| `RENDER_GIT_COMMIT` | unset | unset | injected by Render on every deploy | Sentry's release is `employme@<assembly version>`, the same for every build; on Render it is `employme@<first 7 characters of the commit>` |
 | `Serilog__MinimumLevel__Default`, `Serilog__MinimumLevel__Override__<namespace>` | `Information`; `Microsoft.AspNetCore`, EF Core commands, `Polly` and `System.Net.Http.HttpClient` at `Warning` | same, from `appsettings.Development.json` | — | Defaults apply. The output format is not a setting: console text in Development, compact JSON elsewhere (EM-21) |
 | `EMPLOYME_TEST_POSTGRES` | unset | the `db` service, from `docker-compose.yml` | — | Tests only (EM-23): the admin connection for integration tests. Unset, Testcontainers starts Postgres where Docker exists; otherwise the integration tests fail with a message saying so |
 | `ASPNETCORE_ENVIRONMENT` | `Production` | `Development` via `launchSettings.json` | unset → `Production` | Decides whether `appsettings.Development.json` loads and whether Swagger is served |
