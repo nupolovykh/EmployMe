@@ -314,7 +314,8 @@ its spike (rule 2). In order:
 ## Containers
 
 The Dev Container has no `docker`/`podman` CLI and no socket, so these run **on the host**. Render
-builds the same Dockerfiles itself; this is for reproducing a deployment problem locally.
+builds `src/Api/Dockerfile` itself; the frontend on Render is a static site and does not use
+`src/Web/Dockerfile` (`DEPLOYMENT.md`). This is for reproducing a deployment problem locally.
 `host.docker.internal` resolves on Docker Desktop; on Linux add `--add-host=host.docker.internal:host-gateway`,
 and with Podman use `host.containers.internal`.
 
