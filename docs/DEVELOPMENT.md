@@ -286,8 +286,8 @@ Table and column names are PascalCase and must be quoted.
 
 ## Adding a source
 
-A source is a row plus an adapter class (`PLAN.md` §01.6), and no integration is written before
-its spike (§01.2). In order:
+A source is a row plus an adapter class (`PROCESS.md` rule 6), and no integration is written before
+its spike (rule 2). In order:
 
 1. **Spike.** Call the real endpoint, commit the response as `spikes/<source>/response.json` with
    `spikes/<source>/NOTES.md`: URL, date, what came back, the terms-of-use verdict quoting and

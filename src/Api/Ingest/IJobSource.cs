@@ -5,7 +5,7 @@ namespace Api.Ingest;
 /// <see cref="AdapterType"/> against the <c>sources.adapter_type</c> column, so
 /// adding or retiring a source is a row change plus one class — never a change
 /// to the ingest pipeline. This is the modelling fix for the hh.ru incident
-/// (PLAN.md §01 rule 6).
+/// (PROCESS.md rule 6).
 /// </summary>
 public interface IJobSource
 {

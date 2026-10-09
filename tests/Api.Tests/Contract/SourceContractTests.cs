@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 namespace Api.Tests.Contract;
 
 /// <summary>
-/// The nightly source contract test (EM-55, PLAN.md §01 rule 7). Each enabled
+/// The nightly source contract test (EM-55, PROCESS.md rule 7). Each enabled
 /// source's real adapter is run against its real endpoint, using the row and
 /// registry the migrations seed, and must yield postings whose required
 /// fields are present. An upstream closing, moving, or changing shape fails

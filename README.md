@@ -1,88 +1,80 @@
-# EmployMe — Personal Job Vacancy Aggregator with Semantic Matching
+# EmployMe — Personal Job Vacancy Aggregator
 
-*(working title — rename freely once the project has its own repo)*
+*(working title)*
 
-A personal tool that aggregates job postings from employers' own ATS boards (Greenhouse, Lever, Ashby, Workable, Recruitee, Personio) and from public remote-job APIs (Himalayas, Jobicy, Remotive, RemoteOK, Arbeitnow), ranks them against my own CV using semantic embeddings, deduplicates postings across sources, and tracks my application pipeline end to end.
+A personal tool that collects job postings from employers' own ATS boards and from public
+remote-job APIs, and — in the phases still ahead — ranks them against my own CV, collapses
+duplicates across sources and tracks my applications.
 
-Built as a portfolio project to practice a production-shaped engineering process — not just a language exercise — while directly supporting my own job search.
+Built as a portfolio project to practise a production-shaped engineering process, not only a
+language, while it drives my actual job search.
 
 ## Why this exists
 
-Generic vacancy aggregators (job boards, junior-focused bots, etc.) show the same list to everyone. This project is deliberately personal:
+Generic aggregators show the same list to everyone. This one is meant to be personal:
 
-- It ranks vacancies against **my** stack and preferences, with an explainable score, not a generic keyword filter.
-- It reads **employers' own ATS boards** directly, not just aggregator feeds — so it sees postings that never reach a job board, against a target-company registry that is mine.
-- It **deduplicates** the same vacancy posted across sources in different languages using semantic similarity, not string matching.
-- It doubles as my **personal application tracker**, replacing a spreadsheet.
-- Extraction and matching quality are **measured** against a hand-labeled sample, not assumed.
-- Every source's terms of use are **read and recorded before an integration is written**, and every card credits its source. See [`docs/SOURCES.md`](./docs/SOURCES.md).
+- It reads **employers' own ATS boards** directly, against a target-company registry that is mine,
+  so it sees postings that never reach a job board.
+- Every source's terms of use are **read and recorded before an integration is written**, and
+  every card credits its source ([`docs/SOURCES.md`](./docs/SOURCES.md)).
+- It is planned to rank vacancies against **my** stack with an explainable score, to deduplicate
+  across sources and languages, and to replace my application spreadsheet — with matching quality
+  **measured** against a hand-labelled sample before anything is claimed about it.
 
-## Features
+## What works today
 
-- Multi-source ingestion across two tiers: employer ATS boards (Tier A, fetched per company) and public remote-job APIs (Tier B). Sources are database rows with an adapter class, not an enum — adding one is a class plus a row, and losing one is a flipped boolean
-- Source health monitoring: a nightly contract test that catches an upstream endpoint closing within 24 hours
-- Semantic fit-score: CV ↔ vacancy embeddings compared via cosine similarity, with a human-readable explanation of matched/missing requirements
-- Cross-source semantic deduplication of near-identical postings
-- LLM-based structured extraction into JSON (seniority, tech stack, work format, language requirements)
-- Personal application tracker: viewed → applied → interview → rejected → offer, with notes and dates
-- Measured pipeline quality: precision of extraction and matching against a manually labeled 50-vacancy set
+- Ingest from four sources across two tiers — Greenhouse and Lever (employer ATS boards, fetched per
+  company) and Jobicy and Arbeitnow (public remote-job APIs). Sources are database rows with an
+  adapter class, not an enum: adding one is a class plus a row, losing one is a flipped boolean.
+- A vacancy list with keyword, location, date and seniority filters, crediting its source on every
+  card.
+- Scheduled ingest that honours each source's minimum poll interval, retries behind a Polly
+  pipeline, structured logs, a readiness check that names failing sources, and Sentry.
+- A nightly contract test against every live source, so an upstream endpoint that closes shows up
+  within a day.
 
-## Architecture
+Deployed on Render and Neon. Status per item: [`docs/PLAN.md`](./docs/PLAN.md).
 
-```mermaid
-flowchart LR
-    subgraph Sources
-        ATS["Tier A - employer ATS boards<br/>Greenhouse, Lever, Ashby"]
-        REMOTE["Tier B - remote job APIs<br/>Himalayas, Jobicy, Arbeitnow"]
-    end
+## Planned
 
-    Sources --> Ingest["Background ingest service<br/>IJobSource adapters"]
-    Ingest --> DB[(PostgreSQL + pgvector)]
-    Embed[Ollama - local embeddings] <--> DB
-    LLM[LLM structured extraction] --> DB
-    DB --> API[ASP.NET Core Web API]
-    API --> Web[React + TypeScript frontend]
-```
+- Semantic fit-score between my CV and each vacancy, with an explanation (Phase III).
+- Cross-source semantic deduplication and LLM extraction into structured fields (Phase III).
+- Application tracker: viewed → applied → interview → rejected → offer (Phase IV).
+
+## Stack
 
 | Layer | Technology |
 |---|---|
 | Backend | ASP.NET Core Web API, EF Core |
-| Database | PostgreSQL + pgvector extension |
-| Embeddings / matching | Ollama (bge-m3 / e5), cosine similarity |
+| Database | PostgreSQL with pgvector |
 | Frontend | React + TypeScript (Vite) |
-| Scheduling | `BackgroundService` / Hangfire |
+| Scheduling | `BackgroundService`, woken hourly by a GitHub Actions cron on the free host |
 | Resilience | `HttpClient` + Polly |
-| Testing | xUnit, Testcontainers |
-| CI/CD | GitHub Actions |
-| Deployment | Render (API + static frontend) · Neon (Postgres with pgvector) |
-| Error monitoring | Sentry |
-| Dev environment | Dev Container (Docker/Podman) |
+| Logging and errors | Serilog, Sentry |
+| Testing | xUnit, integration tests against a real Postgres |
+| CI | GitHub Actions, inside the Dev Container |
+| Deployment | Render (API and static frontend), Neon (Postgres) |
+| Embeddings (planned) | Ollama with a multilingual model |
+| Dev environment | Dev Container |
+
+How the pieces fit: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md).
 
 ## Getting started
 
-This project is developed inside a [Dev Container](https://containers.dev/), so the environment is reproducible with no manual setup beyond Docker/Podman and an editor that supports the Dev Containers spec (VS Code or the Dev Containers CLI).
-
-1. Clone the repository.
-2. Open it in VS Code and choose **Reopen in Container** (or run `devcontainer up` via the CLI).
-3. The container provisions: .NET SDK, Node.js, a local PostgreSQL instance with `pgvector`, a local Ollama instance, and Claude Code (via the official `ghcr.io/anthropics/devcontainer-features/claude-code` feature).
-4. Copy `.env.example` to `.env` and fill in the required values (`SENTRY_DSN`, connection strings). The MVP sources need no API keys.
-5. Run the backend: `dotnet run --project src/Api`
-6. Run the frontend: `npm install && npm run dev` (from `src/Web`)
-7. Run the tests: `dotnet test tests/Api.Tests --filter "Category!=Contract"` — the integration
-   tests use the container's Postgres and create a throwaway database per test. The `Contract`
-   category hits the live sources and is left to the nightly workflow.
-
-Production deployment, error monitoring, and project tracking are external services (Render, Neon, Sentry, Linear) — see [`docs/PLAN.md`](./docs/PLAN.md) for how they fit into the workflow.
+The project runs inside a [Dev Container](https://containers.dev/): open the repository in VS Code
+and choose **Reopen in Container**. Running, testing and everything else:
+[`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md).
 
 ## Project status
 
-Actively in development, following a phased plan — see [`docs/PLAN.md`](./docs/PLAN.md) for the full roadmap, acceptance criteria per phase, and estimated timeline. The plan is at Revision 2: the original hh.ru-based design was falsified and rebuilt around multi-source ingestion. That post-mortem is [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md) entry A-000, and it is deliberately kept in the repository.
-
-Supporting documents: [`docs/SOURCES.md`](./docs/SOURCES.md) (source registry, tiers, terms of use) and [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md) (assumption register with verification levels and expiry dates).
+Phase II (reliability and source health) is in review; Phases 0 and I are done. The plan is at
+Revision 2: the original design, built on hh.ru, was falsified and rebuilt around multiple sources —
+the post-mortem is [`docs/history/2026-08-22-hh-ru.md`](./docs/history/2026-08-22-hh-ru.md) and
+`docs/ASSUMPTIONS.md` entry A-000, kept in the repository on purpose.
 
 ## License
 
-[MIT](./LICENSE) — chosen deliberately for a portfolio project: instantly recognizable, no ambiguity for anyone reviewing the code, no friction for reuse.
+[MIT](./LICENSE).
 
 ## Author
 

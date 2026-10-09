@@ -8,42 +8,9 @@ rules, which product features are used and which are deliberately not, and how p
 represented on GitHub. Where that configuration can be committed it is
 (`.github/labels.yml`, `.github/dependabot.yml`, `.github/pull_request_template.md`); where
 GitHub only stores it as settings state, the intent is recorded below so at least the decision
-is reviewable.
-
----
-
-## State this was written against (2026-09-01)
-
-Facts, so a later reader can tell what has since changed:
-
-- `main` is **unprotected** — a stray `git push` lands unreviewed, a force-push rewrites it.
-- **No tags, no releases.** Nothing marks the moment Phase 0's gate was met; that fact exists
-  only as a paragraph in `PLAN.md`.
-- **No milestones**, although the plan is already six phases with exit criteria.
-- Labels are ad hoc: GitHub's stock set (including `help wanted`, which on a
-  single-maintainer repository is misleading) plus `backend` / `frontend` / `deploy`.
-- Five merged branches were never deleted; automatic branch deletion is off.
-- `claude/repo-vulnerability-audit` contained no vulnerability audit — one commit adding a
-  six-line Dependabot config. That commit is the ancestor of this branch; the misleading name
-  is retired with it.
-- CI is a single `dotnet build`, not a required check.
-
-## What has changed since (2026-09-29)
-
-- `main` is protected by a ruleset, and phase branches by a second one — see below. `build` is a
-  required check on both.
-- Phase 0 and Phase I are tagged (`phase-0`, `phase-1`) with releases, and every phase has a
-  milestone. Labels come from `.github/labels.yml`.
-- **History was rewritten on 2026-09-26.** Author and committer identity was unified to
-  `Nikita Polovykh <96892429+nupolovykh@users.noreply.github.com>`, commit messages were brought
-  in line with `docs/CONVENTIONS.md`, and every commit was signed. File contents and the shape of
-  the history did not change — each new commit has the same tree and parents as the one it
-  replaces. The pre-rewrite `main` is kept on `polovykh/backup-main-2026-09-25`, and every old
-  commit stays reachable from `refs/pull/<n>/head` as well, so SHAs quoted in closed PRs, in
-  Linear and in Render's deploy history still resolve.
-- The author branch namespace was renamed from `devpolovykh/` to `polovykh/` on 2026-09-29.
-- Render deploys both services from `main`. Until 2026-09-29 it deployed from the Phase I
-  branch.
+is reviewable. How the repository got here: `history/2026-09-01-repository-audit.md` and
+`history/2026-09-26-history-rewrite.md`. The pre-rewrite `main` is kept on
+`polovykh/backup-main-2026-09-25` — do not delete it.
 
 ---
 
@@ -59,8 +26,8 @@ the "is Phase I done?" question the phase gate asks, answered without reading an
 
 **Tags and releases — one per phase exit.** At each exit criterion, an annotated tag
 `phase-<n>` and a GitHub Release whose notes quote the criterion and link the evidence that
-satisfies it. This is `PLAN.md` §01.3 — "a checkbox needs a link to a commit, PR or CI run" —
-applied to phases instead of checkboxes, and it gives the repository a legible timeline for
+satisfies it. This is `PROCESS.md` rule 3 — a box is ticked only with a link to the PR — applied
+to phases instead of checkboxes, and it gives the repository a legible timeline for
 anyone reading it as a portfolio piece. Phase 0's tag is retroactive, on the merge commit of
 PR #14, where the gate was met on 2026-08-27.
 
@@ -74,7 +41,7 @@ workflow, so the taxonomy is a reviewable file rather than UI state. Two axes �
 
 Two labels exist because of this project's own process: `type/compliance` (terms of use,
 tiering, attribution — the surface that killed revision 1) and `status/needs-evidence` (a PR
-making a claim with no URL, date or live response, per §01.1).
+making a claim with no URL, date or live response, per `PROCESS.md` rule 1).
 
 **The taxonomy applies to pull requests only.** GitHub Issues keep the stock set — that is
 what `docs/CONVENTIONS.md`'s "no custom label scheme" is about, and that line is scoped to
@@ -103,8 +70,10 @@ required `build` check.
 
 The same limit applies to Claude. A Claude session works through the maintainer's own token, so
 GitHub sees the maintainer, and no ruleset can make it wait for an approval it could not give
-itself. The rule that nothing merges into `main` or a phase branch without the maintainer's
-explicit go-ahead therefore lives in `CLAUDE.md`. Enforcing it on GitHub's side needs Claude to
+itself. What Claude may do without asking — and that opening, editing or merging a pull request is
+not among it — is therefore enforced on Claude's side, by the permission rules in
+`.claude/settings.json` and the guard hook `.claude/hooks/guard.py` (`docs/PROCESS.md`). Enforcing
+it on GitHub's side needs Claude to
 have an account of its own — a machine user or GitHub App with write access — and one required
 approval with the maintainer on the bypass list. That is planned, not done.
 
@@ -133,7 +102,7 @@ Two rulesets with the same rules: `main` targets the default branch, and `phases
 | Require a pull request before merging | on, **0 required approvals** | A solo maintainer cannot approve their own PR; the value is that everything lands as a reviewable diff with CI attached |
 | Allowed merge methods | **merge, squash** | Which one a pull request uses follows from its kind — the table under "Merging" in `docs/CONVENTIONS.md` |
 | Require conversation resolution | on | Review threads, including automated ones, cannot be merged past silently |
-| Require status checks | on: `build`, plus "require branches to be up to date" | Also enforced when a branch is created, so a phase branch can only be cut from a commit whose `build` passed |
+| Require status checks | on: `build` and `pr-title`, plus "require branches to be up to date" | Also enforced when a branch is created, so a phase branch can only be cut from a commit whose `build` passed. `pr-title` (EM-66) checks the title against `CONVENTIONS.md`; it is added to both rulesets once EM-66 lands, until then only `build` is required |
 | Require linear history | **off** | A phase lands on `main` as a merge commit, which carries its ticket commits in with it |
 | Bypass list | **empty** | A bypass for the only maintainer makes the ruleset decorative. For a genuine emergency, disable the ruleset — which is logged — and re-enable it |
 
@@ -162,9 +131,7 @@ leaves those PRs permanently unmergeable.
   `semantic-search`, `job-search`, `ollama`, `react`, `typescript`. Free discoverability for a
   repository whose purpose is to be found.
 - **Homepage:** `https://employme-4uql.onrender.com` — the deployed frontend, not the API
-  (`employme-api.onrender.com`). Railway was the target when EM-17 was written; the trial
-  expired and the deploy landed on Render + Neon instead (`docs/ASSUMPTIONS.md` A-011). Both
-  Render services deploy from `main`.
+  (`employme-api.onrender.com`). Deployment itself: `docs/DEPLOYMENT.md`.
 - **Security → Secret scanning + push protection:** on (free on public repositories). This
   repository is public and `.env` is gitignored rather than absent; push protection is the net
   for the day that fails.
