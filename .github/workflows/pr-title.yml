@@ -1,0 +1,43 @@
+name: PR title
+
+# The title becomes the squash commit's subject, so its shape is checked here
+# rather than left to memory (docs/CONVENTIONS.md, "Pull request titles").
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-title:
+    name: pr-title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the title against CONVENTIONS.md
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          HEAD: ${{ github.event.pull_request.head.ref }}
+          BASE: ${{ github.event.pull_request.base.ref }}
+        run: |
+          # The dependency pipeline names its own pull requests. The job still
+          # runs and passes for them, so a required check never stays pending.
+          if [ "$BASE" = deps ] || [ "$HEAD" = deps ]; then
+            echo "Dependency pipeline pull request — title not checked."
+            exit 0
+          fi
+          ticket='EM-[0-9]+'
+          pattern="^(${ticket}(, ${ticket})*: [^ ].*|(Fix|Hotfix): ${ticket} - [^ ].*|Phase (0|I|II|III|IV|V): [^ ].*)$"
+          # Ranges hide tickets from Linear and search; a phase title names none,
+          # or the integration drags every ticket it names back to In Progress.
+          range="${ticket}[–-][0-9]"
+          phase_with_ids="^Phase .*${ticket}"
+          if printf '%s' "$TITLE" | grep -Eq "$pattern" \
+            && ! printf '%s' "$TITLE" | grep -Eq "$range" \
+            && ! printf '%s' "$TITLE" | grep -Eq "$phase_with_ids"; then
+            echo "OK: $TITLE"
+          else
+            echo "::error::PR title does not follow docs/CONVENTIONS.md: '$TITLE'"
+            echo "Expected one of: 'EM-<n>: …', 'EM-<n>, EM-<m>: …', 'Fix: EM-<n> - …', 'Hotfix: EM-<n> - …', 'Phase <0|I|II|III|IV|V>: …' (no ticket ranges)."
+            exit 1
+          fi
