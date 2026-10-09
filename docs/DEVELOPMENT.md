@@ -204,8 +204,7 @@ against an unknown company resolves and verifies the board and inserts the row.
 
 ## Calling the API
 
-Swagger UI (`/swagger`) covers the same calls interactively in Development. `src/Api/Api.http`
-can hold them for the VS Code REST Client / Rider; today it only has `/health`.
+Swagger UI (`/swagger`) covers the same calls interactively in Development.
 
 ### Ingest
 

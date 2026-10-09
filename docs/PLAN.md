@@ -103,6 +103,11 @@ Goal: the layer that sets this apart from a generic aggregator.
 - [ ] Ashby adapter, ingested with `public_deploy_enabled = false` — EM-19
 - [ ] `country_access`: passport-level reachability per country — EM-60
 - [ ] `hiring_geo`: what the employer offers, from structured fields — EM-63
+- [ ] Frontend: router and a vacancy page with the description — EM-67
+- [ ] Frontend: filters in the URL, `AbortController`, `App.tsx` split, vitest — EM-68
+- [ ] Frontend: list redesign in one Claude Design pass with EM-33 — EM-69
+- [ ] API: source filter, sort and facet counts — EM-70
+- [ ] Search: `pg_trgm` index for the keyword filter — EM-71
 
 **Exit criterion:** the list is sorted by personal relevance, duplicates are collapsed, and there
 is a measured precision figure. Until that number exists, the README claims nothing about matching
@@ -135,6 +140,7 @@ Goal: the project survives 20 minutes of interview questions.
 - [ ] Metrics section with Phase III's precision figures — EM-41
 - [ ] Repository cleanup: personal data removed, demo seed data if needed — EM-42
 - [ ] Interview talking points written down in advance — EM-43
+- [ ] `render.yaml`: the Render services as a Blueprint — EM-72
 
 **Exit criterion:** the project is ready to be linked from a CV and defended live.
 
