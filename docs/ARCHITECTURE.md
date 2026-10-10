@@ -39,7 +39,8 @@ flowchart LR
 ```
 
 There are exactly two ways into the API: one write path (`POST /api/ingest`) and one read path
-(`GET /api/vacancies`, `GET /api/vacancies/{id}`). Everything else is wiring.
+(`GET /api/vacancies`, `GET /api/vacancies/{id}`). Everything else is wiring. Ingest also runs on a
+timer inside the process — see [Who starts a run](#who-starts-a-run).
 
 ---
 
@@ -60,9 +61,12 @@ src/Api/
 │   ├── IngestOptions       PublicDeployment, TriggerToken, MaxPagesPerSource
 │   ├── IngestReport        per-source outcome returned by the endpoint
 │   ├── IngestHttp          shared JsonElement helpers + the named HttpClient
+│   ├── IngestResilience    the Polly pipeline every upstream request goes through
+│   ├── IngestScheduler     BackgroundService that runs the ingest on a timer (+ its options)
 │   ├── HtmlText            HTML → plain text for descriptions
 │   ├── SeniorityMap        source level strings → Seniority, measured tables
 │   └── Adapters/           Greenhouse, Lever (Tier A) · Jobicy, Arbeitnow (Tier B)
+├── Health/                 /health/ready: SourceHealthCheck + the JSON response shape
 ├── Data/
 │   ├── AppDbContext        DbSets + OnModelCreating (indexes, jsonb, vector, 1:1)
 │   └── Migrations/         schema history, including data migrations — see DATA-MODEL.md
@@ -72,6 +76,24 @@ src/Api/
 The controllers are thin on purpose. `VacanciesController` queries EF directly (there is no
 service layer for reads), and `IngestController` only authorizes and delegates to
 `IngestService.RunAsync`, which holds all of the ingest logic.
+
+---
+
+## Who starts a run
+
+Three callers, one command: each calls `IngestService.RunAsync` and adds no policy of its own.
+
+| Caller | When | `force` |
+|---|---|---|
+| `POST /api/ingest` | by hand, or from the workflow below | as given |
+| `IngestScheduler` (EM-18) | every `Ingest:Scheduler:Interval` (15 min), after a 30 s start-up delay | `false` |
+| `.github/workflows/ingest.yml` | hourly at `:17`, by POSTing to the deployed API with the ingest token | `false` |
+
+The tick interval is not a poll interval: on every tick each source's `MinPollInterval` decides
+again whether it is due, and a tick that finds nothing due touches no upstream. The workflow exists
+because Render's free instance sleeps after fifteen idle minutes and the in-process timer sleeps
+with it; the POST wakes the instance and runs the ingest (A-014). Without its secret the workflow
+warns and does nothing; a report in which every source failed fails the run.
 
 ---
 
@@ -136,6 +158,22 @@ guessed. Two deliberate choices: Jobicy's `"Any"` maps to `Unknown`, because ope
 not mean junior; Arbeitnow mixes contract types and levels in two languages, so `Highest()` takes
 the highest *recognised* level and ignores the rest instead of collapsing to `Unknown`.
 
+### Resilience: the Polly pipeline
+
+Every upstream request goes through `AddStandardResilienceHandler(IngestResilience.Configure)` on
+the named `HttpClient` (EM-20). The settings live in `Ingest/IngestResilience.cs`:
+
+| Strategy | Setting | Why |
+|---|---|---|
+| Total timeout | 120 s per request, retries included | The slowest call observed is Greenhouse with `content=true` on a large board |
+| Attempt timeout | 30 s | |
+| Retry | 3 retries, exponential from 2 s with jitter, `Retry-After` honoured up to 30 s | Transport errors, timeouts, `408`, `429` and `5xx` are retried. `404` is not: on a Tier A board it means a dead token, which the adapter logs and skips |
+| Circuit breaker | opens at 80 % failures over ≥ 5 requests in 60 s, for 5 min | The default needs 100 requests in its window, which an ingest run never reaches |
+
+`SelectPipelineByAuthority()` gives each upstream host its own pipeline, so Jobicy answering `503`
+opens the circuit for Jobicy alone, not for Greenhouse and Lever. A `Retry-After` longer than 30 s is
+left to the next scheduled run: holding the request would hold the run's Neon connection (A-013).
+
 ---
 
 ## Reads: `VacanciesController`
@@ -197,11 +235,15 @@ the first differing byte, so response time leaks how much of a guess was right.
 | `JsonStringEnumConverter` | Enums travel as names. Numeric enums broke EM-59 in production: the API sent `"seniority": 0`, the frontend compared with `'Unknown'`, and every card showed a bare digit. Query binding already accepted names, which hid the bug |
 | `EnableRetryOnFailure` (5 retries, ≤10 s) | Neon's free compute suspends after 5 idle minutes; the first query after that hits a dropped pooled connection. The retry turns that into latency instead of a 500 for whoever woke the site |
 | `PublicDeployment ??= !IsDevelopment()` | Forgetting the setting yields the *strictest* mode. See [`CONFIGURATION.md`](./CONFIGURATION.md#ingestoptions) |
-| Named `HttpClient`: 60 s timeout, `User-Agent` with the repo URL | Arbeitnow's terms ask callers to be identifiable, so a block can be lifted rather than applied to anonymous traffic |
+| Named `HttpClient`: `User-Agent` with the repo URL | Arbeitnow's terms ask callers to be identifiable, so a block can be lifted rather than applied to anonymous traffic |
+| `HttpClient.Timeout` = the pipeline's 120 s + 5 s | Set above the resilience pipeline's total timeout, so the pipeline decides when a request has failed. Lower, it would cut a retry short as a bare `TaskCanceledException` |
 | CORS only for `Cors:AllowedOrigins`, never `AllowAnyOrigin` | The API has a mutating endpoint. An empty list allows no cross-origin caller at all — the deployed frontend breaks loudly instead of the API opening quietly |
 | `Database.Migrate()` at startup | The only way migrations reach Neon on Render without a separate deploy step |
 | Swagger only in Development | `/swagger` exists locally, not on Render |
-| `/health` | Liveness only — returns `{"status":"healthy"}` without touching the database |
+| `/health` — liveness, runs no checks | It is what Render polls. Neon suspending its compute after five idle minutes must not read as the API being dead: a restart would not fix it and would cost the wake-up |
+| `/health/ready` — readiness (EM-21) | Two checks: `database` (EF can reach Postgres) and `sources` (`Health/SourceHealthCheck`). A source with `ConsecutiveFailures ≥ 3` makes the check **Degraded**, never Unhealthy — a broken upstream is a fact about the world, not a reason to restart the API. The response names the failing sources with their counters |
+| Serilog (EM-21) | Levels from the `Serilog` config section; the sink by environment: a readable console line in Development, one compact JSON object per event elsewhere, so Render's log stream can be searched by property. `UseSerilogRequestLogging` writes one line per request |
+| Sentry (EM-22) | Unhandled exceptions through `UseSentry`; log events at Error and above as Sentry events, Information and above as breadcrumbs on the next one, through the Serilog sink. Errors only, no tracing. The DSN is resolved in `Program.cs` and defaults to empty, because the SDK refuses to start the host on a null DSN. `X-Ingest-Token` is stripped from every event |
 
 ---
 

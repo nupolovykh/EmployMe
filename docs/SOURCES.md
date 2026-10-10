@@ -27,6 +27,15 @@ against it.
 **Phase gate:** Phase I may not start with fewer than four sources at level `spike`, at least
 two of them Tier A, at least four cleared for public display.
 
+**On `live`, as of 2026-09-18 (EM-55, In Review):** the nightly contract test exists —
+`tests/Api.Tests/Contract/SourceContractTests.cs`, scheduled by `.github/workflows/contract.yml` —
+and covers Greenhouse, Lever, Jobicy and Arbeitnow from the rows the migrations seed. All four
+have run deployed since 2026-08-28 and all four passed the contract test from inside the Dev
+Container on 2026-09-18. They move to `live` **when the workflow's first scheduled run on `main`
+is green**, not before: a test that has only ever been run by hand is not yet the detector rule 7
+asks for. Adding a source to the adapter set means adding its slug to that test's rows, or it
+will not be watched.
+
 **Status as of 2026-08-26 (EM-45–49 spikes run): gate met.** 5/5 sources reached `spike`
 (technical) — Greenhouse, Lever, Himalayas, Jobicy, Arbeitnow, 2 of them Tier A. 4/5 are cleared
 for public display: **Greenhouse, Lever, Jobicy, Arbeitnow.** Himalayas is the one exception —

@@ -1,0 +1,59 @@
+name: Scheduled ingest
+
+# The in-process scheduler (IngestScheduler, EM-18) only ticks while the API
+# is awake, and Render's free instance sleeps after fifteen idle minutes. This
+# workflow is the cron that keeps a sleeping deployment on schedule: the POST
+# wakes the instance and runs the same source-agnostic ingest, with force=false,
+# so each source's min_poll_interval still decides whether it is fetched.
+#
+# Hourly matches the shortest interval in the registry (Jobicy, one poll per
+# hour). Running more often would only produce skipped reports; running less
+# often would leave every source late by the difference. See A-014.
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: scheduled-ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    env:
+      API_URL: ${{ vars.API_URL || 'https://employme-api.onrender.com' }}
+      INGEST_TRIGGER_TOKEN: ${{ secrets.INGEST_TRIGGER_TOKEN }}
+    steps:
+      - name: Trigger ingest
+        run: |
+          if [ -z "$INGEST_TRIGGER_TOKEN" ]; then
+            echo "::warning::INGEST_TRIGGER_TOKEN is not set; nothing to do. Add it as a repository secret (same value as Render's Ingest__TriggerToken)."
+            exit 0
+          fi
+
+          # A sleeping instance takes about a minute to wake and answers the
+          # first request only once it has. The retry covers the wake-up; the
+          # long timeout covers a full four-source run.
+          curl --fail-with-body --silent --show-error \
+            --retry 5 --retry-delay 20 --retry-all-errors \
+            --max-time 600 \
+            -X POST "$API_URL/api/ingest" \
+            -H "X-Ingest-Token: $INGEST_TRIGGER_TOKEN" \
+            -o report.json
+
+          echo "## Ingest report" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat report.json >> "$GITHUB_STEP_SUMMARY"
+          echo >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+          # A run in which every source failed is a failed run, even though
+          # the endpoint answered 200 with a report.
+          if ! grep -q '"outcome":"ok"' report.json && grep -q '"outcome":"failed"' report.json; then
+            echo "::error::every source in the report failed"
+            exit 1
+          fi

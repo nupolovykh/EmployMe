@@ -105,6 +105,7 @@ for domain in \
     "builds.dotnet.microsoft.com" \
     "api.anthropic.com" \
     "sentry.io" \
+    "o4512191517818880.ingest.de.sentry.io" \
     "statsig.com" \
     "marketplace.visualstudio.com" \
     "vscode.blob.core.windows.net" \

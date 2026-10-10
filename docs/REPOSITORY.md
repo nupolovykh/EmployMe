@@ -137,7 +137,8 @@ Two rulesets with the same rules: `main` targets the default branch, and `phases
 | Require linear history | **off** | A phase lands on `main` as a merge commit, which carries its ticket commits in with it |
 | Bypass list | **empty** | A bypass for the only maintainer makes the ruleset decorative. For a genuine emergency, disable the ruleset — which is logged — and re-enable it |
 
-When Phase II adds test and lint jobs (EM-23, EM-24), add them to the required checks. The
+Tests, the format check and lint (EM-24) run as steps inside the one `build` job, so the
+required `build` check already covers them; there is nothing to add per tool. The
 `build` workflow deliberately has no `paths` filter: a required check that skips on some PRs
 leaves those PRs permanently unmergeable.
 

@@ -1,11 +1,92 @@
 using System.Text.Json.Serialization;
 using Api.Data;
+using Api.Health;
 using Api.Ingest;
 using Api.Ingest.Adapters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Http.Resilience;
 using Pgvector.EntityFrameworkCore;
+using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Compact;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Error monitoring (EM-22). The DSN comes from SENTRY_DSN or a Sentry:Dsn
+// setting. It is resolved here rather than left to the SDK: the SDK treats a
+// null DSN as a configuration error and refuses to start the host, while an
+// empty one means "disabled" — and a local run with no account must start.
+// Unhandled exceptions reach Sentry through this middleware; everything the
+// code logs at Error or above reaches it through the Serilog sink below.
+builder.WebHost.UseSentry(options =>
+{
+    options.Dsn = builder.Configuration["Sentry:Dsn"] ?? builder.Configuration["SENTRY_DSN"] ?? "";
+    options.Environment = builder.Environment.EnvironmentName;
+    // The assembly version never moves, so on its own every deploy would be
+    // the same release. Render sets RENDER_GIT_COMMIT on each deploy; the
+    // assembly version stays as the fallback for local runs.
+    var commit = builder.Configuration["RENDER_GIT_COMMIT"];
+    options.Release = "employme@" + (string.IsNullOrEmpty(commit)
+        ? typeof(Program).Assembly.GetName().Version?.ToString(3) ?? "0.0.0"
+        : commit[..Math.Min(7, commit.Length)]);
+    // Errors only: performance tracing is not a Phase II question, and the
+    // free plan's transaction quota is better left unspent.
+    options.TracesSampleRate = 0;
+    // Ingest reports are returned over HTTP and the token travels in a header;
+    // neither belongs in an event. The header is redacted rather than the
+    // whole request dropped, because the path and query are what make an
+    // ingest failure diagnosable.
+    options.SendDefaultPii = false;
+    options.SetBeforeSend((sentryEvent, _) =>
+    {
+        // EF Core logs every failed connection attempt and command at Error,
+        // retries included, so one request against a database that is down
+        // became a dozen events — and Neon resuming from suspend would raise
+        // some on every wake-up. They stay in the logs and as breadcrumbs; the
+        // exception that outlives the retry strategy is still reported.
+        if (sentryEvent.Logger is "Microsoft.EntityFrameworkCore.Database.Connection"
+            or "Microsoft.EntityFrameworkCore.Database.Command")
+        {
+            return null;
+        }
+        sentryEvent.Request.Headers.Remove("X-Ingest-Token");
+        return sentryEvent;
+    });
+});
+
+// Structured logging (EM-21). Levels come from the Serilog section of
+// appsettings; the sink is chosen here because it is a property of where the
+// process runs, not of the configuration file. Development keeps the readable
+// console line; anywhere else emits one JSON object per event, so Render's
+// log stream can be searched by property — source slug, status code, elapsed
+// — rather than grepped for a phrase.
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext();
+
+    if (context.HostingEnvironment.IsDevelopment())
+    {
+        configuration.WriteTo.Console();
+    }
+    else
+    {
+        configuration.WriteTo.Console(new RenderedCompactJsonFormatter());
+    }
+
+    // The SDK is initialised by UseSentry above; this only routes log events
+    // into it. Information and up become breadcrumbs on the next error, so an
+    // ingest failure arrives with the source and the fetch counts leading up
+    // to it; Error and up become events of their own.
+    configuration.WriteTo.Sentry(sentry =>
+    {
+        sentry.InitializeSdk = false;
+        sentry.MinimumBreadcrumbLevel = LogEventLevel.Information;
+        sentry.MinimumEventLevel = LogEventLevel.Error;
+    });
+});
 
 // Enums travel as their names, not their numbers. The default numeric form is
 // what broke EM-59 on the deployed site: the API answered `"seniority": 0` while
@@ -42,12 +123,23 @@ builder.Services.AddOptions<IngestOptions>()
     .Bind(builder.Configuration.GetSection(IngestOptions.SectionName))
     .PostConfigure<IHostEnvironment>((o, env) => o.PublicDeployment ??= !env.IsDevelopment());
 builder.Services.AddHttpClient(IngestHttp.ClientName, client =>
-{
-    client.Timeout = TimeSpan.FromSeconds(60);
-    // Arbeitnow's meta.terms asks callers not to abuse the free API; identifying
-    // the caller is the minimum courtesy that makes a block reversible.
-    client.DefaultRequestHeaders.UserAgent.ParseAdd("EmployMe/0.1 (+https://github.com/nupolovykh/EmployMe)");
-});
+    {
+        // Above the pipeline's total timeout below, so the resilience handler
+        // is what decides when a request has failed. HttpClient.Timeout wraps
+        // the whole handler chain, retries included; set lower, it would cut a
+        // retry short and surface as a plain TaskCanceledException that no
+        // strategy ever saw.
+        client.Timeout = IngestResilience.TotalTimeout + TimeSpan.FromSeconds(5);
+        // Arbeitnow's meta.terms asks callers not to abuse the free API; identifying
+        // the caller is the minimum courtesy that makes a block reversible.
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("EmployMe/0.1 (+https://github.com/nupolovykh/EmployMe)");
+    })
+    .AddStandardResilienceHandler(IngestResilience.Configure)
+    // One pipeline per upstream host, not one shared across the client. The
+    // circuit breaker is the reason: with a single pipeline, Jobicy answering
+    // 503 for a minute would open the circuit for Greenhouse and Lever too,
+    // and a scheduled run would skip three healthy sources over one sick one.
+    .SelectPipelineByAuthority();
 
 // Adapters are resolved by sources.adapter_type, so registering one here plus a
 // row in `sources` is the whole cost of adding a source.
@@ -58,7 +150,20 @@ builder.Services.AddSingleton<IJobSource, ArbeitnowJobSource>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IngestService>();
 
-// Frontend and API deploy as separate Railway services on separate domains — no
+// The scheduler only supplies ticks; what gets fetched on each one is decided
+// per source row, by min_poll_interval, inside IngestService.
+builder.Services.AddOptions<IngestSchedulerOptions>()
+    .Bind(builder.Configuration.GetSection(IngestSchedulerOptions.SectionName));
+builder.Services.AddHostedService<IngestScheduler>();
+
+// Two readiness questions, tagged so the endpoints below can ask them apart:
+// can the API reach its database, and is the ingest pipeline succeeding
+// against its sources. Liveness asks neither — see the /health mapping.
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>("database", tags: ["ready"])
+    .AddCheck<SourceHealthCheck>("sources", tags: ["ready"]);
+
+// Frontend and API deploy as separate Render services on separate domains — no
 // shared origin like the Vite dev-server proxy gives locally. The frontend's
 // origin is named explicitly: this API also exposes a mutating ingest endpoint,
 // and AllowAnyOrigin would let any page on the web put requests to it. An unset
@@ -88,11 +193,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseSerilogRequestLogging();
+
 app.UseCors();
 
-app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
-    .WithName("Health");
+// /health is liveness and runs no checks at all: it is what Render polls,
+// and Neon suspending its compute after five idle minutes must not read as
+// the API being dead — a restart would not fix it and would cost the wake-up.
+// /health/ready is the one that touches the database and the source counters.
+app.MapHealthChecks("/health", HealthResponse.Options(_ => false));
+app.MapHealthChecks("/health/ready", HealthResponse.Options(r => r.Tags.Contains("ready")));
 
 app.MapControllers();
 
 app.Run();
+
+// Lets WebApplicationFactory<Program> in tests/Api.Tests host the real
+// pipeline; top-level statements otherwise generate an internal Program.
+public partial class Program;

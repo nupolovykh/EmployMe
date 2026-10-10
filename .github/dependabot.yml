@@ -29,20 +29,22 @@ updates:
     commit-message:
       prefix: "build(deps)"
 
-    # EF Core, its Npgsql provider and the pgvector mapping carry version
-    # ranges on each other: the provider's major follows EF Core's, and
-    # Pgvector.EntityFrameworkCore follows the provider. Bumped one at a time
+    # EF Core, its Npgsql provider, the pgvector mapping and the EF Core health
+    # check carry version ranges on each other: the provider's major follows
+    # EF Core's, Pgvector.EntityFrameworkCore follows the provider, and the
+    # health check pulls EF Core at its own version into the test project. Bumped one at a time
     # they leave the rest below what the bumped one demands. No version cap is
     # needed: the project already targets net10.0.
     groups:
       ef-core-and-npgsql:
         patterns:
           - "Microsoft.EntityFrameworkCore*"
+          - "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore"
           - "Npgsql*"
           - "Pgvector*"
       minor-and-patch:
         patterns: ["*"]
-        exclude-patterns: ["Microsoft.EntityFrameworkCore*", "Npgsql*", "Pgvector*"]
+        exclude-patterns: ["Microsoft.EntityFrameworkCore*", "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore", "Npgsql*", "Pgvector*"]
         update-types: ["minor", "patch"]
 
     # Microsoft.AspNetCore.OpenApi 10.0.x requires Microsoft.OpenApi < 3.0.0

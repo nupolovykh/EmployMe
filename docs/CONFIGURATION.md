@@ -35,7 +35,14 @@ environment variables. Array items take an index: `Cors__AllowedOrigins__0`.
 | `Cors__AllowedOrigins__0…n` | `[]` | not needed — the Vite proxy makes it same-origin | `https://employme-4uql.onrender.com` | No cross-origin caller is allowed: the deployed frontend fails with a CORS error. Deliberate — see below |
 | `Ingest__PublicDeployment` | unset → `!IsDevelopment()` | `false` from `appsettings.Development.json` | leave unset → `true` | Resolves to the **strict** mode on any non-Development host |
 | `Ingest__TriggerToken` | none | not needed | secret, set on Render only | On a public deployment `POST /api/ingest` answers `503 Ingest disabled` |
+| `Ingest__Scheduler__Enabled` | `true` | — | — | The in-process scheduler runs (EM-18); `false` for test hosts |
+| `Ingest__Scheduler__Interval` | `00:15:00` | — | — | How often it asks whether a source is due. Not a poll interval: `MinPollInterval` per source still decides |
+| `Ingest__Scheduler__StartupDelay` | `00:00:30` | — | — | Lets the host start before the first tick |
 | `Ingest__MaxPagesPerSource` | `5` | — | — | Bounds paginated sources (Arbeitnow) per run |
+| `Sentry__Dsn`, or `SENTRY_DSN` | empty → Sentry off | unset; from the Dev Container events also need the DSN's ingest host in `init-firewall.sh` | the project's DSN | Sentry stays disabled and logs one warning at start; the host still starts (EM-22) |
+| `RENDER_GIT_COMMIT` | unset | unset | injected by Render on every deploy | Sentry's release is `employme@<assembly version>`, the same for every build; on Render it is `employme@<first 7 characters of the commit>` |
+| `Serilog__MinimumLevel__Default`, `Serilog__MinimumLevel__Override__<namespace>` | `Information`; `Microsoft.AspNetCore`, EF Core commands, `Polly` and `System.Net.Http.HttpClient` at `Warning` | same, from `appsettings.Development.json` | — | Defaults apply. The output format is not a setting: console text in Development, compact JSON elsewhere (EM-21) |
+| `EMPLOYME_TEST_POSTGRES` | unset | the `db` service, from `docker-compose.yml` | — | Tests only (EM-23): the admin connection for integration tests. Unset, Testcontainers starts Postgres where Docker exists; otherwise the integration tests fail with a message saying so |
 | `ASPNETCORE_ENVIRONMENT` | `Production` | `Development` via `launchSettings.json` | unset → `Production` | Decides whether `appsettings.Development.json` loads and whether Swagger is served |
 
 On Render the connection string must be Npgsql's key-value form
@@ -91,6 +98,19 @@ shutdown is graceful.
 
 ---
 
+## GitHub Actions secrets and variables
+
+Set under Settings → Secrets and variables → Actions; read only by workflows.
+
+| Name | Kind | Used by | If missing |
+|---|---|---|---|
+| `INGEST_TRIGGER_TOKEN` | secret | `ingest.yml`, the hourly wake-up ingest (EM-18). Same value as Render's `Ingest__TriggerToken` | The workflow warns and exits without calling the API |
+| `API_URL` | variable | `ingest.yml` | Defaults to `https://employme-api.onrender.com` |
+| `SLACK_WEBHOOK_URL` | secret | `contract.yml` posts a failed nightly contract run there (EM-55); `build.yml` posts a red `main` (EM-25) | No Slack messages: the contract test still opens its GitHub issue, and a red `main` shows only in Actions |
+| `DEPS_PAT` | secret | the dependency workflows — see [`dependency-updates.md`](./dependency-updates.md) | Both fail with 401 |
+
+---
+
 ## Frontend settings
 
 | Variable | When it is read | Value |
@@ -109,7 +129,8 @@ passed as `--build-arg VITE_API_URL=…`.
 - **nothing loads `.env`.** There is no `env_file:` in `docker-compose.yml` and no loader in
   `Program.cs`. Inside the Dev Container the connection string comes from the compose
   `environment:` block, not from `.env`;
-- **`SENTRY_DSN` and `Ollama__BaseUrl` are read by no code yet.** Sentry arrives with Phase II
-  (EM-22), Ollama with Phase III (EM-27).
+- **`SENTRY_DSN` is read from the process environment, not from `.env`.** Putting it in `.env`
+  does nothing; export it in the shell, or set it on Render. `Ollama__BaseUrl` is read by no code
+  yet — Ollama arrives with Phase III (EM-27).
 
 So copying `.env.example` to `.env` is harmless but currently changes nothing.
