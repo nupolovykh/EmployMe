@@ -58,6 +58,38 @@ jobs:
             npm --prefix src/Web run lint
             npm --prefix src/Web run build
 
+      # The step above builds the code but never the image Render deploys, so a
+      # broken Dockerfile, or a package that builds and fails only at start-up
+      # (Swashbuckle 6.6.2 on net10.0), surfaced only on Render. Build the same
+      # image on the runner and start it against a throwaway Postgres: the API
+      # runs its migrations before it listens, so a green /health means the
+      # image starts. The scheduler is off so the run reaches no source.
+      - name: Build and start the API image
+        run: |
+          set -euo pipefail
+          docker network create ci
+          docker run -d --name db --network ci \
+            -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=employme pgvector/pgvector:pg18
+          docker build -t employme-api src/Api
+          for i in $(seq 1 30); do
+            docker exec db pg_isready -U postgres -d employme >/dev/null 2>&1 && break
+            sleep 2
+          done
+          docker run -d --name api --network ci -p 8080:8080 \
+            -e ConnectionStrings__Default="Host=db;Port=5432;Database=employme;Username=postgres;Password=postgres" \
+            -e Ingest__Scheduler__Enabled=false \
+            employme-api
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8080/health; then
+              echo
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::the API image did not answer /health within two minutes"
+          docker logs api
+          exit 1
+
       - name: Keep the test results
         if: always()
         uses: actions/upload-artifact@v7
