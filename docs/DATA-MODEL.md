@@ -107,7 +107,7 @@ Two things the diagram shows that the code does not make obvious:
 
 | Table | Status | What it is |
 |---|---|---|
-| `Sources` | live | The source registry. One row per upstream, carrying its compliance facts (tier, terms, attribution, `PublicDeployEnabled`) and its runtime state (`LastSuccessAt`, `ConsecutiveFailures`). A source is a row plus an adapter class, not an enum (`PLAN.md` §01.6, EM-51) |
+| `Sources` | live | The source registry. One row per upstream, carrying its compliance facts (tier, terms, attribution, `PublicDeployEnabled`) and its runtime state (`LastSuccessAt`, `ConsecutiveFailures`). A source is a row plus an adapter class, not an enum (`PROCESS.md` rule 6, EM-51) |
 | `TargetCompanies` | live | The employers whose ATS boards are fetched. Exists only because Tier A has no search — you can only ask for one company's board by its token (EM-50) |
 | `Vacancies` | live | A posting after mapping: the fields the API filters and returns |
 | `RawPostings` | live | The upstream payload of the **latest** fetch, one row per posting. Lets a mapping bug be replayed from stored JSON instead of re-polling a rate-limited source (EM-58) |

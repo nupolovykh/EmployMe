@@ -1,6 +1,6 @@
 # Frontend
 
-`src/Web` — React 19, TypeScript 6, Vite 8, `oxlint`. One page: the vacancy list with filters and
+`src/Web` — React 19, TypeScript 7, Vite 8, `oxlint`. One page: the vacancy list with filters and
 pagination. No router, no state library, no component library.
 
 ---

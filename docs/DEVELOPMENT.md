@@ -33,6 +33,41 @@ allowlisted, refresh the firewall's IP snapshot and retry:
 sudo bash .devcontainer/init-firewall.sh
 ```
 
+### Traps
+
+Each of these has broken a build or a container start at least once.
+
+- **Postgres 18 volume path.** The `db` service's named volume mounts at `/var/lib/postgresql`,
+  not the old `/var/lib/postgresql/data`. Postgres 18's image moved `PGDATA` to a version-specific
+  path (`/var/lib/postgresql/18/docker`) and declares the parent as its `VOLUME`, for `pg_upgrade`
+  with hard links. Mounted at `.../data`, the volume goes unused, the healthcheck never passes,
+  `depends_on: condition: service_healthy` waits forever, and "Rebuild Container" hangs with no
+  clear error.
+- **Firewall allowlist.** `init-firewall.sh` runs on every start (`postStartCommand`, via `sudo`)
+  and denies outbound traffic except to the domains in its `for domain in …` list: GitHub, npm,
+  NuGet, the Anthropic API, Sentry and the MCP endpoints. A new dependency, MCP server or source
+  domain has to be added there. A spike against a domain that is not listed fails as a network
+  error, which is easy to misread as the source being down.
+- **Rotating CDN addresses.** The script resolves each domain once, at container start, and allows
+  only those addresses. NuGet and npm sit behind CDNs with many edge addresses, so a later request
+  can land on one outside the snapshot and fail with `Network is unreachable` / `EHOSTUNREACH`
+  although the domain is listed. Retry, or refresh the snapshot with the command above. CI retries
+  its downloads the same way.
+- **`net10.0` only.** The container has the .NET 10 SDK and runtime and nothing older. A project
+  targeting `net8.0` builds — compiling needs only reference assemblies — but `dotnet run` fails
+  with "You must install or update .NET to run this application". Package sets need the same proof:
+  Swashbuckle 6.6.2 builds on `net10.0` and throws a `TypeLoadException` only at `dotnet run`. Prove
+  a package change by running the API, not only by building it.
+- **`dotnet run` is always Development.** `Properties/launchSettings.json` sets
+  `ASPNETCORE_ENVIRONMENT`, whatever the shell says. To exercise the production guards (ingest
+  token, Sentry, JSON logs) locally, use `--no-launch-profile` or run the built `Api.dll`. A
+  "Production" run that accepts ingest without a token is this, not a bug.
+- **`.env` is loaded by nothing.** There is no `env_file:` in compose and no loader in code, so
+  the `.env` that `post-create.sh` copies from `.env.example` changes nothing. Inside the
+  container the connection string and Ollama URL come from `docker-compose.yml`'s `environment:`
+  block; `SENTRY_DSN` is read from the process environment. Every setting is in
+  [`CONFIGURATION.md`](./CONFIGURATION.md).
+
 ---
 
 ## Run it
@@ -169,8 +204,7 @@ against an unknown company resolves and verifies the board and inserts the row.
 
 ## Calling the API
 
-Swagger UI (`/swagger`) covers the same calls interactively in Development. `src/Api/Api.http`
-can hold them for the VS Code REST Client / Rider; today it only has `/health`.
+Swagger UI (`/swagger`) covers the same calls interactively in Development.
 
 ### Ingest
 
@@ -251,8 +285,8 @@ Table and column names are PascalCase and must be quoted.
 
 ## Adding a source
 
-A source is a row plus an adapter class (`PLAN.md` §01.6), and no integration is written before
-its spike (§01.2). In order:
+A source is a row plus an adapter class (`PROCESS.md` rule 6), and no integration is written before
+its spike (rule 2). In order:
 
 1. **Spike.** Call the real endpoint, commit the response as `spikes/<source>/response.json` with
    `spikes/<source>/NOTES.md`: URL, date, what came back, the terms-of-use verdict quoting and
@@ -279,7 +313,8 @@ its spike (§01.2). In order:
 ## Containers
 
 The Dev Container has no `docker`/`podman` CLI and no socket, so these run **on the host**. Render
-builds the same Dockerfiles itself; this is for reproducing a deployment problem locally.
+builds `src/Api/Dockerfile` itself; the frontend on Render is a static site and does not use
+`src/Web/Dockerfile` (`DEPLOYMENT.md`). This is for reproducing a deployment problem locally.
 `host.docker.internal` resolves on Docker Desktop; on Linux add `--add-host=host.docker.internal:host-gateway`,
 and with Podman use `host.containers.internal`.
 

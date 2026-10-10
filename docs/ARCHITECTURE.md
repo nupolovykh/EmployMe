@@ -1,7 +1,6 @@
 # Architecture
 
-How EmployMe is put together, and why the non-obvious parts are the way they are. Describes
-`main`.
+How EmployMe is put together, and why the non-obvious parts are the way they are. Describes the code on the branch it is in.
 
 Companion documents: [`DATA-MODEL.md`](./DATA-MODEL.md) for the tables,
 [`CONFIGURATION.md`](./CONFIGURATION.md) for every setting, [`DEVELOPMENT.md`](./DEVELOPMENT.md)
@@ -106,7 +105,7 @@ source with outcome `skipped` and a reason; the others still run.
 | # | Gate | Why it exists |
 |---|---|---|
 | 1 | `Tier` is `C` or `D` → refuse, whatever `Enabled` says | Tier D is never allowed (hh.ru, A-000). Tier C needs an approval the schema cannot record |
-| 2 | `Enabled == false` → skip | Turning a source off is a flipped boolean, not a code change (`PLAN.md` §01.6) |
+| 2 | `Enabled == false` → skip | Turning a source off is a flipped boolean, not a code change (`PROCESS.md` rule 6) |
 | 3 | public deployment and `PublicDeployEnabled == false` → skip | How Himalayas stays off production while technically working |
 | 4 | no `IJobSource` registered for `AdapterType` → skip | A row without an adapter must not crash the run |
 | 5 | `MinPollInterval` since `LastSuccessAt` not elapsed, and not `force` → skip | Jobicy caps polling at once an hour; the interval is per row, never a constant |
@@ -249,12 +248,6 @@ the first differing byte, so response time leaks how much of a guess was right.
 
 ## Deployment
 
-| Piece | Where | Image |
-|---|---|---|
-| API | Render web service `employme-api.onrender.com` | `src/Api/Dockerfile`: SDK stage → `dotnet publish`, runtime on `aspnet:10.0` |
-| Frontend | Render static site `employme-4uql.onrender.com` | `src/Web/Dockerfile` or Render's static build, with `VITE_API_URL` at build time |
-| Database | Neon `eu-central-1`, pgvector 0.8.6 | — |
-
-Both Dockerfiles read `PORT` when the container starts, bind `0.0.0.0`, and the API switches off
-the config file watcher that exhausts inotify on Render's shared hosts — the reasons are under
-"Container settings" in [`CONFIGURATION.md`](./CONFIGURATION.md#container-settings).
+The API runs on Render from `src/Api/Dockerfile`, the frontend is a Render static site built with
+`npm run build`, and Postgres is on Neon. Everything about it — services, staging, the path from
+merge to running service, rollback — is in [`DEPLOYMENT.md`](./DEPLOYMENT.md).
