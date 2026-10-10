@@ -77,7 +77,7 @@ Goal: stops being a script, becomes a service — and gains the immune system Re
 - [x] CI: tests, format check and lint on every PR — EM-24 — #43
 - [x] Slack alerts on a red `main` and a failed contract run — EM-25 — #43
 - [ ] Linear–GitHub automation drags tickets named in a PR title back to In Progress — EM-65
-- [ ] Development rules, Claude's rules and the documentation restructured — EM-66
+- [x] Development rules, Claude's rules and the documentation restructured — EM-66 — #52
 
 **Exit criterion:** the service refreshes on schedule, survives an external API outage without data
 loss, detects an upstream endpoint closure within 24 hours, is covered by tests and CI, and errors
