@@ -1,105 +1,67 @@
 # CLAUDE.md
 
-Guidance for Claude Code (claude.ai/code) working in this repository.
+Entry point for Claude Code in this repository. It holds this project's hard rules, where to read
+before acting, and the environment traps that break a build. Everything else lives in `docs/`.
 
-This file is the entry point, not the whole story: it carries the hard rules and the
-environment gotchas that break a build if you don't know them. Everything narrative lives in
-`docs/`.
+How Claude behaves — mandate, truth, decisions, reporting — is in `.claude/rules/`, a mirror of
+`~/.claude/rules/`. What Claude may do freely and what needs the maintainer's yes is enforced by
+`.claude/settings.json` and `.claude/hooks/guard.py`, mirrors of their `~/.claude` originals. A
+session-start check warns when the mirrors drift; `~/.claude` is the reference copy.
 
-## Documents
+## Before you act, read
 
-Read the one that governs what you are about to touch. These are binding, not background.
-
-| Document | Governs |
+| Before you… | Read |
 |---|---|
-| [`docs/CONVENTIONS.md`](./docs/CONVENTIONS.md) | **Naming — branches, commits, PRs, issues — and which merge method each kind of PR uses. Follow it for anything you name or merge.** |
-| [`docs/REPOSITORY.md`](./docs/REPOSITORY.md) | GitHub-side configuration that cannot be committed: rulesets, merge settings, what is deliberately not used. |
-| [`docs/dependency-updates.md`](./docs/dependency-updates.md) | How Dependabot updates reach `main` through the bot-only `deps` branch. Never commit to `deps` by hand. |
-| [`docs/PLAN.md`](./docs/PLAN.md) | Phased roadmap, §01 process rules, per-phase exit criteria. Its checkboxes are the source of truth for what is actually done. |
-| [`docs/SOURCES.md`](./docs/SOURCES.md) | Source registry: tiers, endpoints, auth, rate limits, terms of use, verification level, disqualified sources. |
-| [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md) | Assumption register: every load-bearing claim with a verification level (`assumed` → `docs` → `spike` → `live`), blast radius, fallback, expiry. |
-| [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | How the code is put together: the ingest run gate by gate, adapters, the read path, ingest auth, `Program.cs` decisions, deployment. |
-| [`docs/DATA-MODEL.md`](./docs/DATA-MODEL.md) | The schema: ERD, constraints and what each prevents, seeded data, migration history. Update it in the same PR as any migration. |
-| [`docs/CONFIGURATION.md`](./docs/CONFIGURATION.md) | Every setting the API and frontend read, per environment, and what happens when it is missing. |
-| [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md) | Runbook: running, migrations, adding a target company or a source, calling the API, containers. |
-| [`docs/FRONTEND.md`](./docs/FRONTEND.md) | `src/Web`: reading order, `App.tsx`, what each npm command does, known limitations. |
-| [`README.md`](./README.md) | The pitch, for a human landing on the repo. |
-
-`docs/SOURCES.md` and `docs/ASSUMPTIONS.md` must be updated alongside any source work — a source
-change that touches neither is incomplete.
+| name a branch, write a PR title, merge | `docs/CONVENTIONS.md` |
+| start, finish or tick anything; fix, hotfix; check by hand | `docs/PROCESS.md` |
+| assume a feature or service exists | `docs/PLAN.md` checkboxes |
+| touch a source, an adapter or a poll interval | `docs/SOURCES.md`, `docs/ASSUMPTIONS.md` — update both with the change |
+| write a migration | `docs/DATA-MODEL.md` — update it in the same PR |
+| touch configuration or an environment variable | `docs/CONFIGURATION.md` |
+| touch deployment, Render, Neon, Sentry or staging | `docs/DEPLOYMENT.md` |
+| run, test or add something locally | `docs/DEVELOPMENT.md` |
+| change `src/Web` | `docs/FRONTEND.md` |
+| change how the code fits together | `docs/ARCHITECTURE.md` |
+| change GitHub settings, rulesets or labels | `docs/REPOSITORY.md` |
+| touch dependency updates or the `deps` branch | `docs/dependency-updates.md` |
 
 ## Project
 
-EmployMe (working title) — a personal job vacancy aggregator that ingests postings from employers'
-own ATS boards (Tier A: Greenhouse, Lever, Ashby, Workable, Recruitee, Personio) and public
-remote-job APIs (Tier B: Himalayas, Jobicy, Remotive, RemoteOK, Arbeitnow), ranks them against the
-author's own CV via semantic embeddings, deduplicates cross-source postings, and tracks the
-application pipeline (viewed → applied → interview → rejected → offer). A portfolio project that
-also drives the author's actual job search.
-
-Layout: `src/Api` (ASP.NET Core Web API + EF Core), `src/Web` (React + TS + Vite), `spikes/<source>/`
-(committed live responses that qualify a source), `docs/` (everything above). Postgres with
-`pgvector` and Ollama run as compose services. Render hosts the deployed API and frontend and
-Neon the deployed Postgres, Sentry is the error monitor and Linear the backlog — all outside the container; see `docs/PLAN.md`'s tooling map.
+EmployMe — a personal job-vacancy aggregator. It ingests postings from employers' own ATS boards
+(Tier A) and public remote-job APIs (Tier B), and is planned to rank them against the author's CV,
+deduplicate them across sources and track applications. Layout: `src/Api` (ASP.NET Core + EF
+Core), `src/Web` (React + TypeScript + Vite), `tests/Api.Tests`, `spikes/<source>/`, `docs/`.
 
 ## Hard rules
 
-- **hh.ru is Tier D: never re-add it, and never enable a Tier D source in a deployed environment.**
-  `docs/PLAN.md` is at Revision 2 because Revision 1 was built on hh.ru and falsified — 403 to
-  unauthorized callers since April 2026, *and* a developer agreement forbidding transfer of
-  retrieved data to third parties, a legal ground that survives any technical workaround. The
-  post-mortem is Linear EM-9 and `docs/ASSUMPTIONS.md` entry A-000.
-- **Follow the phase gate.** Each phase must be working — and where applicable deployed — before
-  the next starts. Don't build Phase III semantic-layer work ahead of a deployed Phase I.
-- **§01 process rules bind Claude too.** Evidence over assertion: a claim about an external service
-  needs a URL, a date and a live response. No integration is scheduled without a committed
-  `spikes/<source>/response.json` and a terms-of-use verdict. A checkbox needs a link to a commit,
-  PR or CI run — unpushed work is In Review, not Done. No phase may depend on a single external
-  source (N≥3).
-- **Poll intervals come from `sources.min_poll_interval`, never a constant.** Jobicy caps polling
-  at once per hour and ignoring it gets the project banned.
-- **Never assume a feature or service exists.** Check `docs/PLAN.md`'s checkboxes first.
-- **Never merge into `main` or a `*/phase-*` branch without the maintainer's explicit go-ahead for
-  that pull request.** Claude works through the maintainer's own GitHub token, so GitHub cannot
-  tell the two apart and no ruleset can make Claude wait for an approval. Open the PR, wait for
-  `build`, report, and stop. Approving a plan or saying "continue" is not a go-ahead to merge.
+- **hh.ru is Tier D: never re-add it, and never enable a Tier D source in a deployed
+  environment.** Its API refuses unauthorised callers and its terms forbid passing data to third
+  parties (`ASSUMPTIONS.md` A-000).
+- **Follow the phase gate and the process rules** in `docs/PROCESS.md`; they bind Claude too.
+- **Poll intervals come from `sources.min_poll_interval`, never a constant.** Jobicy allows one
+  poll an hour and bans projects that ignore it.
+- **Do not assume a feature or service exists** — check the `PLAN.md` checkboxes.
 
-## Dev environment
+## Environment traps
 
-This project is developed inside a Dev Container (`.devcontainer/`) — do not assume tools are available outside it.
+Details and the reasons for each are in `docs/DEVELOPMENT.md` → "Traps".
 
-- `devcontainer.json` provisions .NET 10 SDK, Node 24, GitHub CLI, and Claude Code (via `ghcr.io/anthropics/devcontainer-features/claude-code`) as devcontainer features.
-- `docker-compose.yml` defines three services: `app` (the workspace container), `db` (`pgvector/pgvector:pg18`, port 5432, user/pass `postgres`/`postgres`, database `employme`), and `ollama` (port 11434). **The `db` service's named volume mounts at `/var/lib/postgresql`, not the old `/var/lib/postgresql/data` convention** — Postgres 18's official image relocated `PGDATA` to a version-specific path (`/var/lib/postgresql/18/docker`) and changed its declared `VOLUME` to the parent dir to support fast `pg_upgrade` via hard-links. Mounting at the old `.../data` path leaves the volume unused, so the healthcheck never passes and `depends_on: condition: service_healthy` blocks forever — "Rebuild Container" hangs with no clear error. Don't revert this to `.../data`.
-- `post-create.sh` runs once on container creation: fixes bind-mount/volume ownership for the `vscode` user, copies `.env.example` → `.env` if missing, runs `dotnet tool update --global dotnet-ef`, and runs `npm install` in `src/Web` if it exists.
-- `init-firewall.sh` runs on every container start (`postStartCommand`, via `sudo`) and applies a default-deny outbound firewall with an explicit domain allowlist (GitHub, npm, NuGet, Anthropic API, Sentry, and the MCP endpoints `mcp.linear.app` / `mcp.slack.com` / `mcp.sentry.dev` / `mcp.railway.com`). **If a new external dependency or MCP server is added, its domain must be added to the `for domain in ...` list in this script**, or outbound traffic to it will be silently rejected. This applies to every source domain in `docs/SOURCES.md` — a spike against a source whose domain is not allowlisted fails as a network error, which is easy to misread as the source being unavailable.
-- Config: inside the container the connection string and Ollama URL come from `docker-compose.yml`'s `environment:` block (`db`/`ollama` hostnames). **Nothing on `main` loads `.env`** — no `env_file:` in compose, no loader in code — so `.env` (copied from `.env.example` by `post-create.sh`) currently changes nothing. `SENTRY_DSN` is read from the process environment — export it, or set it on Render; `Ollama__BaseUrl` is read by no code yet. The Tier A and Tier B sources in the MVP are public and keyless, so no source credentials exist. Every setting is listed in `docs/CONFIGURATION.md`.
-- **Keep every `.csproj`'s `TargetFramework` on `net10.0`, matching the SDK `devcontainer.json` provisions.** Only the .NET 10 SDK/runtime is installed (no `net8.0` runtime) — a project targeting `net8.0` builds fine (compiling only needs reference assemblies) but fails at `dotnet run` with "You must install or update .NET to run this application." `src/Api/Api.csproj` hit exactly this after being scaffolded before the SDK was bumped from 8 to 10; it's been retargeted and its EF Core/Npgsql/Swashbuckle packages bumped to versions that actually support `net10.0` (Swashbuckle 6.6.2 throws a `TypeLoadException` on `net10.0` — only a `dotnet run`, not `dotnet build`, surfaces that, so build success alone doesn't prove a package set is compatible).
-- **NuGet/npm/marketplace CDN domains in the firewall allowlist can be intermittently unreachable even though they're on the list.** `init-firewall.sh` resolves each domain to whatever IP(s) `dig` returns *once*, at container start, and allowlists only those. Domains like `api.nuget.org` are served by Akamai/Fastly with many rotating edge IPs, so a later request can land on an IP outside that snapshot and get dropped ("Network is unreachable" / `EHOSTUNREACH`) even though the domain itself is allowed. This has been observed causing a `dotnet restore` to fail outright. It's usually transient — retry the command a few times, or re-run `sudo bash .devcontainer/init-firewall.sh` to refresh the snapshot — not a sign the allowlist is missing the domain.
-
+- Work inside the Dev Container; tools are not assumed to exist outside it.
+- The `db` volume mounts at `/var/lib/postgresql`, not `.../data` (Postgres 18). Do not revert it.
+- A new external domain must go into `init-firewall.sh`'s `for domain in …` list, or calls to it
+  fail as network errors that look like an unavailable source.
+- `Network is unreachable` on NuGet/npm with the domain allowlisted: retry, or
+  `sudo bash .devcontainer/init-firewall.sh`.
+- Keep every `TargetFramework` on `net10.0`, and prove a package change with `dotnet run`, not
+  only `dotnet build`.
+- `dotnet run --project src/Api` is always Development; use `--no-launch-profile` to exercise the
+  production guards. Nothing loads `.env`.
 
 ## Commands
 
 ```bash
-# Backend — build/run/migrate
 dotnet build EmployMe.sln
 dotnet run --project src/Api
-dotnet ef database update --project src/Api   # dotnet-ef installed globally by post-create.sh
-
-# Frontend — dev server proxies /api/* to http://localhost:5000 (see src/Web/vite.config.ts),
-# so run the API alongside it for vacancy data to load.
-cd src/Web && npm install && npm run dev
+dotnet test tests/Api.Tests --filter "Category!=Contract"   # what CI runs
+cd src/Web && npm install && npm run dev                    # proxies /api to :5000
 ```
-
-```bash
-# Tests — tests/Api.Tests (xUnit). Integration tests need a Postgres: EMPLOYME_TEST_POSTGRES
-# (set by docker-compose.yml to the db service, since the container has no Docker socket) or
-# Testcontainers where Docker exists. Each test creates and drops its own database.
-dotnet test tests/Api.Tests --filter "Category!=Contract"   # what CI runs on every PR
-dotnet test tests/Api.Tests --filter "Category=Contract"    # live endpoints — nightly only;
-                                                            # hits Jobicy, capped at 1/hour
-```
-
-- **`dotnet run --project src/Api` always runs as Development**, whatever `ASPNETCORE_ENVIRONMENT`
-  says: `Properties/launchSettings.json` sets it. To exercise the public-deployment guards (ingest
-  token, Sentry, JSON logs) locally, pass `--no-launch-profile` or run the built `Api.dll`
-  directly. A "Production" run that still accepts ingest without a token is this, not a bug.
