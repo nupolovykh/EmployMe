@@ -1,7 +1,7 @@
 # Configuration
 
 Every setting the API and the frontend read, where each one comes from in each environment, and
-what happens when it is missing. Describes `main`.
+what happens when it is missing. Describes the code on the branch it is in.
 
 ---
 
@@ -44,6 +44,12 @@ environment variables. Array items take an index: `Cors__AllowedOrigins__0`.
 | `Serilog__MinimumLevel__Default`, `Serilog__MinimumLevel__Override__<namespace>` | `Information`; `Microsoft.AspNetCore`, EF Core commands, `Polly` and `System.Net.Http.HttpClient` at `Warning` | same, from `appsettings.Development.json` | — | Defaults apply. The output format is not a setting: console text in Development, compact JSON elsewhere (EM-21) |
 | `EMPLOYME_TEST_POSTGRES` | unset | the `db` service, from `docker-compose.yml` | — | Tests only (EM-23): the admin connection for integration tests. Unset, Testcontainers starts Postgres where Docker exists; otherwise the integration tests fail with a message saying so |
 | `ASPNETCORE_ENVIRONMENT` | `Production` | `Development` via `launchSettings.json` | unset → `Production` | Decides whether `appsettings.Development.json` loads and whether Swagger is served |
+
+**Staging** (`EmployMe.Api.Staging`, `DEPLOYMENT.md`) differs from the Render column only in:
+`ASPNETCORE_ENVIRONMENT=Staging`, which behaves like Production — there is no
+`appsettings.Staging.json`, so the token is required, logs are JSON, Swagger is off and Sentry
+tags events `Staging`; a connection string to the Neon `staging` branch over the direct host; its
+own `Ingest__TriggerToken`; and no `Cors__AllowedOrigins__0`, because there is no staging frontend.
 
 On Render the connection string must be Npgsql's key-value form
 (`Host=…;Database=…;Username=…;Password=…`), **not** the `postgresql://…` URI Neon shows — Npgsql
