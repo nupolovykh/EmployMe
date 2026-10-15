@@ -86,3 +86,6 @@ Thumbs.db
 
 # Test results written by dotnet test in CI
 TestResults/
+
+# Personal notes and session transcripts (docs/PROCESS.md, "Housekeeping")
+notes/

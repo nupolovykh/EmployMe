@@ -1,37 +1,26 @@
 <!--
-  Kept deliberately short. Delete any section that does not apply, but do not
-  delete the Evidence section — PLAN.md §01 makes it the point of the template.
+  Title (checked by CI, docs/CONVENTIONS.md):
+    EM-<n>: …   ·   Fix: EM-<n> - …   ·   Hotfix: EM-<n> - …   ·   Phase <N>: … (no ticket ids)
+  Labels: one type/*, one or more area/*. Milestone: the phase.
 -->
-
-<!-- Title: `Phase <phase>: EM-<tickets> <summary>` — see docs/CONVENTIONS.md. -->
 
 ## What and why
 
-<!-- One paragraph. What changes, and which problem it solves. -->
+<!-- One paragraph: what changes and which problem it solves. -->
 
 **Linear:** EM-
-**Phase:** <!-- 0 / I / II / III / IV / V — must match the milestone on this PR -->
+
+## How to check manually
+
+<!-- Steps the maintainer runs or clicks, and what each should show. A phase PR holds the combined
+     plan, run on staging (docs/DEPLOYMENT.md). -->
+
+1.
 
 ## Evidence
 
-<!--
-  PLAN.md §01.1 and §01.3: a claim about an external service needs a URL, a date
-  and a live response; a completed checkbox needs a link to a commit, PR or CI run.
-  Fill in what applies:
--->
-
-- Commands run and their result (build / migration / spike):
-- CI run:
-- For work touching an external source: `spikes/<source>/response.json` committed, live-tested on YYYY-MM-DD, HTTP status:
-- Terms-of-use verdict (quote + link), if a source is added, enabled or re-tiered:
-
-## Source and assumption bookkeeping
-
-- [ ] `docs/SOURCES.md` updated (tier, endpoint, rate limit, ToU verdict, verification level) — or N/A
-- [ ] `docs/ASSUMPTIONS.md` updated (new/changed assumption, verification level, blast radius, fallback, expiry) — or N/A
-- [ ] `PLAN.md` checkboxes updated with links to the evidence above — or N/A
-- [ ] No Tier D source is enabled anywhere in this diff
-- [ ] New outbound domain? added to the allowlist in `.devcontainer/init-firewall.sh` — or N/A
+- Ran: <!-- commands, live checks and what they showed; the CI run -->
+- Updated: <!-- PLAN tick with this PR's number, SOURCES/ASSUMPTIONS, DATA-MODEL, firewall allowlist — or N/A; never a Tier D source enabled -->
 
 ## Risk and rollback
 
