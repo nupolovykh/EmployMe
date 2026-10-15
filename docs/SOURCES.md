@@ -24,25 +24,15 @@ against it.
 | `spike` | A real request was made and `spikes/<source>/response.json` is committed, alongside a `NOTES.md` carrying the terms-of-use verdict. |
 | `live` | An adapter runs against it in a deployed environment and the nightly contract test covers it. |
 
-**Phase gate:** Phase I may not start with fewer than four sources at level `spike`, at least
-two of them Tier A, at least four cleared for public display.
+**Reaching `live`.** A source moves to `live` when the nightly contract test
+(`tests/Api.Tests/Contract/SourceContractTests.cs`, scheduled by `.github/workflows/contract.yml`)
+has run green on a schedule on `main` — a test only ever run by hand is not yet the detector
+`PROCESS.md` rule 7 asks for. Greenhouse, Lever, Jobicy and Arbeitnow have run deployed since
+2026-08-28 and passed the contract test by hand on 2026-09-18; they stay at `spike` until that
+first scheduled run. A new adapter's slug goes into the test's rows, or the source is not watched.
 
-**On `live`, as of 2026-09-18 (EM-55, In Review):** the nightly contract test exists —
-`tests/Api.Tests/Contract/SourceContractTests.cs`, scheduled by `.github/workflows/contract.yml` —
-and covers Greenhouse, Lever, Jobicy and Arbeitnow from the rows the migrations seed. All four
-have run deployed since 2026-08-28 and all four passed the contract test from inside the Dev
-Container on 2026-09-18. They move to `live` **when the workflow's first scheduled run on `main`
-is green**, not before: a test that has only ever been run by hand is not yet the detector rule 7
-asks for. Adding a source to the adapter set means adding its slug to that test's rows, or it
-will not be watched.
-
-**Status as of 2026-08-26 (EM-45–49 spikes run): gate met.** 5/5 sources reached `spike`
-(technical) — Greenhouse, Lever, Himalayas, Jobicy, Arbeitnow, 2 of them Tier A. 4/5 are cleared
-for public display: **Greenhouse, Lever, Jobicy, Arbeitnow.** Himalayas is the one exception —
-**not cleared**, its terms explicitly require prior written approval (found live during the
-spike) — and stays excluded from both the adapter set and the "cleared" count until that
-approval exists. All three gate sub-conditions (≥4 spike, ≥2 Tier A, ≥4 cleared for public
-display) are satisfied without Himalayas.
+**Cleared for public display today:** Greenhouse, Lever, Jobicy, Arbeitnow. Himalayas and Ashby are
+not.
 
 ---
 
@@ -59,8 +49,8 @@ that is the verification level.
 | **C** | Requires registration, an API key, or partner approval before use. | Medium. Usable, but access is revocable by a third party and gated on an account. Out of scope for the MVP. |
 | **D** | Restricted or disqualified: the terms forbid redisplay on a public deployment, or access has been closed. | Unacceptable for this project's premise. **`public_deploy_enabled` is false. A Tier D connector is never enabled in a deployed environment.** |
 
-**Blast-radius rule (N≥3):** no phase may depend on a single external source. The MVP ships with
-at least four connectors across at least two tiers.
+No phase depends on a single external source (`PROCESS.md` rule 5): production runs four
+connectors across two tiers.
 
 ---
 
@@ -143,11 +133,8 @@ register when a company in the target registry actually uses one.
 
 ## Tier B — Public remote-job APIs
 
-**Adapter types, 2026-08-26 (EM-53):** the three rows below previously read
-`json_api`. That was a placeholder — the three payload shapes have nothing in
-common (`jobs[]` vs `data[]`, `id` vs `slug` as the external id, different field
-names throughout), so each source now names its own adapter class. `json_api`
-no longer appears in this file.
+Each source has its own adapter class: the payload shapes share nothing (`jobs[]` vs `data[]`,
+`id` vs `slug` as the external id).
 
 Searchable, but each one imposes conditions. **Every condition below is a display condition, not
 a nicety** — see EM-54.
@@ -166,12 +153,9 @@ a nicety** — see EM-54.
 **Resolved by the spike:** rate limit still not exposed via headers (429 behavior unconfirmed);
 refresh cadence is 24h per the OpenAPI spec, so `min_poll_interval` = 24h.
 
-**Display condition — do not trust the line below, kept for history.** ~~visible link back to
-himalayas.app plus a source credit~~ — **wrong.** `himalayas.app/terms`, read live 2026-08-26,
-explicitly bars scraping/redistribution "without Himalayas' prior written approval." See
-`spikes/himalayas/NOTES.md` for the quotes. **`public_deploy_enabled` must stay `false` for this
-source until written approval exists.** Do not build EM-53's Himalayas adapter against this
-source before that happens.
+**Display condition: not cleared.** `himalayas.app/terms`, read live 2026-08-26, bars scraping and
+redistribution "without Himalayas' prior written approval" (quotes in `spikes/himalayas/NOTES.md`).
+**`public_deploy_enabled` stays `false` and no adapter is built until written approval exists.**
 
 ### Jobicy
 
@@ -187,9 +171,8 @@ source before that happens.
 
 **Binding constraint: polling must not exceed once per hour.** This lives in
 `sources.min_poll_interval` and the scheduler reads it from there, never from a constant. A
-scheduler that ignores it gets us banned. (Jobicy's own docs page 404'd when re-checked
-2026-08-26 — the 1h figure carries forward from the original desk research, not re-confirmed
-today.)
+scheduler that ignores it gets us banned. The one-hour figure comes from desk research; Jobicy's
+docs page returned 404 when checked on 2026-08-26, so it has not been re-confirmed.
 
 **Display condition, confirmed live from the API's own `friendlyNotice` field (stronger than a
 scraped terms page):** Jobicy stays named as the original source, and application buttons must
@@ -302,13 +285,8 @@ sponsorship. "Remote (EU only)" is a rejection, not a match, however good the st
 companies stay recorded with a reason rather than being silently dropped, so they aren't
 re-evaluated later.
 
-**Growth mechanism — resolved 2026-08-26, hybrid (revises the original "30 up front" scope):**
-collecting 30 companies before any spike ran was backwards — EM-45/46's spikes had no registry to
-draw from yet and ended up validated against whatever token answered (GitLab, Palantir), not
-against a real target. The model instead is a **small live-verified seed now, organic growth
-after**: enough real companies to unblock the Tier A spikes with genuine evidence (3 per ATS, not
-30), then every further entry comes from an application actually being sent — a company is never
-collected speculatively.
+**Growth:** a small live-verified seed — three companies per ATS — then one entry per application
+actually sent. A company is never collected speculatively. (Why: `history/2026-08-27-phase-0-exit.md`.)
 
 **Seed batch — verified live 2026-08-26** (`SeedGreenhouseLeverTargetCompanies` migration):
 
@@ -332,12 +310,9 @@ its whole inventory across a handful of `?page=` calls.
 |---|---|---|---|---|
 | Sezzle | Greenhouse | `sezzle` | 183 | Real junior-level hiring ("Junior Software Engineer", "Software Engineer II") on a genuine per-country remote model (Argentina/Brazil/Chile/Colombia/Mexico/Turkey/Poland/India/Venezuela) — the closest structural match found to date. Georgia is not one of the listed countries as of this check. Revisit if that changes. |
 
-Found while mining leftover verification data from an earlier, since-abandoned blind company
-search (not a resumption of batch collection — see the growth-mechanism note above). Two other
-candidates from that search were excluded without a DB row, on principle rather than a point-in-
-time hiring fact: GitLab (a Greenhouse spike fixture from EM-45, not a vetted target — see the
-exclusion criteria in Linear EM-50) and Jobgether (its Lever board turned out to be a staffing
-agency posting unrelated client roles, not a single employer).
+Excluded without a row, on principle rather than a point-in-time hiring fact: GitLab (a Greenhouse
+spike fixture from EM-45, not a vetted target — exclusion criteria in Linear EM-50) and Jobgether
+(its Lever board is a staffing agency posting unrelated client roles, not a single employer).
 
 `HiringGeo` has no value for "remote in a specific country list that doesn't include Georgia" —
 Sezzle's row uses `GlobalRemote` as the closest fit; the real nuance is in the `why_target` text,

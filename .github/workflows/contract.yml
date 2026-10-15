@@ -1,6 +1,6 @@
 name: Source contract
 
-# PLAN.md §01 rule 7, "detection, not hope" (EM-55): every night each enabled
+# PROCESS.md rule 7, "detection, not hope" (EM-55): every night each enabled
 # source's real adapter runs against its real endpoint, from the rows the
 # migrations seed, and must still yield postings it can map. An upstream that
 # closes, moves or changes shape fails this within 24 hours.

@@ -65,12 +65,9 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 
 ### A-002 — Lever postings API is public, unauthenticated, and displayable
 
-- **Level:** `spike` (2026-08-26, **re-run 2026-08-27**, EM-46). `spikes/lever/response.json` +
-  `NOTES.md` committed. The original sample was `GET /v0/postings/palantir?mode=json` → `200`,
-  305 postings — but `palantir` was a guessed token and is excluded from the registry as a
-  prestige-filtered employer, so the spike was re-run against EM-50's three live-verified tokens:
-  `qonto` → `200`/40, `remofirst` → `200`/1, `peerspace` → `200`/3, for 44 postings across three
-  boards.
+- **Level:** `spike` (2026-08-27, EM-46). `spikes/lever/response.json` + `NOTES.md` committed,
+  against EM-50's three live-verified tokens: `qonto` → `200`/40, `remofirst` → `200`/1,
+  `peerspace` → `200`/3, 44 postings across three boards.
   (Also confirmed a valid *empty* response — `lever` and `plaid` site tokens returned `200` with
   `[]` — worth handling as a non-error case in the adapter, not retried as a failure. Note the
   spread: one board of 40 and one of 1 in the same registry, so "the board is live" and "the board
@@ -90,16 +87,13 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 - **Level:** `spike` (2026-08-26, EM-47) for the technical claim. `spikes/himalayas/
   response.json` + `NOTES.md` committed: live `GET /jobs/api` → `200`, cursor-paginated,
   `totalCount` 100,592.
-- **Blast radius:** medium. One of two Tier B adapters in the MVP.
-- **Legal status: FALSIFIED, not just unverified.** `https://himalayas.app/terms`, read live on
-  2026-08-26, explicitly bars scraping/data-mining/redistribution **"without Himalayas' prior
-  written approval"** — a real quote, not an inference. Nothing in the API's own OpenAPI spec
-  carves the `/jobs/api` endpoint out of that restriction. This directly contradicts what this
-  entry previously assumed ("displayable with attribution") — that claim was `docs`-level,
-  inferred from the tier's general pattern, and turned out wrong on inspection. **Do not set
-  `public_deploy_enabled = true` for this source without Himalayas' written approval.** This is
-  the same failure shape as A-000 (hh.ru) at smaller scale, caught before an adapter was written
-  instead of after.
+- **Blast radius:** none today — the row is seeded disabled and no adapter class exists.
+- **Legal status: FALSIFIED.** `https://himalayas.app/terms`, read live on 2026-08-26, bars
+  scraping, data-mining and redistribution **"without Himalayas' prior written approval"**, and
+  nothing in the API's OpenAPI spec carves `/jobs/api` out of it. The "displayable with
+  attribution" in this entry's title was a `docs`-level inference from the tier's general pattern;
+  the spike falsified it before an adapter was written — the same failure shape as A-000, caught
+  early. **Do not set `public_deploy_enabled = true` without Himalayas' written approval.**
 - **Resolved specifics:** rate limit still not exposed via headers; refresh cadence is 24h per
   the OpenAPI spec (`min_poll_interval` should be set to 24h, not the CDN's 2h cache window);
   attribution wording is moot until the approval question is resolved.
@@ -117,25 +111,26 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
   original job URL — which the `url` field already provides directly. Stronger evidence than a
   scraped ToS page, since Jobicy states it on every call.
 - **The constraint that bites:** polling faster than hourly risks a ban. It lives in
-  `sources.min_poll_interval` and the scheduler reads it from there — never a constant. Jobicy's
-  own docs page (`jobi.cy/apidocs`) 404'd when checked live — the 1h figure is carried forward
-  from the original desk research, not re-confirmed today; flagged as a small follow-up, not a
-  blocker.
-- **Fallback:** Himalayas (A-003, currently blocked) plus Arbeitnow (A-005).
+  `sources.min_poll_interval` and the scheduler reads it from there — never a constant. The
+  one-hour figure comes from desk research; Jobicy's docs page (`jobi.cy/apidocs`) returned 404
+  when checked on 2026-08-26, so it has not been re-confirmed.
+- **Fallback:** Arbeitnow (A-005); Himalayas only with written approval (A-003).
 - **Expiry:** 22 Feb 2027.
 
 ### A-005 — Arbeitnow's job-board API is free, keyless, and displayable
 
 - **Level:** `spike` (2026-08-26, EM-49). `spikes/arbeitnow/response.json` + `NOTES.md`
   committed: live `GET /api/job-board-api` → `200`, 175 real postings on page 1.
-- **Blast radius:** low. Phase I follow-on (EM-19), not an MVP dependency.
+- **Blast radius:** medium. One of the two Tier B adapters in production; it replaced Himalayas
+  in the MVP set (EM-53).
 - **Legal status: cleared.** The "no terms found during desk research" gap is resolved: the
   standalone `/terms` page is client-rendered JS (unfetchable via plain `curl` from this
   environment), but the API response itself carries `meta.terms` (live quote in `NOTES.md`):
   free public API, don't abuse it, link-back appreciated, full site ToS incorporated by
   reference. Pagination (`?page=`) and refresh cadence (hourly, per `meta.info`) are both
   resolved the same way — stated directly in the live response.
-- **Fallback:** drop EU/DACH coverage from Phase I; the two Tier B MVP adapters stand alone.
+- **Fallback:** Jobicy alone at Tier B. With Greenhouse and Lever, N≥3 still holds; EU/DACH
+  coverage is what is lost.
 - **Expiry:** 22 Feb 2027.
 
 ### A-006 — Remotive permits redisplay with credit and a link back
@@ -169,8 +164,8 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
   that sentence addresses the Ashby *customer* publishing their own jobs, not a third party
   aggregating other companies' boards. Greenhouse (A-001) was cleared on wording about what
   *callers* may build; this is narrower. Absence of permission is not permission, and A-003 is the
-  precedent for not treating technical success as qualification. **EM-19 stays blocked** under §01
-  rule 2 until this resolves.
+  precedent for not treating technical success as qualification. **EM-19 stays blocked** under
+  `PROCESS.md` rule 2 until this resolves.
 - **What the spike did settle — the reason it was run:** compensation. A-009 measured salary
   coverage at 0% on Greenhouse and 0% on Lever across 1,021 postings. Ashby carries it on **74 of
   78 postings (94%)**, with **73 (93%)** structured as an annual salary with min, max and currency
@@ -236,10 +231,6 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 - **Level:** `live` (2026-08-28, EM-17). Both services deployed and exercised end to end:
   `employme-api.onrender.com/health` → `200`, `/api/vacancies` serving real rows from Neon,
   `employme-4uql.onrender.com` serving the built frontend with the API's origin compiled in.
-- **Why it exists at all:** this register had ten entries and every one of them was about a job
-  source or the semantic layer. Nothing recorded what the project *runs on*, so "we can host this
-  for nothing" sat unexamined until the Railway trial expired and it failed by surprise. The gap
-  was in the register's coverage, not in any one claim.
 - **What was verified live, not read off a pricing page:**
   - Neon runs Postgres 18.6. `employme_owner` is **not** a superuser and `CREATE EXTENSION vector`
     still succeeds — pgvector 0.8.6. Every migration applies, `Embeddings.Vector` lands as a real
@@ -252,28 +243,21 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 - **Blast radius:** medium. Losing it costs the deployment, not the data: Neon holds the database
   and Render builds from the repository, so both sides are re-creatable from what is committed.
 - **The two costs accepted with open eyes:**
-  - The API sleeps after 15 minutes idle and takes about a minute to wake. Tolerable while ingest
-    is manual; it stops being tolerable at EM-18, when a scheduler needs a host that stays up.
+  - The API sleeps after 15 minutes idle and takes about a minute to wake. Scheduled ingest routes
+    around it: an hourly GitHub Actions cron wakes the instance (A-014).
   - Neon's free plan is 0.5 GB and suspends compute after 5 minutes, which cannot be disabled.
-    The unbounded-growth defect this originally recorded is fixed (EM-58): `RawPostings` now keeps
-    one row per posting rather than one per fetch, verified by three consecutive full runs leaving
-    the count unchanged at 1,730 (`created=0, updated=999` on the third).
-    **The steady-state figure first written here was wrong.** It assumed the table would settle at
-    the size of the catalogue, ~1,000 rows. It does not: upstream boards rotate, so the table is
-    bounded by *distinct postings ever seen*, which keeps growing — 995 rows on 28 Aug, 1,730 by
-    31 Aug, because Jobicy serves only its newest 100 and Arbeitnow's 650 turn over. Growth is now
-    proportional to how much the job market moves rather than to how often we poll it, which is
-    what makes hourly scheduling safe; it is not zero. At 15 MB for 1,730 rows the 0.5 GB plan
-    holds on the order of 50,000 distinct postings, and a Phase II decision about pruning postings
+    `RawPostings` keeps one row per posting, not one per fetch (EM-58; three consecutive full runs
+    left the count at 1,730). The table is bounded by *distinct postings ever seen*, not by the
+    catalogue's size: boards rotate — 995 rows on 28 Aug, 1,730 by 31 Aug, because Jobicy serves
+    only its newest 100 and Arbeitnow's 650 turn over. Growth follows how much the job market
+    moves, not how often we poll, which is what makes hourly scheduling safe; it is not zero. At
+    15 MB per 1,730 rows the plan holds on the order of 50,000 distinct postings; pruning postings
     that have disappeared upstream will eventually be needed.
 - **Fallback:** Railway Hobby at $5/mo, which removes the sleep and raises storage to 5 GB. The
   Dockerfiles carry no host-specific assumption — the entrypoint reads `PORT` at start — so
   moving is a re-point, not a rewrite.
-- **Expiry:** ~~on EM-18 start, when "does not sleep" becomes a functional requirement rather than
-  a convenience.~~ **Reached 2026-09-18, EM-18.** The sleep was not fought; it was routed around —
-  a GitHub Actions cron calls the manual ingest endpoint hourly, which wakes the instance and runs
-  the ingest under the same interval rules (A-014). "Does not sleep" is therefore still not a
-  requirement, and Render Free stays. New expiry: when A-014 is falsified, or 28 Feb 2027.
+- **Expiry:** when A-014 is falsified, or 28 Feb 2027. (The previous expiry, EM-18, was reached on
+  2026-09-18: `history/2026-09-18-scheduler-assumptions.md`.)
 
 ### A-012 — A session-scoped advisory lock gives ingest mutual exclusion per source
 
@@ -294,16 +278,12 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 - **Fallback:** move the claim out of the session and into state — an `ingest_started_at` column
   with a stale-claim timeout. It survives reconnects because it is a row rather than a session, and
   it needs no held connection, which also resolves A-013. One piece of work answers both.
-- **Expiry:** ~~**EM-18.** A scheduler firing while a manual run is in flight makes concurrent runs
-  routine rather than accidental, which is the point at which "except across a reconnect" stops
-  being an acceptable qualifier.~~ **Reached 2026-09-18, EM-18, and the lock was kept.** The
-  scheduler runs `force=false`, so a scheduled tick that overlaps a manual run is refused by the
-  lock, and one that lands during a lapsed lock is still refused by `min_poll_interval` unless the
-  manual run was itself forced *and* has not yet stamped `LastSuccessAt` *and* the connection
-  reconnected mid-run. That is three conditions, the third rare, on a source polled once an hour.
-  The claim-column fallback remains the answer if it is ever observed; the integration tests
-  (EM-23) now pin the skipped/due/forced behaviour, so a change of design has a harness. New
-  expiry: the first observed double fetch in the Serilog stream, or 28 Feb 2027.
+- **Why it holds with the scheduler running:** the scheduler runs `force=false`, so a tick that
+  overlaps a manual run is refused by the lock, and one that lands during a lapsed lock is still
+  refused by `min_poll_interval` — unless the manual run was forced *and* had not yet stamped
+  `LastSuccessAt` *and* its connection reconnected mid-run. The integration tests (EM-23) pin the
+  skipped/due/forced behaviour, so a change of design has a harness.
+- **Expiry:** the first observed double fetch in the Serilog stream, or 28 Feb 2027.
 
 ### A-013 — Holding one Neon connection for the duration of an ingest run is affordable
 
@@ -316,12 +296,10 @@ continuously for `live` sources, and expiry dates matter mainly for the ones it 
 - **Blast radius:** the API, not the ingest. Connection exhaustion surfaces as failed *user*
   requests — the site erroring while a background job holds what it needs.
 - **Fallback:** the claim-column design in A-012's fallback, which holds no connection at all.
-- **Expiry:** ~~**EM-18.** Scheduled ingest running alongside user traffic on the same Neon ceiling is
-  when this gets tested for real.~~ **Reached 2026-09-18, EM-18 — still `assumed`, and the window
-  got longer.** EM-20's retry pipeline can hold a fetch for up to 120 s per request (30 s attempts,
-  three retries, `Retry-After` capped at 30 s), all of it inside the held connection. Nothing was
-  measured; the measurement described below is still the way to close this. New expiry: the first
-  hourly `ingest.yml` run that coincides with browsing, or 31 Oct 2026.
+- **The window is longer than it was:** EM-20's retry pipeline can hold a fetch for up to 120 s
+  per request (30 s attempts, three retries, `Retry-After` capped at 30 s), all of it inside the
+  held connection.
+- **Expiry:** the first hourly `ingest.yml` run that coincides with browsing, or 31 Oct 2026.
 - **How to measure it rather than argue about it:** Render exposes `active_connections` for the Neon
   instance. A full four-source run while the site is being browsed gives the actual peak, and turns
   this entry from `assumed` into `live` or into a falsification.

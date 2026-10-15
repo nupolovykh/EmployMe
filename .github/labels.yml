@@ -1,7 +1,7 @@
 # Label taxonomy for nupolovykh/EmployMe — the source of truth.
 #
 # Labels are versioned here rather than clicked into the GitHub UI, for the same
-# reason sources are rows and not an enum (PLAN.md §01.6): the configuration is
+# reason sources are rows and not an enum (PROCESS.md rule 6): the configuration is
 # reviewable, diffable and recoverable.
 #
 # Applied by .github/workflows/labels.yml on every push to this file.
@@ -62,4 +62,4 @@
   description: Waiting on something outside this repository
 - name: status/needs-evidence
   color: "F9D0C4"
-  description: Fails the PLAN.md §01 evidence rule — a claim here has no URL, date or live response
+  description: Fails the PROCESS.md evidence rule — a claim here has no URL, date or live response

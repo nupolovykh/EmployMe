@@ -106,7 +106,7 @@ source with outcome `skipped` and a reason; the others still run.
 | # | Gate | Why it exists |
 |---|---|---|
 | 1 | `Tier` is `C` or `D` → refuse, whatever `Enabled` says | Tier D is never allowed (hh.ru, A-000). Tier C needs an approval the schema cannot record |
-| 2 | `Enabled == false` → skip | Turning a source off is a flipped boolean, not a code change (`PLAN.md` §01.6) |
+| 2 | `Enabled == false` → skip | Turning a source off is a flipped boolean, not a code change (`PROCESS.md` rule 6) |
 | 3 | public deployment and `PublicDeployEnabled == false` → skip | How Himalayas stays off production while technically working |
 | 4 | no `IJobSource` registered for `AdapterType` → skip | A row without an adapter must not crash the run |
 | 5 | `MinPollInterval` since `LastSuccessAt` not elapsed, and not `force` → skip | Jobicy caps polling at once an hour; the interval is per row, never a constant |
