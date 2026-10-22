@@ -1,7 +1,5 @@
 # EmployMe — Personal Job Vacancy Aggregator
 
-*(working title)*
-
 A personal tool that collects job postings from employers' own ATS boards and from public
 remote-job APIs, and — in the phases still ahead — ranks them against my own CV, collapses
 duplicates across sources and tracks my applications.
@@ -33,7 +31,8 @@ Generic aggregators show the same list to everyone. This one is meant to be pers
 - A nightly contract test against every live source, so an upstream endpoint that closes shows up
   within a day.
 
-Deployed on Render and Neon. Status per item: [`docs/PLAN.md`](./docs/PLAN.md).
+Deployed on Render and Neon: <https://employme-4uql.onrender.com> — the first request after idle
+takes ~20–30 s. Status per item: [`docs/PLAN.md`](./docs/PLAN.md).
 
 ## Planned
 
